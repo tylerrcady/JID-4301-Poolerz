@@ -5,6 +5,7 @@ interface LoginProps {
 }
 
 const SignIn: React.FC<LoginProps> = ({ userId }) => {
+    const callbackUrl = "/";
     return (
         <div>
             <span className="text-sm mr-5">{userId ? userId : "N/A"}</span>
@@ -14,7 +15,7 @@ const SignIn: React.FC<LoginProps> = ({ userId }) => {
                     if (userId) {
                         await signOut();
                     } else {
-                        await signIn("google");
+                        await signIn("google", { callbackUrl });
                     }
                 }}
                 className="cursor-pointer text-sm mr-5"
