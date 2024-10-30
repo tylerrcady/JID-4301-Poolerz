@@ -4,7 +4,7 @@ import React from "react";
 const Test: React.FC = () => {
     return (
         <div>
-            <h1>[Test Component]</h1>
+            <h1>[Test Component v500]</h1>
         </div>
     );
 };
