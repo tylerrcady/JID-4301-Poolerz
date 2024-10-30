@@ -12,4 +12,7 @@ const Main: React.FC<MainProps> = ({ userId }) => {
     );
 };
 
+import Test from "./test"
+<Test/>
+
 export default Main;
