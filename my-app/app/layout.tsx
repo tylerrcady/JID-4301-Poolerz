@@ -15,7 +15,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
     title: "Poolerz",
-    description: "Designed by JDA 4301",
+    description: "Designed by JDA 4301.",
 };
 
 export default function RootLayout({
