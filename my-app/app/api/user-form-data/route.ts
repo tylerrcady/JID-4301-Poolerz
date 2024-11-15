@@ -79,7 +79,7 @@ export async function GET(request: Request) {
         }
 
         // GET the data
-        const userFormData = await getUserFormData(userId); // currently returns "none" if none
+        const userFormData = await getUserFormData(userId); // currently returns "" if none
 
         // return success/failure
         if (userFormData == "" || userFormData) {

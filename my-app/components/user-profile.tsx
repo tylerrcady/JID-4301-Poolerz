@@ -30,7 +30,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId }) => {
                     data && data.userFormData
                         ? data.userFormData.userFormData
                         : ""
-                ); // update variable with returned data
+                ); // update variable with returned data if any exists
             } else {
                 console.error("Failed to fetch data:", response.statusText);
             }
