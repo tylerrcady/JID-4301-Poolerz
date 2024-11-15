@@ -79,10 +79,10 @@ export async function GET(request: Request) {
         }
 
         // GET the data
-        const userFormData = await getUserFormData(userId);
+        const userFormData = await getUserFormData(userId); // currently returns "none" if none
 
         // return success/failure
-        if (userFormData) {
+        if (userFormData == "" || userFormData) {
             return new Response(JSON.stringify({ userFormData }), {
                 status: 200,
             });
