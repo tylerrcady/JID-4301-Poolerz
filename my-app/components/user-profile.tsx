@@ -95,6 +95,15 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     <div className="w-[447.40px] text-[#e50606] text-base font-normal font-['Open Sans']">
                         Log out
                     </div>
+                    <div className="w-[447.40px] text-[#e50606] text-base font-normal font-['Open Sans']">
+                        <Button
+                            text="Log Out"
+                            type="logout"
+                            onClick={() => "/"}
+                        >
+                            Log Out
+                        </Button>
+                    </div>
                 </div>
             </div>
             <div className="flex-col justify-center items-start gap-11 inline-flex">
