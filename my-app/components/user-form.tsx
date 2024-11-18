@@ -173,6 +173,9 @@ const UserForm: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1); // Start with page 1
     const [numChildren, setNumChildren] = useState<number>(0); // Number of children
     const [childrenNames, setChildrenNames] = useState<string[]>([]); // Array to store children's names
+    const [carCapacity, setCarCapacity] = useState<number>(0); // Total car capacity
+    const [availabilities, setAvailabilities] = useState<{ day: string; timeRange: string }[]>([]); // Array to store availabilities
+
 
     // Handle changes for the number of children
     const handleNumChildrenChange = (value: string) => {
@@ -188,6 +191,26 @@ const UserForm: React.FC = () => {
         const updatedNames = [...childrenNames];
         updatedNames[index] = value;
         setChildrenNames(updatedNames);
+    };
+
+    // Handle car capacity input
+    const handleCarCapacityChange = (value: string) => {
+        const capacity = parseInt(value, 10);
+        if (!isNaN(capacity) && capacity >= 0) {
+            setCarCapacity(capacity);
+        }
+    };
+
+    // Add a new availability entry
+    const addAvailability = () => {
+        setAvailabilities((prev) => [...prev, { day: "", timeRange: "" }]);
+    };
+
+    // Update a specific availability entry
+    const updateAvailability = (index: number, key: "day" | "timeRange", value: string) => {
+        const updatedAvailabilities = [...availabilities];
+        updatedAvailabilities[index][key] = value;
+        setAvailabilities(updatedAvailabilities);
     };
 
     // Move to the next page
@@ -246,6 +269,75 @@ const UserForm: React.FC = () => {
                     </button>
                 </>
             )}
+
+            {currentPage === 3 && (
+                <>
+                    <h1 className="text-2xl font-bold mb-4">Enter Car Details</h1>
+                    <input
+                        type="number"
+                        placeholder="Enter car capacity"
+                        className="border mb-4 p-2 w-full"
+                        onChange={(e) => handleCarCapacityChange(e.target.value)}
+                    />
+
+                    <h2 className="text-xl font-bold mb-4">Add Availability</h2>
+                    <button
+                        className="px-4 py-2 bg-green-500 text-white rounded w-full mb-4"
+                        onClick={addAvailability}
+                    >
+                        Add Availability
+                    </button>
+
+                    {availabilities.map((availability, index) => (
+                        <div key={index} className="mb-4">
+                            <label className="block text-sm font-medium mb-2">Day</label>
+                            <select
+                                className="border p-2 w-full mb-2"
+                                value={availability.day}
+                                onChange={(e) =>
+                                    updateAvailability(index, "day", e.target.value)
+                                }
+                            >
+                                <option value="">Select a day</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+
+                            <label className="block text-sm font-medium mb-2">Time Range</label>
+                            <input
+                                type="text"
+                                placeholder="Enter time range (e.g., 9 AM - 5 PM)"
+                                className="border p-2 w-full"
+                                value={availability.timeRange}
+                                onChange={(e) =>
+                                    updateAvailability(index, "timeRange", e.target.value)
+                                }
+                            />
+                        </div>
+                    ))}
+
+                    <button
+                        className="px-4 py-2 bg-blue-500 text-white rounded w-full"
+                        onClick={() => {
+                            console.log("Form submitted:", {
+                                numChildren,
+                                childrenNames,
+                                carCapacity,
+                                availabilities,
+                            });
+                            alert("Form submitted! Check the console for details.");
+                        }}
+                    >
+                        Submit
+                    </button>
+                </>
+            )}
+
         </div>
     );
 };
