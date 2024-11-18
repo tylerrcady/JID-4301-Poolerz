@@ -1,6 +1,6 @@
 interface Props {
     text: string;
-    type?: "primary" | "secondary" | "tertiary";
+    type?: "primary" | "secondary" | "logout";
     onClick?: () => any;
     submit?: boolean;
     icon?: React.ReactNode;
@@ -25,16 +25,18 @@ interface Props {
       styles =
         "text-base font-opensans text-icon-blue px-4 pt-2";
     } else {
-      styles = `text-blue px-4 pt-2 pb-[0.5625rem] text-base font-opensans rounded gap-2 hover:text-lightblue active:text-blue`;
+      styles = `text-blue pt-2 pb-[0.5625rem] text-base font-opensans rounded gap-2 hover:text-lightblue active:text-blue`;
       if (type === "primary") {
         styles += " border";
+      } else if (type === "logout") {
+        styles = `text-red pt-2 pb-[0.5625rem] text-base font-opensans rounded gap-2 hover:text-darkred active:text-red`;
       }
     }
   
     return (
       <button
         onClick={onClick}
-        className={`flex w-full items-center justify-center font-semibold ${styles}`}
+        className={`flex w-full items-start justify-start font-semibold ${styles}`}
         disabled={disabled}
         type={submit ? "submit" : "button"}
         style={{ width }}

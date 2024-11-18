@@ -12,12 +12,14 @@ const config: Config = {
                 background: "var(--background)",
                 foreground: "var(--foreground)",
                 blue: "#4B859F",
-                lightblue: "A5C2CF",
+                lightblue: "#A5C2CF",
                 yellow: "#FECC01",
                 p: "#FFBFA0",
                 d: "#282936",
                 white: "#FFFFFF",
-                gray: "#666666"
+                gray: "#666666",
+                red: "#E60606",
+                darkred: "#7d0101"
             },
         },
     },
