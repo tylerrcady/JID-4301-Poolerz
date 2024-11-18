@@ -21,6 +21,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 console.log("User found:", userId);
 
                 session.user.id = userId ? userId._id.toString() : "";
+                session.user.name = userId ? userId.name.toString() : "";
+                session.user.email = userId ? userId.email.toString() : "";
+                
+                
                 console.log("Session callback completed");
                 return session;
             } catch (error) {
