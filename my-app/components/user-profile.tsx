@@ -51,21 +51,15 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     }, [userId, handleUserFormGet]);
 
     return (
-        /*        
-            <div className="flex items-center justify-center flex-col h-full w-full bg-w p-5 overflow-y-auto">
-            <h1>profile for {userId}</h1>
-            {!isLoading && <span>{userFormData}</span>}
-            {isLoading && <span>loading</span>}
-        </div>
- */
-        <div className="h-[698px] justify-start items-start gap-11 inline-flex">
-            <div className="flex-col justify-start items-start gap-[35px] inline-flex">
-                <div className="w-[575px] h-[392px] px-[34px] py-[25px] bg-white rounded-md shadow flex-col justify-start items-start gap-[25px] flex">
+        <div className="h-[127.1vh] justify-start items-start gap-11 inline-flex">
+            <div className="flex-col justify-start items-start gap-[1vw] inline-flex">
+                {/*Profile Section*/}
+                <div className="w-[40vw] h-[52vh] px-[2.7vw] py-[4.5vh] bg-white rounded-md shadow flex-col justify-start items-start gap-[4.5vh] flex">
                     <div className="justify-center items-center gap-7 inline-flex">
-                        <div className="w-[426px] text-blue text-2xl font-bold font-['Open Sans']">
+                        <div className="w-[29vw] text-blue text-2xl font-bold font-['Open Sans']">
                             My Profile
                         </div>
-                        <div className="h-[22px] relative flex items-center gap-2 cursor-pointer">
+                        <div className="h-[4vh] relative flex items-center gap-2 cursor-pointer">
                             <Button
                                 icon={<EditIcon />}
                                 text="Edit"
@@ -77,25 +71,18 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                         </div>
                     </div>
                     <div className="self-stretch grow shrink basis-0 relative">
-                        <div className="w-[431.81px] left-0 top-0 absolute text-black text-2xl font-bold font-['Open Sans']">
-                            {name}
-                        </div>
-                        <div className="w-[447.40px] left-[-0px] top-[43.40px] absolute text-gray text-xl font-normal font-['Open Sans']">
-                            {email}
-                        </div>
+                        <div className="w-[33.7vw] left-0 top-0 absolute text-black text-2xl font-bold font-['Open Sans']">{name}</div>
+                        <div className="w-[35vw] left-[-0vw] top-[5vh] absolute text-gray text-xl font-normal font-['Open Sans']">{email}</div>
                     </div>
                     <div className="self-stretch grow shrink basis-0 relative">
-                        <div className="w-[431.81px] left-0 top-0 absolute text-black text-xl font-bold font-['Open Sans']">
+                        <div className="w-[33.7vw] left-0 top-0 absolute text-black text-xl font-bold font-['Open Sans']">
                             Role
                         </div>
-                        <div className="w-[447.40px] left-0 top-[31px] absolute text-gray text-base font-normal font-['Open Sans']">
+                        <div className="w-[35vw] left-0 top-[5vh] absolute text-gray text-base font-normal font-['Open Sans']">
                             Parent
                         </div>
                     </div>
-                    <div className="w-[447.40px] text-[#e50606] text-base font-normal font-['Open Sans']">
-                        Log out
-                    </div>
-                    <div className="w-[447.40px] text-[#e50606] text-base font-normal font-['Open Sans']">
+                    {/*<div className="w-[447.40px] text-[#e50606] text-base font-normal font-['Open Sans']">
                         <Button
                             text="Log Out"
                             type="logout"
@@ -103,17 +90,18 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                         >
                             Log Out
                         </Button>
-                    </div>
+                    </div>*/}
                 </div>
             </div>
             <div className="flex-col justify-center items-start gap-11 inline-flex">
-                <div className="w-[575px] h-[327px] px-[33.60px] py-[25.20px] bg-white rounded-md shadow flex-col justify-start items-start gap-[25.20px] flex">
-                    <div className="h-[286.60px] flex-col justify-start items-start gap-[19px] flex">
+                {/*Family Section*/}
+                <div className="w-[40vw] h-[52vh] px-[2.7vw] py-[4.5vh] bg-white rounded-md shadow flex-col justify-start items-start gap-[4.5vh] flex">
+                    <div className="h-[52vh] flex-col justify-start items-start gap-[1.5vw] flex">
                         <div className="justify-center items-center gap-7 inline-flex">
-                            <div className="w-[399px] text-blue text-2xl font-bold font-['Open Sans']">
+                            <div className="w-[29vw] text-blue text-2xl font-bold font-['Open Sans']">
                                 Family
                             </div>
-                            <div className="h-[22px] relative flex items-center gap-2 cursor-pointer">
+                            <div className="h-[4vh] relative flex items-center gap-2 cursor-pointer">
                                 <Button
                                     icon={<AddIcon />}
                                     text="Add"
@@ -145,9 +133,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                         </div>
                     </div>
                 </div>
-                <div className="w-[575px] h-[327px] px-[33.60px] py-[25.20px] bg-white rounded-md shadow flex-col justify-start items-start gap-[25.20px] flex">
-                    <div className="flex-col justify-start items-start gap-[19px] flex">
-                        <div className="w-[426px] text-blue text-2xl font-bold font-['Open Sans']">
+                {/*Availability Section*/}
+                <div className="w-[40vw] h-[52vh] px-[2.7vw] py-[4.5vh] bg-white rounded-md shadow flex-col justify-start items-start gap-[4.5vh] flex">
+                    <div className="flex-col justify-start items-start gap-[1.5vw] flex">
+                        <div className="w-[29vw] text-blue text-2xl font-bold font-['Open Sans']">
                             Driving Availability
                         </div>
                     </div>
