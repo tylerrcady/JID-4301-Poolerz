@@ -169,6 +169,7 @@
 
 import React, { useState } from "react";
 
+
 const UserForm: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1); // Start with page 1
     const [numChildren, setNumChildren] = useState<number>(0); // Number of children
@@ -196,7 +197,7 @@ const UserForm: React.FC = () => {
     // Handle car capacity input
     const handleCarCapacityChange = (value: string) => {
         const capacity = parseInt(value, 10);
-        if (!isNaN(capacity) && capacity >= 0) {
+        if (!isNaN(capacity) && capacity >= 0 && capacity <= 10) {
             setCarCapacity(capacity);
         }
     };
@@ -212,6 +213,22 @@ const UserForm: React.FC = () => {
         updatedAvailabilities[index][key] = value;
         setAvailabilities(updatedAvailabilities);
     };
+
+    // ! This is an alternative way to update the availability fields, with annie suggestions which I can't figure out yet
+    // // Update day for a specific availability
+    // const updateAvailabilityDay = (index: number, days: string[]) => {
+    //     const updatedAvailabilities = [...availabilities];
+    //     updatedAvailabilities[index].day = days;
+    //     setAvailabilities(updatedAvailabilities);
+    // };
+
+    // // Update time range for a specific availability
+    // const updateAvailabilityTimeRange = (index: number, timeRange: string) => {
+    //     const updatedAvailabilities = [...availabilities];
+    //     updatedAvailabilities[index].timeRange = timeRange;
+    //     setAvailabilities(updatedAvailabilities);
+    // };
+
 
     // Move to the next page
     const handleContinue = () => {
@@ -272,7 +289,7 @@ const UserForm: React.FC = () => {
 
             {currentPage === 3 && (
                 <>
-                    <h1 className="text-2xl font-bold mb-4">Enter Car Details</h1>
+                    <h1 className="text-2xl font-bold mb-4">Enter Car Capacity</h1>
                     <input
                         type="number"
                         placeholder="Enter car capacity"
