@@ -112,6 +112,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                 </Button>
                             </div>
                         </div>
+                        {/*no children info has been converted to vhvw bc I'll need to take out this section anyway after we fix the form */}
                         <div className="w-[476.20px] h-[107.80px] relative">
                             <div className="w-[431.81px] left-0 top-0 absolute text-black text-2xl font-bold font-['Open Sans']">
                                 Child A
