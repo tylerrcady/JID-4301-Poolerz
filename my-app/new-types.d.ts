@@ -1,5 +1,11 @@
-//global database schema types
+interface Availability {
+    day: string;
+    timeRange: string;
+}
+
 interface UserFormData {
-    wakeup: string;
-    bedtime: string;
+    numChildren: number;
+    children: { name: string }[];
+    carCapacity: number;
+    availabilities: Availability[];
 }
