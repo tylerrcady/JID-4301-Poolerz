@@ -136,7 +136,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
             {currentPage === 2 && (
                 <>
                     <h1 className="text-2xl font-bold mb-4">
-                        Enter your child's names
+                        Enter your child&apos;s names
                     </h1>
                     {userFormData.children.map((child, index) => (
                         <div key={index} className="mb-4">
