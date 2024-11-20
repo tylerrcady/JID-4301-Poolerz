@@ -91,7 +91,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             <div className="w-3/4 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                 <div className="justify-between items-center gap-7 flex">
                     <div className="text-blue text-2xl font-bold">Family</div>
-                    <div className="relative flex items-center gap-2 cursor-pointer">
+                    <div className="flex items-center gap-2 cursor-pointer">
                         <Button
                             icon={<AddIcon />}
                             text="Add"
