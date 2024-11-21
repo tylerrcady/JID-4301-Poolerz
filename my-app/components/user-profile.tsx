@@ -70,14 +70,18 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     const handleSave = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`/api/update-user-profile`, {
+            const response = await fetch(`/api/user-form-data`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    userId,
+                    userFormData,
+                }),
             });
             if (response.ok) {
+                console.log('User data saved successfully!');
                 setIsEditing(false);
                 handleUserFormGet();
             } else {
@@ -85,8 +89,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             }
         } catch (error) {
             console.error("Error saving data:", error);
-        }
+        } finally {
         setIsLoading(false);
+        }
     };
 
 
@@ -148,21 +153,32 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                 </div>
                             )}
                         </div>
-                        {/*no children info has been converted to vhvw bc I'll need to take out this section anyway after we fix the form */}
                         <div>
                             {userFormData && userFormData.children.map((child, index) => (
-                                <div key={index}>
-                                    <div className="text-black text-2xl font-bold">
-                                        <p>{child.name}</p>
+                                <div key={index} className="flex flex-col gap-4">
+                                    <div className="text-black text-xl font-bold">
+                                        {isEditing ? (
+                                            <TextInput
+                                                currentValue={child.name}
+                                                onChange={(value) => {
+                                                    const updatedChildren = [...userFormData.children];
+                                                    updatedChildren[index].name = value;
+                                                    setUserFormData({ ...userFormData, children: updatedChildren });
+                                                }}  
+                                                placeholder="Enter child's name"
+                                            />
+                                        ) : (
+                                            <p>{child.name}</p>
+                                        )}
                                     </div>
-                                    <div className="flex-col justify-start items-start gap-2.5">
+                                    {/*<div className="flex-col justify-start items-start gap-2.5">
                                         <div className="text-gray text-xl font-normal">
                                             Centerville Choir Group
                                         </div>
                                         <div className="text-gray text-xl font-normal">
                                             Fairport High Cross Country
                                         </div>
-                                    </div>
+                                    </div>*/}
                                 </div>
                             ))}
                         </div>
