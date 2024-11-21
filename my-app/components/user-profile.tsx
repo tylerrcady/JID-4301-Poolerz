@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import Button from "@components/atoms/Button";
+import Button from "@components/atoms/button";
 import EditIcon from "@components/icons/EditIcon";
 import AddIcon from "@components/icons/AddIcon";
+
+import TextInput from "@components/atoms/text-input";
+import BackButton from "@components/atoms/back-button";
 
 interface UserProfileProps {
     userId: string | undefined;
@@ -15,6 +18,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     // state variables
     const [userFormData, setUserFormData] = useState<UserFormData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState({
+        name: name || "",
+        email: email || "",
+    });
 
     // GET user-form-data handler
     const handleUserFormGet = useCallback(async () => {
@@ -50,79 +58,122 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
         handleUserFormGet();
     }, [userId, handleUserFormGet]);
 
+    const handleEdit = () => {
+        setIsEditing(!isEditing);
+    };
+
+    const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSave = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`/api/update-user-profile`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+            if (response.ok) {
+                setIsEditing(false);
+                handleUserFormGet();
+            } else {
+                console.error("Failed to save data:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Error saving data:", error);
+        }
+        setIsLoading(false);
+    };
+
+
     return (
         // do not change the first div at all
         <div className="flex items-center flex-col h-full w-full bg-w p-5 overflow-y-auto gap-4">
-            {/*Profile Section*/}
-            <div className="w-3/4 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
-                <div className="justify-between items-center gap-7 flex">
-                    <div className="text-blue text-2xl font-bold">
-                        My Profile
-                    </div>
-                    <div className="flex items-center gap-2 cursor-pointer">
-                        <Button
-                            icon={<EditIcon />}
-                            text="Edit"
-                            type="secondary"
-                            onClick={() => "/"}
-                        >
-                            Edit
-                        </Button>
-                    </div>
-                </div>
-                <div className="break-all">
-                    <div className="text-black text-2xl font-bold">{name}</div>
-                    <div className="text-gray text-xl font-normal">{email}</div>
-                </div>
-                <div className="break-all">
-                    <div className="text-black text-xl font-bold">Role</div>
-                    <div className="text-gray text-base font-normal">
-                        Parent
-                    </div>
-                </div>
-                {userFormData && (
-                    <div>
-                        <p>Number children: {userFormData.numChildren}</p>
-                        <p>Car capacity: {userFormData.carCapacity}</p>
-                    </div>
-                )}
-            </div>
-            {/*Family Section*/}
-            <div className="w-3/4 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
-                <div className="justify-between items-center gap-7 flex">
-                    <div className="text-blue text-2xl font-bold">Family</div>
-                    <div className="flex items-center gap-2 cursor-pointer">
-                        <Button
-                            icon={<AddIcon />}
-                            text="Add"
-                            type="secondary"
-                            onClick={() => "/"}
-                        >
-                            Add
-                        </Button>
-                    </div>
-                </div>
-                {/*no children info has been converted to vhvw bc I'll need to take out this section anyway after we fix the form */}
-                <div>
-                    <div className="text-black text-2xl font-bold">Child A</div>
-                    <div className="flex-col justify-start items-start gap-2.5">
-                        <div className="text-gray text-xl font-normal">
-                            Centerville Choir Group
+            <div className="flex w-full justify-center gap-6">
+                {/*Left Side*/}
+                <div className="flex flex-col gap-4 w-2/5">
+                    {/*Profile Section*/}
+                    <div className="h-auto p-6 bg-white rounded-md shadow flex-col gap-4 flex">
+                        <div className="justify-between items-center gap-7 flex">
+                            <div className="text-blue text-2xl font-bold">
+                                My Profile
+                            </div>
+                            <div className="flex items-center gap-2 cursor-pointer">
+                                <Button
+                                    text={"Edit"}
+                                    type="secondary"
+                                >
+                                    Edit
+                                </Button>
+                            </div>
+                        </div>               
+                        <div className="break-all">
+                            <div className="text-black text-2xl font-bold">{name}</div>
+                            <div className="text-gray text-xl font-normal">{email}</div>
                         </div>
-                        <div className="text-gray text-xl font-normal">
-                            Fairport High Cross Country
-                        </div>
+                        {userFormData && (
+                            <div className="break-all">
+                                <div className="text-black text-xl font-bold">Number of Children</div>
+                                <div className="text-gray text-base font-normal">{userFormData.numChildren}</div>
+                            </div>
+                        )}
+                        {userFormData && (
+                            <div className="break-all">
+                                <div className="text-black text-xl font-bold">Car Capacity</div>
+                                <div className="text-gray text-base font-normal">{userFormData.carCapacity}</div>
+                            </div>
+                        )}
                     </div>
                 </div>
-                <div>
-                    <div className="text-black text-2xl font-bold">Child B</div>
-                </div>
-            </div>
-            {/*Availability Section*/}
-            <div className="w-3/4 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
-                <div className="flex-col justify-start items-start flex">
-                    <div className="text-blue text-2xl font-bold">
-                        Driving Availability
+                {/*Right Side */}  
+                <div className="flex flex-col gap-6 w-2/5">
+                    {/*Family Section*/}
+                    <div className="h-auto p-6 bg-white rounded-md shadow flex-col gap-4 flex">
+                        <div className="justify-between items-center gap-7 flex">
+                            <div className="text-blue text-2xl font-bold">Family</div>
+                            {isEditing ? (
+                                <div className="flex items-center gap-2 cursor-pointer">   
+                                    <div className="flex gap-6">
+                                        <Button text="Cancel" type="cancel" onClick={handleEdit} />
+                                        <Button text="Save" type="primary" onClick={handleSave} />
+                                    </div>
+                                </div> 
+                            ) : (
+                                <div className="flex items-center gap-2 cursor-pointer">
+                                     <Button text="Edit" type="secondary" onClick={handleEdit} />
+                                </div>
+                            )}
+                        </div>
+                        {/*no children info has been converted to vhvw bc I'll need to take out this section anyway after we fix the form */}
+                        <div>
+                            {userFormData && userFormData.children.map((child, index) => (
+                                <div key={index}>
+                                    <div className="text-black text-2xl font-bold">
+                                        <p>{child.name}</p>
+                                    </div>
+                                    <div className="flex-col justify-start items-start gap-2.5">
+                                        <div className="text-gray text-xl font-normal">
+                                            Centerville Choir Group
+                                        </div>
+                                        <div className="text-gray text-xl font-normal">
+                                            Fairport High Cross Country
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    {/*Availability Section*/}
+                    <div className="h-auto p-6 bg-white rounded-md shadow flex-col gap-4 flex">
+                        <div className="flex-col justify-start items-start flex">
+                            <div className="text-blue text-2xl font-bold">
+                                Driving Availability
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

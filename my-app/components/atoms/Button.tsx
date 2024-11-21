@@ -1,6 +1,6 @@
 interface Props {
     text: string;
-    type?: "primary" | "secondary" | "logout";
+    type?: "primary" | "secondary" | "cancel";
     onClick?: () => any;
     submit?: boolean;
     icon?: React.ReactNode;
@@ -23,13 +23,11 @@ interface Props {
   
     if (disabled) {
       styles =
-        "text-base font-opensans text-icon-blue px-4 pt-2";
+        "text-base font-opensans text-blue px-4 pt-2";
     } else {
-      styles = `text-blue pt-2 pb-[0.5625rem] text-base font-opensans rounded gap-2 hover:text-lightblue active:text-blue`;
-      if (type === "primary") {
-        styles += " border";
-      } else if (type === "logout") {
-        styles = `text-red pt-2 pb-[0.5625rem] text-base font-opensans rounded gap-2 hover:text-darkred active:text-red`;
+      styles = `text-blue pt-2 text-base font-opensans rounded gap-2 hover:text-lightblue active:text-blue`;
+    if (type === "cancel") {
+        styles = `text-black pt-2 text-base font-opensans rounded gap-2 hover:text-darkred active:text-black`;
       }
     }
   
