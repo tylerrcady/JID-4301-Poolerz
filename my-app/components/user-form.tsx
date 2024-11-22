@@ -130,7 +130,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                             <label className="text-black text-lg font-semibold">
                                 How many children do you have?
                             </label>
-                            <div className="w-100 h-10 px-5 py-5 bg-white justify-center items-center gap-[6.72px] flex">
+                            <div className="w-auto h-5 px-4 py-10 bg-white justify-center items-center gap-4 flex">
                                 <NumberInput
                                     onChange={(e) =>
                                         handleNumChildrenChange(e)
