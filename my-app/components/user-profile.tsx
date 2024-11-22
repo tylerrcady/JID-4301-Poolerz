@@ -122,7 +122,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                 <div className="flex items-center gap-2 cursor-pointer">   
                                     <div className="flex gap-6">
                                         <Button text="Cancel" type="cancel" onClick={handleEditProfile} />
-                                        <Button text="Save" type="primary" onClick={handleSave} />
+                                        <Button text="Save" type="secondary" onClick={handleSave} />
                                     </div>
                                 </div> 
                             ) : (
@@ -174,7 +174,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                 <div className="flex items-center gap-2 cursor-pointer">   
                                     <div className="flex gap-6">
                                         <Button text="Cancel" type="cancel" onClick={handleEditFamily} />
-                                        <Button text="Save" type="primary" onClick={handleSave} />
+                                        <Button text="Save" type="secondary" onClick={handleSave} />
                                     </div>
                                 </div> 
                             ) : (
@@ -221,7 +221,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                 <div className="flex items-center gap-2 cursor-pointer">   
                                     <div className="flex gap-6">
                                         <Button text="Cancel" type="cancel" onClick={handleEditAvailability} />
-                                        <Button text="Save" type="primary" onClick={handleSave} />
+                                        <Button text="Save" type="secondary" onClick={handleSave} />
                                     </div>
                                 </div> 
                             ) : (

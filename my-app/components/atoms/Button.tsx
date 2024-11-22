@@ -26,9 +26,13 @@ export default function Button({
         "text-base font-opensans text-blue px-4 pt-2";
     } else {
       styles = `text-blue pt-2 text-base font-opensans rounded gap-2 hover:text-lightblue active:text-blue`;
-    if (type === "cancel") {
-        styles = `text-black pt-2 text-base font-opensans rounded gap-2 hover:text-darkred active:text-black`;
-      }
+        if (type === "primary") {
+            styles = `text-black pt-2 text-base font-opensans rounded gap-2 hover:text-darkred active:text-black`;
+            styles += " border";
+        }
+        if (type === "cancel") {
+            styles = `text-black pt-2 text-base font-opensans rounded gap-2 hover:text-darkred active:text-black`;
+        }
     }
 
     return (
