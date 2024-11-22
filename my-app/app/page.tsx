@@ -10,7 +10,7 @@ export default async function Home() {
         <div className="flex items-center justify-between h-screen flex-col bg-w text-d">
             <Header userId={session?.user?.id} />
             {session?.user?.id ? (
-                <Main userId={session?.user?.id} />
+                <Main userName={session?.user?.name} />
             ) : (
                 <Login />
             )}

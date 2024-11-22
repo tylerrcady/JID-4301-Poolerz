@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import NumberInput from "./atoms/number-input";
-import TextInput from "./atoms/text-input";
 import BackButton from "@components/atoms/back-button";
+import { redirect } from "next/navigation";
 
 interface UserFormProps {
     userId: string | undefined;
@@ -68,12 +68,11 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
     };
 
     // Handle car capacity input
-    const handleCarCapacityChange = (value: string) => {
-        const capacity = parseInt(value, 10);
-        if (!isNaN(capacity) && capacity >= 0 && capacity <= 10) {
+    const handleCarCapacityChange = (value: number) => {
+        if (!isNaN(value) && value >= 0 && value <= 10) {
             setUserFormData((prev) => ({
                 ...prev,
-                carCapacity: capacity,
+                carCapacity: value,
             }));
         }
     };
@@ -125,12 +124,12 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
 
     return (
         // do not change the first div at all
-        <div className="flex items-center justify-center flex-col h-full w-full bg-w p-5 overflow-y-auto">
+        <div className="flex items-center flex-col h-auto w-full bg-w p-5 overflow-y-auto gap-4 text-center">
             <Image
                 src="/poolerz.jpg"
                 alt="Poolerz Logo"
-                width = {245} 
-                height = {42}
+                width={245}
+                height={42}
             />
             {currentPage === 1 && (
                 <>
@@ -138,15 +137,13 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                         Household Information
                     </h1>
                     <div className="flex flex-col items-center">
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-6 flex-col">
                             <label className="text-black text-lg font-semibold">
                                 How many children do you have?
                             </label>
                             <div className="w-auto h-5 px-4 py-10 bg-white justify-center items-center gap-4 flex">
                                 <NumberInput
-                                    onChange={(e) =>
-                                        handleNumChildrenChange(e)
-                                    } 
+                                    onChange={(e) => handleNumChildrenChange(e)}
                                     placeholder="Enter number of children"
                                     min={0}
                                     max={10}
@@ -155,36 +152,31 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                             </div>
                         </div>
                     </div>
-                    {/*<input
-                        type="number"
-                        placeholder="Enter number of children"
-                        className="border mb-4 p-2 w-1/2"
-                        onChange={(e) =>
-                            handleNumChildrenChange(e.target.value)
-                        }
-                    />*/}
                     {userFormData.numChildren > 0 && (
                         <>
-                        {userFormData.children.map((child, index) => (
-                            <div key={index} className="mb-4">
-                                <label className="block text-sm text-black font-medium mb-2">
-                                    Child {index + 1} Name
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder={`Child ${index + 1} Name`}
-                                    className="border p-2 w-full"
-                                    value={child.name}
-                                    onChange={(e) =>
-                                        handleChildNameChange(index, e.target.value)
-                                    }
-                                />
-                            </div>
-                        ))}
+                            {userFormData.children.map((child, index) => (
+                                <div key={index} className="mb-4">
+                                    <label className="block text-sm text-black font-medium mb-2">
+                                        Child {index + 1} Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder={`Child ${index + 1} Name`}
+                                        className="border p-2 w-full"
+                                        value={child.name}
+                                        onChange={(e) =>
+                                            handleChildNameChange(
+                                                index,
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+                                </div>
+                            ))}
                         </>
                     )}
                     <button
-                        className="px-4 py-2 bg-blue text-d rounded w-1/6 text-white"
+                        className="px-4 py-2 bg-blue text-d rounded min-w-1/6 text-white"
                         onClick={handleContinue}
                     >
                         Continue
@@ -197,14 +189,15 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                     <h1 className="text-2xl font-bold mb-4">
                         Enter Car Capacity
                     </h1>
-                    <input
-                        type="number"
-                        placeholder="Enter car capacity"
-                        className="border mb-4 p-2 w-full rounded"
-                        onChange={(e) =>
-                            handleCarCapacityChange(e.target.value)
-                        }
-                    />
+                    <div className="w-auto h-5 px-4 py-10 bg-white justify-center items-center flex">
+                        <NumberInput
+                            onChange={(e) => handleCarCapacityChange(e)}
+                            placeholder="Enter car capacity"
+                            min={0}
+                            max={10}
+                            step={1}
+                        />
+                    </div>
 
                     <h2 className="text-xl font-bold mb-4">Add Availability</h2>
                     <button
@@ -268,14 +261,16 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                                     e.preventDefault();
                                     setIsLoading(true);
                                     await handleUserFormPost();
-                                    setIsLoading(false);
+                                    redirect("/user-profile");
                                 }}
                             >
                                 Submit
                             </button>
                         )}
                         {isLoading && (
-                            <p className="text-center text-gray-500">Submitting...</p>
+                            <p className="text-center text-gray-500">
+                                Submitting...
+                            </p>
                         )}
                     </div>
                 </>

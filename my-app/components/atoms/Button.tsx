@@ -1,7 +1,7 @@
 interface Props {
     text: string;
     type?: "primary" | "secondary" | "cancel";
-    onClick?: () => any;
+    onClick?: () => void;
     submit?: boolean;
     icon?: React.ReactNode;
     disabled?: boolean;
@@ -22,10 +22,9 @@ export default function Button({
     let styles = "";
 
     if (disabled) {
-      styles =
-        "text-base font-opensans text-blue px-4 pt-2";
+        styles = "text-base font-opensans text-blue px-4 pt-2";
     } else {
-      styles = `text-blue pt-2 text-base font-opensans rounded gap-2 hover:text-lightblue active:text-blue`;
+        styles = `text-blue pt-2 text-base font-opensans rounded gap-2 hover:text-lightblue active:text-blue`;
         if (type === "primary") {
             styles = `text-black pt-2 text-base font-opensans rounded gap-2 hover:text-darkred active:text-black`;
             styles += " border";

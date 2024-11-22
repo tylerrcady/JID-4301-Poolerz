@@ -10,13 +10,17 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ userId }) => {
     const callbackUrl = "/";
     return (
-        <header className="flex justify-between flex-wrap items-end bg-white py-4 px-6 min-w-full text-w">
+        <header className="flex justify-between flex-wrap items-center bg-white py-4 px-6 min-w-full text-w">
             <Link href="/" aria-label="Go to home">
-                    <Image 
-                        width = {245} 
-                        height = {42} 
-                        src="/poolerz.jpg" 
-                        alt="Poolerz logo"/>
+                <div className="relative w-full max-w-xs">
+                    <Image
+                        layout="responsive"
+                        width={245}
+                        height={42}
+                        src="/poolerz.jpg"
+                        alt="Poolerz logo"
+                    />
+                </div>
             </Link>
             <div>
                 {userId ? (
