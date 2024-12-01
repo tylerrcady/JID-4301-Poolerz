@@ -4,9 +4,8 @@ import React, { useState } from "react";
 import Image from "next/image";
 import NumberInput from "./atoms/number-input";
 import BackButton from "@components/atoms/back-button";
-import Slider from "@mui/material/Slider"
+import Slider from "@mui/material/Slider";
 import { useRouter } from "next/navigation";
-
 
 interface UserFormProps {
     userId: string | undefined;
@@ -43,8 +42,6 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 }),
             });
 
-            
-
             if (response.ok) {
                 console.log("Form submitted successfully!");
             } else {
@@ -63,7 +60,12 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 ...prev,
                 numChildren: value,
                 //children: Array(value).fill({ name: "" }), // Initialize empty child objects
-                children: [...prev.children.slice(0, value), ...Array(Math.max(0, value - prev.children.length)).fill({ name: "" })],
+                children: [
+                    ...prev.children.slice(0, value),
+                    ...Array(Math.max(0, value - prev.children.length)).fill({
+                        name: "",
+                    }),
+                ],
             }));
         }
     };
@@ -102,7 +104,9 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
     // Remove an availability entry by index
     const removeAvailability = (index: number) => {
         setUserFormData((prev) => {
-            const updatedAvailabilities = prev.availabilities.filter((_, i) => i !== index);
+            const updatedAvailabilities = prev.availabilities.filter(
+                (_, i) => i !== index
+            );
             return {
                 ...prev,
                 availabilities: updatedAvailabilities,
@@ -124,7 +128,10 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
         }));
     };
 
-    const handleLocationChange = (key: "address" | "city" | "state" | "zipCode", value: string) => {
+    const handleLocationChange = (
+        key: "address" | "city" | "state" | "zipCode",
+        value: string
+    ) => {
         setUserFormData((prev) => ({
             ...prev,
             location: {
@@ -136,16 +143,22 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
 
     const validatePage = () => {
         console.log("Validating current page:", currentPage);
-    
+
         if (currentPage === 1) {
             if (userFormData.numChildren === 0) {
-                alert("Please enter a valid number of children before continuing.");
+                alert(
+                    "Please enter a valid number of children before continuing."
+                );
                 return false;
             }
-    
-            const emptyNames = userFormData.children.some((child) => child.name.trim() === "");
+
+            const emptyNames = userFormData.children.some(
+                (child) => child.name.trim() === ""
+            );
             if (emptyNames) {
-                alert("Please ensure all children have names before continuing.");
+                alert(
+                    "Please ensure all children have names before continuing."
+                );
                 return false;
             }
         } else if (currentPage === 2) {
@@ -153,36 +166,49 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 alert("Please enter a valid car capacity before continuing.");
                 return false;
             }
-    
+
             if (userFormData.availabilities.length === 0) {
-                alert("Please add at least one availability before continuing.");
+                alert(
+                    "Please add at least one availability before continuing."
+                );
                 return false;
             }
 
             const { address, city, state, zipCode } = userFormData.location;
-            if (!address.trim() || !city.trim() || !state.trim() || !zipCode.trim()) {
+            if (
+                !address.trim() ||
+                !city.trim() ||
+                !state.trim() ||
+                !zipCode.trim()
+            ) {
                 alert("Please fill in all location fields before continuing.");
                 return false;
             }
 
-            const timeRangeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+            const timeRangeRegex =
+                /^([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
             const invalidTimeRanges = userFormData.availabilities.some(
                 (availability) => !timeRangeRegex.test(availability.timeRange)
             );
             if (invalidTimeRanges) {
-                alert("Please enter a valid time range in the format HH:MM-HH:MM (e.g., 09:00-17:00).");
+                alert(
+                    "Please enter a valid time range in the format HH:MM-HH:MM (e.g., 09:00-17:00)."
+                );
                 return false;
             }
-    
+
             const incompleteAvailabilities = userFormData.availabilities.some(
-                (availability) => !availability.day.trim() || !availability.timeRange.trim()
+                (availability) =>
+                    !availability.day.trim() || !availability.timeRange.trim()
             );
             if (incompleteAvailabilities) {
-                alert("Please ensure all availability slots are filled before continuing.");
+                alert(
+                    "Please ensure all availability slots are filled before continuing."
+                );
                 return false;
             }
         }
-    
+
         return true;
     };
 
@@ -198,7 +224,10 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        console.log("Availabilities before submission:", userFormData.availabilities);
+        console.log(
+            "Availabilities before submission:",
+            userFormData.availabilities
+        );
 
         if (!validatePage()) {
             console.log("Validation failed. Submission blocked.");
@@ -213,10 +242,14 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
         } catch (error) {
             if (error instanceof Error) {
                 console.error("Error during submission:", error.message);
-                alert(`There was an error submitting the form: ${error.message}`);
+                alert(
+                    `There was an error submitting the form: ${error.message}`
+                );
             } else {
                 console.error("Unknown error during submission:", error);
-                alert("There was an unknown error submitting the form. Please try again.");
+                alert(
+                    "There was an unknown error submitting the form. Please try again."
+                );
             }
         } finally {
             setIsLoading(false);
@@ -245,21 +278,22 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                         Household Information
                     </h1>
                     <div className="flex flex-col items-center gap-5 mt-6">
-                        
-                            <label className="text-black text-lg font-semibold">
-                                How many children do you have?
-                            </label>
-                            <div className="w-3/4 mt-6">
+                        <label className="text-black text-lg font-semibold">
+                            How many children do you have?
+                        </label>
+                        <div className="w-3/4 mt-6">
                             <Slider
                                 aria-label="Number of Children"
                                 min={0}
                                 max={5}
                                 value={userFormData.numChildren}
                                 valueLabelDisplay="on"
-                                onChange={(e, value) => handleNumChildrenChange(value as number)}
+                                onChange={(e, value) =>
+                                    handleNumChildrenChange(value as number)
+                                }
                             />
-                            </div>
                         </div>
+                    </div>
                     {userFormData.numChildren > 0 && (
                         <>
                             {userFormData.children.map((child, index) => (
@@ -309,43 +343,68 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                     <h2 className="text-xl font-bold mb-4">Location</h2>
                     <div className="flex flex-col gap-4 mb-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Address</label>
+                            <label className="block text-sm font-medium text-gray-700">
+                                Address
+                            </label>
                             <input
                                 type="text"
                                 className="border p-2 w-full rounded"
                                 placeholder="Enter your address"
                                 value={userFormData.location.address}
-                                onChange={(e) => handleLocationChange("address", e.target.value)}
+                                onChange={(e) =>
+                                    handleLocationChange(
+                                        "address",
+                                        e.target.value
+                                    )
+                                }
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">City</label>
+                            <label className="block text-sm font-medium text-gray-700">
+                                City
+                            </label>
                             <input
                                 type="text"
                                 className="border p-2 w-full rounded"
                                 placeholder="Enter your city"
                                 value={userFormData.location.city}
-                                onChange={(e) => handleLocationChange("city", e.target.value)}
+                                onChange={(e) =>
+                                    handleLocationChange("city", e.target.value)
+                                }
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">State</label>
+                            <label className="block text-sm font-medium text-gray-700">
+                                State
+                            </label>
                             <input
                                 type="text"
                                 className="border p-2 w-full rounded"
                                 placeholder="Enter your state"
                                 value={userFormData.location.state}
-                                onChange={(e) => handleLocationChange("state", e.target.value)}
+                                onChange={(e) =>
+                                    handleLocationChange(
+                                        "state",
+                                        e.target.value
+                                    )
+                                }
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Zip Code</label>
+                            <label className="block text-sm font-medium text-gray-700">
+                                Zip Code
+                            </label>
                             <input
                                 type="text"
                                 className="border p-2 w-full rounded"
                                 placeholder="Enter your zip code"
                                 value={userFormData.location.zipCode}
-                                onChange={(e) => handleLocationChange("zipCode", e.target.value)}
+                                onChange={(e) =>
+                                    handleLocationChange(
+                                        "zipCode",
+                                        e.target.value
+                                    )
+                                }
                             />
                         </div>
                     </div>
@@ -357,7 +416,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                     </button>
 
                     {userFormData.availabilities.map((availability, index) => (
-                        <div 
+                        <div
                             key={index}
                             className="block text-sm font-medium mb-2"
                         >
@@ -385,7 +444,9 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                                 <option value="Sunday">Sunday</option>
                             </select>
                             {availability.day.trim() === "" && (
-                                <p className="block text-sm font-medium mb-2">Please select a day.</p>
+                                <p className="block text-sm font-medium mb-2">
+                                    Please select a day.
+                                </p>
                             )}
 
                             <label className="block text-sm font-medium mb-2">
@@ -407,7 +468,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                                 }
                             />
                             <button
-                                className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-white rounded w-full"
+                                className="bg-green-500 hover:bg-green-600 text-white rounded w-full"
                                 onClick={() => removeAvailability(index)}
                             >
                                 Remove Availability
