@@ -31,9 +31,9 @@ Poolerz is a web-based carpooling application designed to support busy professio
 ### Frontend and Backend
 - Next.js: selected for its many pros including server-side rendering, built-in API functionality, and file-based routing
   - React: serves as our core framework/library, allowing for a component-based interactive application
-  - TypeScript: allows for static typing ontop of JavaScript to improve code quality and to help catch errors
+  - TypeScript: allows for static typing on top of JavaScript to improve code quality and to help catch errors
   - Tailwind CSS: allows for inline UI development to increase efficiency and responsiveness
-- MongoDB: selected as our database for its flexible document-based structure and simplisitc integration with Next.js
+- MongoDB: selected as our database for its flexible document-based structure and simplistic integration with Next.js
 - Material UI: used to enhance UI elements with pre-built components
 
 ### Authentication
