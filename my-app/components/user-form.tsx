@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import Image from "next/image";
 import NumberInput from "./atoms/number-input";
 import BackButton from "@components/atoms/back-button";
-import { redirect } from "next/navigation";
+import Slider from "@mui/material/Slider";
+import { useRouter } from "next/navigation";
 
 interface UserFormProps {
     userId: string | undefined;
@@ -19,6 +20,12 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
         children: [] as { name: string }[],
         carCapacity: 0,
         availabilities: [] as { day: string; timeRange: string }[],
+        location: {
+            address: "",
+            city: "",
+            state: "",
+            zipCode: "",
+        } as UserLocation,
     });
 
     // POST user-form-data handler
@@ -52,7 +59,13 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
             setUserFormData((prev) => ({
                 ...prev,
                 numChildren: value,
-                children: Array(value).fill({ name: "" }), // Initialize empty child objects
+                //children: Array(value).fill({ name: "" }), // Initialize empty child objects
+                children: [
+                    ...prev.children.slice(0, value),
+                    ...Array(Math.max(0, value - prev.children.length)).fill({
+                        name: "",
+                    }),
+                ],
             }));
         }
     };
@@ -88,6 +101,19 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
         }));
     };
 
+    // Remove an availability entry by index
+    const removeAvailability = (index: number) => {
+        setUserFormData((prev) => {
+            const updatedAvailabilities = prev.availabilities.filter(
+                (_, i) => i !== index
+            );
+            return {
+                ...prev,
+                availabilities: updatedAvailabilities,
+            };
+        });
+    };
+
     // Update a specific availability entry
     const updateAvailability = (
         index: number,
@@ -102,17 +128,132 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
         }));
     };
 
+    const handleLocationChange = (
+        key: "address" | "city" | "state" | "zipCode",
+        value: string
+    ) => {
+        setUserFormData((prev) => ({
+            ...prev,
+            location: {
+                ...prev.location,
+                [key]: value,
+            },
+        }));
+    };
+
+    const validatePage = () => {
+        console.log("Validating current page:", currentPage);
+
+        if (currentPage === 1) {
+            if (userFormData.numChildren === 0) {
+                alert(
+                    "Please enter a valid number of children before continuing."
+                );
+                return false;
+            }
+
+            const emptyNames = userFormData.children.some(
+                (child) => child.name.trim() === ""
+            );
+            if (emptyNames) {
+                alert(
+                    "Please ensure all children have names before continuing."
+                );
+                return false;
+            }
+        } else if (currentPage === 2) {
+            if (userFormData.carCapacity === 0) {
+                alert("Please enter a valid car capacity before continuing.");
+                return false;
+            }
+
+            if (userFormData.availabilities.length === 0) {
+                alert(
+                    "Please add at least one availability before continuing."
+                );
+                return false;
+            }
+
+            const { address, city, state, zipCode } = userFormData.location;
+            if (
+                !address.trim() ||
+                !city.trim() ||
+                !state.trim() ||
+                !zipCode.trim()
+            ) {
+                alert("Please fill in all location fields before continuing.");
+                return false;
+            }
+
+            const timeRangeRegex =
+                /^([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+            const invalidTimeRanges = userFormData.availabilities.some(
+                (availability) => !timeRangeRegex.test(availability.timeRange)
+            );
+            if (invalidTimeRanges) {
+                alert(
+                    "Please enter a valid time range in the format HH:MM-HH:MM (e.g., 09:00-17:00)."
+                );
+                return false;
+            }
+
+            const incompleteAvailabilities = userFormData.availabilities.some(
+                (availability) =>
+                    !availability.day.trim() || !availability.timeRange.trim()
+            );
+            if (incompleteAvailabilities) {
+                alert(
+                    "Please ensure all availability slots are filled before continuing."
+                );
+                return false;
+            }
+        }
+
+        return true;
+    };
+
     // Move to the next page
     const handleContinue = () => {
-        if (currentPage === 1 && userFormData.numChildren === 0) {
-            alert("Please enter a valid number of children.");
+        if (validatePage()) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const router = useRouter();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        console.log(
+            "Availabilities before submission:",
+            userFormData.availabilities
+        );
+
+        if (!validatePage()) {
+            console.log("Validation failed. Submission blocked.");
             return;
         }
-        if (currentPage === 3 && userFormData.carCapacity === 0) {
-            alert("Please enter a valid car capacity.");
-            return;
+
+        setIsLoading(true);
+        try {
+            await handleUserFormPost();
+            console.log("Redirecting to /user-profile...");
+            router.push("/user-profile"); // Use router.push for client-side navigation
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error("Error during submission:", error.message);
+                alert(
+                    `There was an error submitting the form: ${error.message}`
+                );
+            } else {
+                console.error("Unknown error during submission:", error);
+                alert(
+                    "There was an unknown error submitting the form. Please try again."
+                );
+            }
+        } finally {
+            setIsLoading(false);
         }
-        setCurrentPage(currentPage + 1);
     };
 
     // Move to the previous page
@@ -136,20 +277,21 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                     <h1 className="text-2xl text-black font-bold mb-4">
                         Household Information
                     </h1>
-                    <div className="flex flex-col items-center">
-                        <div className="flex items-center gap-6 flex-col">
-                            <label className="text-black text-lg font-semibold">
-                                How many children do you have?
-                            </label>
-                            <div className="w-auto h-5 px-4 py-10 bg-white justify-center items-center gap-4 flex">
-                                <NumberInput
-                                    onChange={(e) => handleNumChildrenChange(e)}
-                                    placeholder="Enter number of children"
-                                    min={0}
-                                    max={10}
-                                    step={1}
-                                />
-                            </div>
+                    <div className="flex flex-col items-center gap-5 mt-6">
+                        <label className="text-black text-lg font-semibold">
+                            How many children do you have?
+                        </label>
+                        <div className="w-3/4 mt-6">
+                            <Slider
+                                aria-label="Number of Children"
+                                min={0}
+                                max={5}
+                                value={userFormData.numChildren}
+                                valueLabelDisplay="on"
+                                onChange={(e, value) =>
+                                    handleNumChildrenChange(value as number)
+                                }
+                            />
                         </div>
                     </div>
                     {userFormData.numChildren > 0 && (
@@ -176,7 +318,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                         </>
                     )}
                     <button
-                        className="px-4 py-2 bg-blue text-d rounded min-w-1/6 text-white"
+                        className="px-4 py-2 bg-blue text-w rounded min-w-1/6"
                         onClick={handleContinue}
                     >
                         Continue
@@ -198,8 +340,74 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                             step={1}
                         />
                     </div>
-
-                    <h2 className="text-xl font-bold mb-4">Add Availability</h2>
+                    <h2 className="text-xl font-bold mb-4">Location</h2>
+                    <div className="flex flex-col gap-4 mb-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                                Address
+                            </label>
+                            <input
+                                type="text"
+                                className="border p-2 w-full rounded"
+                                placeholder="Enter your address"
+                                value={userFormData.location.address}
+                                onChange={(e) =>
+                                    handleLocationChange(
+                                        "address",
+                                        e.target.value
+                                    )
+                                }
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                                City
+                            </label>
+                            <input
+                                type="text"
+                                className="border p-2 w-full rounded"
+                                placeholder="Enter your city"
+                                value={userFormData.location.city}
+                                onChange={(e) =>
+                                    handleLocationChange("city", e.target.value)
+                                }
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                                State
+                            </label>
+                            <input
+                                type="text"
+                                className="border p-2 w-full rounded"
+                                placeholder="Enter your state"
+                                value={userFormData.location.state}
+                                onChange={(e) =>
+                                    handleLocationChange(
+                                        "state",
+                                        e.target.value
+                                    )
+                                }
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                                Zip Code
+                            </label>
+                            <input
+                                type="text"
+                                className="border p-2 w-full rounded"
+                                placeholder="Enter your zip code"
+                                value={userFormData.location.zipCode}
+                                onChange={(e) =>
+                                    handleLocationChange(
+                                        "zipCode",
+                                        e.target.value
+                                    )
+                                }
+                            />
+                        </div>
+                    </div>
                     <button
                         className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded w-full mb-4"
                         onClick={addAvailability}
@@ -208,7 +416,10 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                     </button>
 
                     {userFormData.availabilities.map((availability, index) => (
-                        <div key={index} className="mb-4 w-full">
+                        <div
+                            key={index}
+                            className="block text-sm font-medium mb-2"
+                        >
                             <label className="block text-sm font-medium mb-2">
                                 Day
                             </label>
@@ -232,15 +443,22 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                                 <option value="Saturday">Saturday</option>
                                 <option value="Sunday">Sunday</option>
                             </select>
+                            {availability.day.trim() === "" && (
+                                <p className="block text-sm font-medium mb-2">
+                                    Please select a day.
+                                </p>
+                            )}
 
                             <label className="block text-sm font-medium mb-2">
                                 Time Range
                             </label>
                             <input
                                 type="text"
-                                placeholder="Enter time range (e.g., 9 AM - 5 PM)"
+                                placeholder="HH:MM - HH:MM"
                                 className="border p-2 w-full rounded"
-                                value={availability.timeRange}
+                                value={availability.timeRange || "09:00-17:00"}
+                                pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]$"
+                                title="Please enter a time range in the format HH:MM-HH:MM (e.g., 09:00-17:00)"
                                 onChange={(e) =>
                                     updateAvailability(
                                         index,
@@ -249,6 +467,12 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                                     )
                                 }
                             />
+                            <button
+                                className="bg-green-500 hover:bg-green-600 text-white rounded w-full"
+                                onClick={() => removeAvailability(index)}
+                            >
+                                Remove Availability
+                            </button>
                         </div>
                     ))}
 
@@ -257,12 +481,8 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                         {!isLoading && (
                             <button
                                 className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded w-full"
-                                onClick={async (e) => {
-                                    e.preventDefault();
-                                    setIsLoading(true);
-                                    await handleUserFormPost();
-                                    redirect("/user-profile");
-                                }}
+                                onClick={handleSubmit}
+                                disabled={isLoading}
                             >
                                 Submit
                             </button>

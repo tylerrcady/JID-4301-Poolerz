@@ -10,6 +10,9 @@
     },
     "dependencies": {
         "@auth/mongodb-adapter": "^3.7.2",
+        "@emotion/react": "^11.13.5",
+        "@emotion/styled": "^11.13.5",
+        "@mui/material": "^6.1.9",
         "mongodb": "^6.10.0",
         "next": "15.0.1",
         "next-auth": "^5.0.0-beta.25",
