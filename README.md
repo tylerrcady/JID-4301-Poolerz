@@ -20,7 +20,7 @@ Poolerz is a web-based carpooling application designed to support busy professio
 - Form UI needs to be refined, especially regarding availability
 - Form needs to be fully checked for edge cases, including fixing regex checks
 
-# Rational for v0.0.0 Feature Choices:
+### Rational for v0.0.0 Feature Choices:
 - User Authentication: essential for the foundation of our application to establish identity, and further, to allow for a backbone to support session management
 - User Profile Management: essential for our next core step of optimizing carpool groups, allowing users and our developers to store, edit, and retrieve data on an as-needed basis
 - Responsive Design: essential for the user as the most common medium of this application will likely be via mobile devices
