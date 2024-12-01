@@ -21,18 +21,25 @@ Poolerz is a web-based carpooling application designed to support busy professio
 - Form needs to be fully checked for edge cases, including fixing regex checks
 
 # Rational for v0.0.0 Feature Choices:
-
+- User Authentication: 
+- User Profile Management:
+- Responsive Design:
+- Database Integration:
 
 # Technology Tools and Platforms:
 
-### Frontend
--
-
-### Backend
--
+### Frontend and Backend
+- Next.js: selected for its many pros including server-side rendering, built-in API functionality, and file-based routing
+  - React: allows for a core framework, consisting of a library of useful components 
+  - TypeScript: allows for static typing ontop of JavaScript to improve code quality and to help catch errors
+  - Tailwind CSS: allows for inline UI development to increase efficiency and responsiveness
+- MongoDB: selected as our database for its flexible document-based structure and simplisitc integration with Next.js
+- Material UI: used to enhance UI elements with pre-built components
 
 ### Authentication
--
+-  Auth.js: used to implement secure authentication with Next.js
+  - Google OAuth: our provider of choice for authentication
 
 ### Development Tools
--
+- Git/GitHub: used for our version control and collaboration
+- Vercel: used to host our application
