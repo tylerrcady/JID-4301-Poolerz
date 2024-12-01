@@ -39,7 +39,6 @@ Poolerz is a web-based carpooling application designed to support busy professio
 ### Authentication
 -  Auth.js: used to implement secure authentication with Next.js
   - Google OAuth: our provider of choice for authentication
-  - 
 
 ### Development Tools
 - Git/GitHub: used for our version control and collaboration
