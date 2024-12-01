@@ -3,7 +3,7 @@ Poolerz is a web-based carpooling application designed to support busy professio
 
 # Release Notes
 
-## Version 0.0.0
+## Version 0.0.0: https://jda-4301-poolerz.vercel.app/
 
 ### Features
 - User Authentication: implemented secure authentication backed by Google with Auth.js
