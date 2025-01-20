@@ -31,6 +31,7 @@ async function postUserFormData(userId: string, userFormData: UserFormData) {
         const JSON = {
             userId,
             userFormData,
+            isFormComplete: true,  //set when form is submitted
             // add stuff here with userFormData
         };
 
@@ -75,4 +76,21 @@ async function getUserFormData(userId: string) {
     }
 }
 
-export { postUserFormData, getUserFormData };
+// check form completion // ! don't know if need a separate func or can just be part of the above function
+// this would be used if a user has completed the form, restricting them or redirecting
+// not being used rn though
+async function checkFormCompletion(userId: string): Promise<boolean> {
+    try {
+        const client = await connect();
+        const db = client.db(dbName);
+        const collection = db.collection(collectionName);
+
+        const userData = await collection.findOne({ userId});
+        return userData?.isFormComplete || false;
+    } catch (error) {
+        console.error("Failed to check form completion status", error);
+        return false;
+    }
+}
+
+export { postUserFormData, getUserFormData, checkFormCompletion };
