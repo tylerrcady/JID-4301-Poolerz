@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from 'next/navigation';
 
 interface JoinCarpoolProps {
     userId: string | undefined;
 }
 
 const JoinCarpool: React.FC<JoinCarpoolProps> = ({ userId }) => {
+    const router = useRouter();
      
     return (<div className="flex flex-col w-full max-w-2xl mx-auto p-4 gap-6">
         {/* Title */}
@@ -15,7 +17,9 @@ const JoinCarpool: React.FC<JoinCarpoolProps> = ({ userId }) => {
         </h1>
         {/* Back Button */}
         <div>
-          <button className="text-[#4b859f] text-xl md:text-2xl font-normal font-['Outfit']">
+          <button
+          onClick={() => router.back()} 
+          className="text-[#4b859f] text-xl md:text-2xl font-normal font-['Outfit']">
             Back
           </button>
         </div>
