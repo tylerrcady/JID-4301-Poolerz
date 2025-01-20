@@ -1,20 +1,21 @@
 "use client";
 
 import React, { useState } from "react";
-import Button from "@components/atoms/Button";
+import {useRouter} from "next/navigation";
 
 interface CarpoolsProps {
     userId: string | undefined;
 }
 
 const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
+    const router = useRouter();
      
     const handleCreateCarpool = () => {
-        
+        router.push('/create-carpool')
     };
 
     const handleJoinCarpool = () => {
-        
+        router.push('/join-carpool')
     };
 
     return (
