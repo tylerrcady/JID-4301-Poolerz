@@ -17,3 +17,11 @@ interface UserFormData {
     availabilities: Availability[];
     location: UserLocation;
 }
+
+//separate interface for the database document structure 
+interface UserDocument {
+    userId: string;
+    userFormData: UserFormData;
+    isFormComplete: boolean;
+}
+

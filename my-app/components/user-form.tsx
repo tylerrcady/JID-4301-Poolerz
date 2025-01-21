@@ -38,7 +38,14 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 },
                 body: JSON.stringify({
                     userId,
-                    userFormData,
+                    userFormData: { //! explicitly needed this as was somehow putting isComplete in here
+                        // ! might be something to debug later
+                        numChildren: userFormData.numChildren,
+                        children: userFormData.children,
+                        carCapacity: userFormData.carCapacity,
+                        availabilities: userFormData.availabilities,
+                        location: userFormData.location,
+                    },
                 }),
             });
 
