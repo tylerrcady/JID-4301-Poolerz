@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
-import Login from "@/components/login";
+//import Login from "@/components/login";
+import Main from "@/components/main";
 import UserForm from "@/components/user-form";
 
 export default async function Page() {
@@ -12,7 +13,7 @@ export default async function Page() {
             {session?.user?.id ? (
                 <UserForm userId={session?.user?.id} />
             ) : (
-                <Login />
+                <Main userName={session?.user?.name}/>
             )}
             <Footer />
         </div>
