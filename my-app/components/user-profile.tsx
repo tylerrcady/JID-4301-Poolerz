@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import Button from "@components/atoms/Button";
-
 import TextInput from "@components/atoms/text-input";
 import NumberInput from "@components/atoms/number-input";
 

@@ -20,7 +20,7 @@ const JoinCarpool: React.FC<JoinCarpoolProps> = () => {
             <div>
                 <button
                     onClick={() => router.back()}
-                    className="text-[#4b859f] text-xl md:text-2xl font-normal font-['Outfit']"
+                    className="text-b text-lg md:text-2xl"
                 >
                     Back
                 </button>
