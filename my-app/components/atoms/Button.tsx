@@ -1,6 +1,6 @@
 interface Props {
     text: string;
-    type?: "primary" | "secondary" | "cancel";
+    type?: "primary" | "secondary" | "cancel" | "login" | "signup";
     onClick?: () => void;
     submit?: boolean;
     icon?: React.ReactNode;
@@ -32,12 +32,18 @@ export default function Button({
         if (type === "cancel") {
             styles = `text-black pt-2 text-base font-opensans rounded gap-2 hover:text-darkred active:text-black`;
         }
+        if (type === "login") {
+            styles = `text-white bg-blue pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:bg-lightblue active:text-black`;
+        }
+        if (type === "signup") {
+            styles = `text-gray bg-white pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:bg-lightblue active:text-black`;
+        }
     }
 
     return (
         <button
             onClick={onClick}
-            className={`flex w-full items-start justify-start font-semibold ${styles}`}
+            className={`flex w-full items-center justify-center font-semibold ${styles}`}
             disabled={disabled}
             type={submit ? "submit" : "button"}
             style={{ width }}
