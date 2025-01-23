@@ -32,9 +32,6 @@ const Header: React.FC<HeaderProps> = ({ userId, isFormComplete }) => {
                         <span className="text-base mr-5 text-blue font-semibold">
                             <Link href="/carpools">Carpools</Link>
                         </span>
-                        <span className="text-base mr-5 text-blue font-semibold">
-                            <Link href="/user-form">Form</Link>
-                        </span>
                         <span className="text-lg mr-5 text-blue font-semibold">
                             <Link href="/user-profile">Profile</Link>
                         </span>
