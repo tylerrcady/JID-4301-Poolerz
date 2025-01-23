@@ -9,11 +9,13 @@ export default async function Home() {
     return (
         <div className="flex items-center justify-between h-screen flex-col bg-w text-d">
             <Header userId={session?.user?.id} />
+            <main className="flex-grow">
             {session?.user?.id ? (
                 <Main userName={session?.user?.name} />
             ) : (
                 <Main userName={session?.user?.name}/>
             )}
+            </main>
             <Footer />
         </div>
     );
