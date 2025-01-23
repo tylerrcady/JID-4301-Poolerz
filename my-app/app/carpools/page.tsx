@@ -7,7 +7,7 @@ import Carpools from "@/components/carpools"
 export default async function Page() {
     const session = await auth();
     return (
-        <div className="flex items-center justify-between h-screen flex-col bg-w">
+        <div className="flex items-center justify-between h-screen flex-col text-gray bg-w">
             <Header userId={session?.user?.id} />
             {session?.user?.id ? (
                 <Carpools userId={session?.user?.id} />

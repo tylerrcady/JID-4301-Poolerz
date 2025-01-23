@@ -7,10 +7,9 @@ import Button from "@components/atoms/Button";
 
 interface HeaderProps {
     userId: string | undefined;
-    isFormComplete: boolean; // Pass this as a prop
 }
 
-const Header: React.FC<HeaderProps> = ({ userId, isFormComplete }) => {
+const Header: React.FC<HeaderProps> = ({ userId }) => {
     const callbackUrl = "/";
 
     return (
@@ -29,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({ userId, isFormComplete }) => {
             <div className="flex items-center gap-4">
                 {userId ? (
                     <>
-                        <span className="text-base mr-5 text-blue font-semibold">
+                        <span className="text-lg mr-5 text-blue font-semibold">
                             <Link href="/carpools">Carpools</Link>
                         </span>
                         <span className="text-lg mr-5 text-blue font-semibold">
