@@ -5,9 +5,10 @@ import Image from "next/image";
 
 interface HeaderProps {
     userId: string | undefined;
+    isFormComplete: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ userId }) => {
+const Header: React.FC<HeaderProps> = ({ userId, isFormComplete }) => {
     const callbackUrl = "/";
 
     return (
@@ -23,15 +24,19 @@ const Header: React.FC<HeaderProps> = ({ userId }) => {
                     />
                 </div>
             </Link>
-            <div>
+            <div className="flex items-center gap-4">
                 {userId ? (
                     <>
-                        <span className="text-lg mr-5 text-blue font-semibold">
-                            <Link href="/carpools">Carpools</Link>
-                        </span>
-                        <span className="text-lg mr-5 text-blue font-semibold">
-                            <Link href="/user-profile">Profile</Link>
-                        </span>
+                        {isFormComplete && (
+                            <>
+                                <span className="text-base mr-5 text-blue font-semibold">
+                                    <Link href="/carpools">Carpools</Link>
+                                </span>
+                                <span className="text-lg mr-5 text-blue font-semibold">
+                                    <Link href="/user-profile">Profile</Link>
+                                </span>
+                            </>
+                        )}
                     </>
                 ) : null}
                 <span
