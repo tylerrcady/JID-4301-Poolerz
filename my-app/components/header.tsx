@@ -7,10 +7,12 @@ import Button from "@components/atoms/Button";
 
 interface HeaderProps {
     userId: string | undefined;
+    isFormComplete: boolean; // Pass this as a prop
 }
 
-const Header: React.FC<HeaderProps> = ({ userId }) => {
+const Header: React.FC<HeaderProps> = ({ userId, isFormComplete }) => {
     const callbackUrl = "/";
+
     return (
         <header className="flex justify-between flex-wrap items-center bg-white py-4 px-10 min-w-full text-w">
             <Link href="/" aria-label="Go to home">
@@ -29,9 +31,6 @@ const Header: React.FC<HeaderProps> = ({ userId }) => {
                     <>
                         <span className="text-base mr-5 text-blue font-semibold">
                             <Link href="/carpools">Carpools</Link>
-                        </span>
-                        <span className="text-base mr-5 text-blue font-semibold">
-                            <Link href="/user-form">Form</Link>
                         </span>
                         <span className="text-lg mr-5 text-blue font-semibold">
                             <Link href="/user-profile">Profile</Link>
