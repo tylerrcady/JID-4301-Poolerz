@@ -17,7 +17,7 @@ export default async function Page() {
                     email={session?.user?.email}
                 />
             ) : (
-                <Main userName={session?.user?.name}/>
+                <Main userName={session?.user?.name} />
             )}
             <Footer />
         </div>

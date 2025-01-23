@@ -1,8 +1,8 @@
 import { auth } from "@/auth";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
-import Login from "@/components/login";
-import Carpools from "@/components/carpools"
+import Carpools from "@/components/carpools";
+import Main from "@/components/main";
 
 export default async function Page() {
     const session = await auth();
@@ -12,7 +12,7 @@ export default async function Page() {
             {session?.user?.id ? (
                 <Carpools userId={session?.user?.id} />
             ) : (
-                <Login />
+                <Main userName={session?.user?.name} />
             )}
             <Footer />
         </div>

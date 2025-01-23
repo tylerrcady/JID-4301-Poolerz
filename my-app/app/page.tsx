@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
-//import Login from "@/components/login";
 import Main from "@/components/main";
 import { checkFormCompletion } from "@/lib/user-form-data";
 import { redirect } from "next/navigation";
@@ -23,11 +22,11 @@ export default async function Home() {
         <div className="flex items-center justify-between h-screen flex-col bg-w text-d">
             <Header userId={session?.user?.id} />
             <main className="flex-grow">
-            {session?.user?.id ? (
-                <Main userName={session?.user?.name} />
-            ) : (
-                <Main userName={session?.user?.name}/>
-            )}
+                {session?.user?.id ? (
+                    <Main userName={session?.user?.name} />
+                ) : (
+                    <Main userName={session?.user?.name} />
+                )}
             </main>
             <Footer />
         </div>
