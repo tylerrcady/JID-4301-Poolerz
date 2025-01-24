@@ -2,8 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import Button from "@components/atoms/Button";
-import ChildModal from "./modals/child-modal";
-import AvailabilityModal from './modals/availability-modal';
+import AddModal from "./modals/add-modal";
 import TextInput from "@components/atoms/text-input";
 import NumberInput from "@components/atoms/number-input";
 import AddIcon from "./icons/AddIcon";
@@ -18,7 +17,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     // state variables
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [isEditingFamily, setIsEditingFamily] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isChildModalOpen, setIsChildModalOpen] = useState(false);
+    const [isAvailabilityModalOpen, setIsAvailabilityModalOpen] = useState(false);
+    const [newDay, setNewDay] = useState("");
+    const [newTimeRange, setNewTimeRange] = useState("");
     const [newChildName, setNewChildName] = useState("");
     const [isEditingAvailability, setIsEditingAvailability] = useState(false);
     const [userFormData, setUserFormData] = useState<UserFormData | null>(null);
@@ -85,7 +87,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
         });
 
         setNewChildName("");
-        setIsModalOpen(false);
+        setIsChildModalOpen(false);
     };
 
     const handleEditAvailability = () => {
@@ -94,6 +96,29 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
         }
         setIsEditingAvailability(!isEditingAvailability);
     };
+
+    const handleAddAvailability = () => {
+        if (!newDay.trim() || !newTimeRange.trim()) {
+            alert("Please provide valid day and time range.");
+            return;
+        }
+        if (!userFormData) return;
+      
+        const updatedAvailabilities = [
+          ...userFormData.availabilities,
+          { day: newDay.trim(), 
+            timeRange: newTimeRange.trim() },
+        ];
+      
+        setUserFormData({
+          ...userFormData,
+          availabilities: updatedAvailabilities,
+        });
+      
+        setNewDay("");
+        setNewTimeRange("");
+        setIsAvailabilityModalOpen(false);
+      };
 
     const handleCancel = () => {
         if (userFormDataBackup) {
@@ -128,8 +153,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 if (isEditingAvailability) {
                     setIsEditingAvailability(false);
                 }
-                if (isModalOpen) {
-                    setIsModalOpen(false);
+                if (isChildModalOpen) {
+                    setIsChildModalOpen(false);
+                }
+                if (isAvailabilityModalOpen) {
+                    setIsAvailabilityModalOpen(false);
                 }
                 handleUserFormGet();
             } else {
@@ -303,36 +331,37 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     />}
                     text="Add Child"
                     type="primary"
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => setIsChildModalOpen(true)}
                 />
             </div>
             )}
             {/* Modal for adding a child */}
-                <ChildModal
-                        isOpen={isModalOpen}
-                        onClose={() => setIsModalOpen(false)}
-                >
-                    <div className="flex flex-col gap-4">
-                        <TextInput
-                            currentValue={newChildName}
-                            onChange={setNewChildName}
-                            placeholder="Enter child's name"
+            <AddModal
+                    isOpen={isChildModalOpen}
+                    text="Add Child"
+                    onClose={() => setIsChildModalOpen(false)}
+            >
+                <div className="flex flex-col gap-4">
+                    <TextInput
+                        currentValue={newChildName}
+                        onChange={setNewChildName}
+                        placeholder="Enter child's name"
+                    />
+                    <div className="flex w-2/5 justify-start gap-4">
+                        <Button
+                        text="Cancel"
+                        type="cancel"
+                        onClick={() => setIsChildModalOpen(false)}
                         />
-                        <div className="flex w-2/5 justify-start gap-4">
-                            <Button
-                            text="Cancel"
-                            type="cancel"
-                            onClick={() => setIsModalOpen(false)}
-                            />
-                            <Button
-                            text="Save"
-                            type="primary"
-                            onClick={handleAddChild}
-                            />
-                        </div>
+                        <Button
+                        text="Save"
+                        type="primary"
+                        onClick={handleAddChild}
+                        />
                     </div>
-                </ChildModal>
-            </div>
+                </div>
+            </AddModal>
+        </div>
             {/*Availability Section*/}
             <div className="w-3/4 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                 <div className="justify-between items-center flex flex-wrap">
@@ -445,10 +474,64 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                             icon={<AddIcon strokeColor="#FFFFFF" />}
                             text="Add Availability"
                             type="primary"
-                            onClick={() => setIsModalOpen(true)} // Open modal when clicked
+                            onClick={() => setIsAvailabilityModalOpen(true)}
                         />
                     </div>
                 )}
+                <AddModal
+                    isOpen={isAvailabilityModalOpen}
+                    text="Add Availability"
+                    onClose={() => setIsAvailabilityModalOpen(false)}
+                >
+                    <div className="flex flex-col gap-4">
+                        <div className="mb-4">
+                        <label className="block text-xl font-bold text-black mb-2">Day</label>
+                        <select
+                            className="border p-2 w-full mb-2 rounded text-gray focus:ring-2 focus:ring-blue"
+                            value={newDay}
+                            onChange={(e) => setNewDay(e.target.value)}
+                        >
+                            <option value="">Select a day</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                        </div>
+
+                        <div className="mb-4">
+                        <label className="block text-xl font-bold text-black mb-2">Time Range</label>
+                        <input
+                            type="text"
+                            placeholder="HH:MM - HH:MM"
+                            className="border p-2 w-full rounded text-gray focus:ring-2 focus:ring-blue"
+                            value={newTimeRange}
+                            onInput={(e) => {
+                                const input = e.target as HTMLInputElement;
+                                input.value = input.value.replace(/[^0-9:-]/g, "");
+                            }}
+                            pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]$"
+                            title="Please enter a time range in the format HH:MM-HH:MM (e.g., 09:00-17:00)"
+                            onChange={(e) => setNewTimeRange(e.target.value)}
+                        />
+                        </div>
+                        <div className="flex w-2/5 justify-start gap-4">
+                            <Button
+                                text="Cancel"
+                                type="cancel"
+                                onClick={() => setIsAvailabilityModalOpen(false)}
+                            />
+                            <Button
+                                text="Save"
+                                type="primary"
+                                onClick={handleAddAvailability}
+                            />
+                        </div>
+                    </div>
+                </AddModal>
             </div>
         </div>
     );
