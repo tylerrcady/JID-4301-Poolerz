@@ -47,9 +47,9 @@ export default function TextInput({
                 type={inputType}
                 onFocus={(e) => keyboardScroll(e)}
                 {...formValue}
-                className={`w-full py-2.5 px-2 bg-secondary-background items-center border rounded ${
+                className={`w-full py-2.5 px-2 bg-lightgray items-center border rounded ${
                     disabled ? "!bg-black" : "!bg-secondary-background"
-                } ${error ? "border-error-red" : "border-black"} text-black`}
+                } ${error ? "border-error-red" : "border-black"} text-black focus:outline-none focus:border-2 focus:border-blue`}
                 onClick={(event) => {
                     event.stopPropagation();
                 }}
