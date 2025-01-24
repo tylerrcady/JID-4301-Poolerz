@@ -1,13 +1,13 @@
 import React, { ReactNode } from "react";
 
-interface ChildModalProps {
+interface AddModalProps {
   isOpen: boolean;
   text: string;
   onClose: () => void;
   children: ReactNode;
 }
 
-const AddModal: React.FC<ChildModalProps> = ({ isOpen, text, onClose, children }) => {
+const AddModal: React.FC<AddModalProps> = ({ isOpen, text, onClose, children }) => {
   if (!isOpen) return null;
 
   return (
