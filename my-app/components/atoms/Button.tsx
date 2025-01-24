@@ -1,6 +1,6 @@
 interface Props {
     text: string;
-    type?: "primary" | "secondary" | "cancel" | "login" | "signup";
+    type?: "primary" | "secondary" | "cancel" | "remove" | "login" | "signup";
     onClick?: () => void;
     submit?: boolean;
     icon?: React.ReactNode;
@@ -10,13 +10,13 @@ interface Props {
 }
 
 export default function Button({
+    icon = undefined,
     text,
     type = "primary",
     onClick,
     width,
     disabled = false,
     submit = false,
-    icon = undefined,
     children,
 }: Props) {
     let styles = "";
@@ -32,6 +32,9 @@ export default function Button({
         if (type === "cancel") {
             styles = `text-black bg-white pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:text-red active:text-black`;
             styles += " border";
+        }
+        if (type === "remove") {
+            styles = `text-red bg-white pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:text-darkred active:text-black`;
         }
         if (type === "login") {
             styles = `text-white bg-blue pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:bg-lightblue active:text-black`;
@@ -50,8 +53,8 @@ export default function Button({
             style={{ width }}
             title={text}
         >
-            <span className="line-clamp-1">{children || text}</span>
             {icon ? <span>{icon}</span> : null}
+            <span className="line-clamp-1">{children || text}</span>
         </button>
     );
 }
