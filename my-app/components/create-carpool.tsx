@@ -11,7 +11,7 @@ interface CreateCarpoolProps {
 const CreateCarpool: React.FC<CreateCarpoolProps> = () => {
     const router = useRouter();
     return (
-        <div className="flex flex-col w-full max-w-md gap-6 p-4">
+        <div className="flex flex-col w-10/12 max-w-md gap-6 p-4">
             {/* Back Button */}
             <div>
                 <button

@@ -175,7 +175,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
         // do not change the first div at all
         <div className="flex items-center flex-col h-auto w-full bg-w p-5 overflow-y-auto gap-4">
             {/*Profile Section*/}
-            <div className="w-3/4 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
+            <div className="w-10/12 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                 <div className="justify-between items-center flex flex-wrap">
                     <div className="text-blue text-2xl font-bold">Profile</div>
                     {isEditingProfile ? (
@@ -245,7 +245,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             </div>
             {/*Right Side */}
             {/*Family Section*/}
-            <div className="w-3/4 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
+            <div className="w-10/12 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                 <div className="justify-between items-center flex flex-wrap">
                     <div className="text-blue text-2xl font-bold">Family</div>
                     {isEditingFamily ? (
@@ -364,7 +364,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 </AddModal>
             </div>
             {/*Availability Section*/}
-            <div className="w-3/4 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
+            <div className="w-10/12 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                 <div className="justify-between items-center flex flex-wrap">
                     <div className="text-blue text-2xl font-bold">
                         Driving Availability

@@ -19,7 +19,7 @@ const Carpools: React.FC<CarpoolsProps> = () => {
     };
 
     return (
-        <div className="flex flex-col md:flex-row justify-start items-start gap-6 m-2">
+        <div className="flex flex-col md:flex-row justify-start items-start gap-6 m-6">
             {/* Create Carpool */}
             <div className="flex flex-col w-full max-w-md bg-white rounded-md shadow-lg p-6 md:p-8 gap-6">
                 <div>

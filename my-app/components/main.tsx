@@ -37,7 +37,7 @@ const Main: React.FC<MainProps> = () => {
     };
 
     return (
-        <div className="flex items-center flex-col h-auto w-full gap-12 bg-w p-5 overflow-y-auto text-center">
+        <div className="flex items-center flex-col h-auto w-full gap-6 bg-w py-5 overflow-y-auto text-center">
             <div className="relative w-full max-w-xs">
                 <Image
                     layout="responsive"
@@ -47,7 +47,7 @@ const Main: React.FC<MainProps> = () => {
                     alt="Poolerz logo"
                 />
             </div>
-            <div className="flex-col m-4 w-10/12 justify-start items-center flex gap-4">
+            <div className="flex-col m-4 w-11/12 justify-start items-center flex gap-4">
                 <div className="text-blue text-4xl font-bold font-['Open Sans']">
                     Connecting Families, One Carpool at a Time
                 </div>
@@ -87,7 +87,7 @@ const Main: React.FC<MainProps> = () => {
                     </div>
                 </div>
             </div>
-            <div className="self-stretch text-center text-blue text-4xl py-2 font-bold font-['Open Sans']">
+            <div className="self-stretch text-center text-blue text-4xl font-bold font-['Open Sans']">
                 Contact Us
             </div>
             <div className="self-stretch flex flex-wrap justify-center px-6 items-start gap-10">

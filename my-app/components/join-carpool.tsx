@@ -11,7 +11,7 @@ const JoinCarpool: React.FC<JoinCarpoolProps> = () => {
     const router = useRouter();
 
     return (
-        <div className="flex flex-col w-full max-w-2xl mx-auto p-4 gap-6">
+        <div className="flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6">
             {/* Title */}
             <h1 className="text-black text-2xl font-bold font-['Open Sans']">
                 Carpool Invites

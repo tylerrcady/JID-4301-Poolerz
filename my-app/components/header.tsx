@@ -12,7 +12,7 @@ const Header: React.FC<HeaderProps> = ({ userId, isFormComplete }) => {
     const callbackUrl = "/";
 
     return (
-        <header className="flex justify-between flex-wrap items-center bg-white py-4 px-5 min-w-full text-w gap-2">
+        <header className="flex justify-between flex-wrap items-center bg-white py-4 px-3 text-w gap-2 border border-d border-[#D3D3D3] m-2 rounded-md w-11/12">
             <Link href="/" aria-label="Go to home">
                 <div className="relative w-full max-w-xs">
                     <Image
@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ userId, isFormComplete }) => {
                     </>
                 ) : null}
                 <span
-                    className="text-lg text-w font-semibold bg-blue p-2 cursor-pointer rounded-md"
+                    className="text-base text-w font-semibold bg-blue p-2 cursor-pointer rounded-md"
                     onClick={async () => {
                         "use server";
                         if (userId) {
