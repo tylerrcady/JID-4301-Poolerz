@@ -38,7 +38,8 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 },
                 body: JSON.stringify({
                     userId,
-                    userFormData: { //! explicitly needed this as was somehow putting isComplete in here
+                    userFormData: {
+                        //! explicitly needed this as was somehow putting isComplete in here
                         // ! might be something to debug later
                         numChildren: userFormData.numChildren,
                         children: userFormData.children,
@@ -89,7 +90,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
 
     // Handle car capacity input
     const handleCarCapacityChange = (value: number) => {
-        if (!isNaN(value) && value >= 0 && value <= 10) {
+        if (!isNaN(value)) {
             setUserFormData((prev) => ({
                 ...prev,
                 carCapacity: value,
@@ -273,6 +274,10 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
     return (
         // do not change the first div at all
         <div className="flex items-center flex-col h-auto w-full bg-w p-5 overflow-y-auto gap-4 text-center">
+            <div className="text-base underline">
+                Complete our onboarding form below to get access to the full
+                application.
+            </div>
             <Image
                 src="/poolerz.jpg"
                 alt="Poolerz Logo"
@@ -281,10 +286,10 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
             />
             {currentPage === 1 && (
                 <>
-                    <h1 className="text-2xl text-black font-bold mb-4">
+                    <h1 className="text-2xl text-black font-bold">
                         Household Information
                     </h1>
-                    <div className="flex flex-col items-center gap-5 mt-6">
+                    <div className="flex flex-col items-center gap-5 mt-2">
                         <label className="text-black text-lg font-semibold">
                             How many children do you have?
                         </label>
@@ -335,19 +340,15 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
 
             {currentPage === 2 && (
                 <>
-                    <h1 className="text-2xl font-bold mb-4">
-                        Enter Car Capacity
-                    </h1>
-                    <div className="w-auto h-5 px-4 py-10 bg-white justify-center items-center flex">
+                    <h1 className="text-2xl font-bold">Enter Car Capacity</h1>
+                    <div className="w-auto h-5 px-4 py-5 bg-white justify-center items-center flex">
                         <NumberInput
+                            currentValue={userFormData.carCapacity}
                             onChange={(e) => handleCarCapacityChange(e)}
                             placeholder="Enter car capacity"
-                            min={0}
-                            max={10}
-                            step={1}
                         />
                     </div>
-                    <h2 className="text-xl font-bold mb-4">Location</h2>
+                    <h2 className="text-xl font-bold">Location</h2>
                     <div className="flex flex-col gap-4 mb-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700">
@@ -416,7 +417,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                         </div>
                     </div>
                     <button
-                        className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded w-full mb-4"
+                        className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded mb-4"
                         onClick={addAvailability}
                     >
                         Add Availability
@@ -463,7 +464,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                                 type="text"
                                 placeholder="HH:MM - HH:MM"
                                 className="border p-2 w-full rounded"
-                                value={availability.timeRange || "09:00-17:00"}
+                                value={availability.timeRange || ""}
                                 pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]$"
                                 title="Please enter a time range in the format HH:MM-HH:MM (e.g., 09:00-17:00)"
                                 onChange={(e) =>
@@ -475,7 +476,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                                 }
                             />
                             <button
-                                className="bg-green-500 hover:bg-green-600 text-white rounded w-full"
+                                className="text-r rounded mt-2 p-2"
                                 onClick={() => removeAvailability(index)}
                             >
                                 Remove Availability
@@ -483,11 +484,11 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                         </div>
                     ))}
 
-                    <div className="flex justify-between w-full gap-4">
+                    <div className="flex justify-center w-full gap-4">
                         <BackButton onClick={handleBack} />
                         {!isLoading && (
                             <button
-                                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded w-full"
+                                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded"
                                 onClick={handleSubmit}
                                 disabled={isLoading}
                             >

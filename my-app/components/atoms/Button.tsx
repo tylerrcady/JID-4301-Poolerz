@@ -26,15 +26,15 @@ export default function Button({
     } else {
         styles = `text-blue pt-2 text-base font-opensans rounded gap-2 hover:text-lightblue active:text-blue`;
         if (type === "primary") {
-            styles = `text-white bg-blue pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:bg-lightblue active:text-black`;
+            styles = `text-white bg-blue pt-2 px-4 py-2 text-sm font-opensans rounded gap-2 hover:bg-lightblue active:text-black`;
             styles += " border";
         }
         if (type === "cancel") {
-            styles = `text-black bg-white pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:text-red active:text-black`;
+            styles = `text-black bg-white px-4 py-2 text-sm font-opensans rounded gap-2 hover:text-red active:text-black`;
             styles += " border";
         }
         if (type === "remove") {
-            styles = `text-red bg-white pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:text-darkred active:text-black`;
+            styles = `text-red bg-white pt-2 py-2 text-sm font-opensans rounded gap-2 hover:text-darkred active:text-black`;
         }
         if (type === "login") {
             styles = `text-white bg-blue pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:bg-lightblue active:text-black`;

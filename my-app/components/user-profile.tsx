@@ -222,7 +222,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                         <div className="text-black text-xl font-bold">
                             Car Capacity
                         </div>
-                        <div className="w-1/5 text-gray text-base font-normal">
+                        <div className="text-gray text-base font-normal">
                             {isEditingProfile ? (
                                 <NumberInput
                                     currentValue={userFormData.carCapacity}
@@ -235,9 +235,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                         });
                                     }}
                                     placeholder="Enter car capacity"
-                                    min={0}
-                                    max={10}
-                                    step={1}
                                 />
                             ) : (
                                 <p>{userFormData.carCapacity}</p>
@@ -281,9 +278,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                         userFormData.children.map((child, index) => (
                             <div
                                 key={index}
-                                className="flex items-center justify-start gap-8"
+                                className="flex flex-col items-start"
                             >
-                                <div className="w-1/5 text-gray text-xl">
+                                <div className="text-gray text-xl">
                                     {isEditingFamily ? (
                                         <TextInput
                                             currentValue={child.name}
@@ -307,7 +304,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                     )}
                                 </div>
                                 {isEditingFamily && (
-                                    <div className="w-1/12 text-gray text-xl">
+                                    <div className="w text-gray text-xl">
                                         <Button
                                             text="Remove"
                                             type="remove"
@@ -330,7 +327,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                         ))}
                 </div>
                 {isEditingFamily && (
-                    <div className="w-1/5 flex items-center gap-2 cursor-pointer">
+                    <div className="flex items-center gap-2 cursor-pointer">
                         <Button
                             icon={<AddIcon strokeColor="#FFFFFF" />}
                             text="Add Child"
@@ -403,7 +400,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                               (availability, index) => (
                                   <div
                                       key={index}
-                                      className="flex items-center gap-4 text-xl"
+                                      className="flex flex-col items-start gap-2 text-xl"
                                   >
                                       <TextInput
                                           currentValue={availability.day}
@@ -438,7 +435,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                           }}
                                           placeholder="Enter hours"
                                       />
-                                      <div className="w-1/5 text-gray text-xl">
+                                      <div className="text-gray text-xl">
                                           <Button
                                               text="Remove"
                                               type="remove"
@@ -462,7 +459,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                               (availability, index) => (
                                   <div
                                       key={index}
-                                      className="justify-start items-center gap-4 flex"
+                                      className="flex-col justify-start items-center gap-2 flex"
                                   >
                                       <div className="text-black text-2xl font-bold">
                                           {availability.day}
@@ -475,7 +472,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                           )}
                 </div>
                 {isEditingAvailability && (
-                    <div className="w-1/5 flex items-center gap-2 cursor-pointer">
+                    <div className="flex items-center gap-2 cursor-pointer">
                         <Button
                             icon={<AddIcon strokeColor="#FFFFFF" />}
                             text="Add Availability"

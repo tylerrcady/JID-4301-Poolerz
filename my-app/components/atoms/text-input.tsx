@@ -49,7 +49,9 @@ export default function TextInput({
                 {...formValue}
                 className={`w-full py-2.5 px-2 bg-lightgray items-center border rounded ${
                     disabled ? "!bg-black" : "!bg-secondary-background"
-                } ${error ? "border-error-red" : "border-black"} text-black focus:outline-none focus:border-2 focus:border-blue`}
+                } ${
+                    error ? "border-error-red" : "border-black"
+                } text-black focus:outline-none focus:border-2 focus:border-blue`}
                 onClick={(event) => {
                     event.stopPropagation();
                 }}

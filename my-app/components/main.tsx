@@ -47,7 +47,7 @@ const Main: React.FC<MainProps> = () => {
                     alt="Poolerz logo"
                 />
             </div>
-            <div className="flex-col m-4 justify-start items-center flex gap-4">
+            <div className="flex-col m-4 w-10/12 justify-start items-center flex gap-4">
                 <div className="text-blue text-4xl font-bold font-['Open Sans']">
                     Connecting Families, One Carpool at a Time
                 </div>
