@@ -20,6 +20,8 @@ Poolerz is a web-based carpooling application designed to support busy professio
 -  Improved mobile responsiveness for the registration form, user profile, and overall application layout (header/footer).
 ### Known Issues
 - The "Remove" button does not visually remove elements before saving. Elements should be removed immediately upon clicking the button, rather than after the database save operation.
+- Form UI still needs to be fixed, especially regarding availability
+- Form needs to be fully checked for edge cases, including fixing regex checks
 
 ## Version 0.0.0: https://jda-4301-poolerz.vercel.app/
 
