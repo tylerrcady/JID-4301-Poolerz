@@ -176,11 +176,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
         <div className="flex items-center flex-col h-auto w-full bg-w p-5 overflow-y-auto gap-4">
             {/*Profile Section*/}
             <div className="w-10/12 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
-                <div className="justify-between items-center flex flex-wrap">
+                <div className="justify-between items-start flex flex-wrap flex-col gap-2">
                     <div className="text-blue text-2xl font-bold">Profile</div>
                     {isEditingProfile ? (
                         <div className="flex items-center gap-2 cursor-pointer">
-                            <div className="flex gap-6">
+                            <div className="flex gap-2">
                                 <Button
                                     text="Cancel"
                                     type="cancel"
@@ -246,11 +246,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             {/*Right Side */}
             {/*Family Section*/}
             <div className="w-10/12 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
-                <div className="justify-between items-center flex flex-wrap">
+                <div className="justify-between items-start flex flex-wrap flex-col gap-2">
                     <div className="text-blue text-2xl font-bold">Family</div>
                     {isEditingFamily ? (
                         <div className="flex items-center gap-2 cursor-pointer">
-                            <div className="flex gap-6">
+                            <div className="flex gap-2">
                                 <Button
                                     text="Cancel"
                                     type="cancel"
@@ -365,13 +365,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             </div>
             {/*Availability Section*/}
             <div className="w-10/12 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
-                <div className="justify-between items-center flex flex-wrap">
+                <div className="justify-between items-start flex flex-wrap flex-col gap-2">
                     <div className="text-blue text-2xl font-bold">
                         Driving Availability
                     </div>
                     {isEditingAvailability ? (
                         <div className="flex items-center gap-2 cursor-pointer">
-                            <div className="flex gap-6">
+                            <div className="flex gap-2">
                                 <Button
                                     text="Cancel"
                                     type="cancel"
