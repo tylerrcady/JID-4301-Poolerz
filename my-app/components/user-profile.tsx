@@ -459,7 +459,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                               (availability, index) => (
                                   <div
                                       key={index}
-                                      className="flex-col justify-start items-center gap-2 flex"
+                                      className="flex-col justify-start items-start gap-2 flex"
                                   >
                                       <div className="text-black text-2xl font-bold">
                                           {availability.day}
