@@ -16,6 +16,8 @@ Poolerz is a web-based carpooling application designed to support busy professio
 - Poolerz home page:
     - Upgraded the Poolerz home page layout
     - Added fields for contacting Poolerz organizers and subscribing to the mailing list
+ - User Profile:
+    - Enhanced the design and usability of the profile editing experience
 ### Bug Fixes
 -  Improved mobile responsiveness for the registration form, user profile, and overall application layout (header/footer).
 ### Known Issues
