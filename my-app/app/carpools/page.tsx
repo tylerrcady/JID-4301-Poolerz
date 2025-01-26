@@ -18,10 +18,13 @@ export default async function Page() {
             redirect("/user-form"); // Redirect to form if incomplete
         }
     }
-    
+
     return (
         <div className="flex items-center justify-between h-screen flex-col text-gray bg-w">
-            <Header userId={session?.user?.id} isFormComplete={isFormComplete} />
+            <Header
+                userId={session?.user?.id}
+                isFormComplete={isFormComplete}
+            />
             {session?.user?.id ? (
                 <Carpools userId={session?.user?.id} />
             ) : (
