@@ -37,7 +37,7 @@ const Main: React.FC<MainProps> = () => {
     };
 
     return (
-        <div className="flex items-center flex-col h-auto w-full gap-6 bg-w py-5 overflow-y-auto text-center">
+        <div className="flex items-center flex-col h-auto w-full gap-6 bg-w py-5 text-center">
             <div className="relative w-full max-w-xs">
                 <Image
                     layout="responsive"

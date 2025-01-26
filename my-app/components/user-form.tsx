@@ -273,7 +273,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
 
     return (
         // do not change the first div at all
-        <div className="flex items-center flex-col h-auto w-full bg-w p-5 overflow-y-auto gap-4 text-center">
+        <div className="flex items-center flex-col h-auto w-full bg-w p-5 gap-4 text-center">
             <div className="text-base underline">
                 Complete our onboarding form below to get access to the full
                 application.

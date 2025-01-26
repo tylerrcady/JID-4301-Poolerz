@@ -173,7 +173,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
 
     return (
         // do not change the first div at all
-        <div className="flex items-center flex-col h-auto w-full bg-w p-5 overflow-y-auto gap-4">
+        <div className="flex items-center flex-col h-auto w-full bg-w p-5 gap-4">
             {/*Profile Section*/}
             <div className="w-10/12 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                 <div className="justify-between items-start flex flex-wrap flex-col gap-2">

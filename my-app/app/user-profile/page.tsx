@@ -12,7 +12,7 @@ export default async function Page() {
     const userId = session?.user?.id;
 
     let isFormComplete = false;
-    
+
     if (userId) {
         isFormComplete = await checkFormCompletion(userId);
         if (!isFormComplete) {
