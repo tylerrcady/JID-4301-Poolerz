@@ -3,6 +3,24 @@ Poolerz is a web-based carpooling application designed to support busy professio
 
 # Release Notes
 
+## Version 0.1.0: https://jda-4301-poolerz.vercel.app/
+### Features
+- Registration Flow:
+  - New users are prompted to complete a registration form immediately upon signing in.
+  - Once the form is submitted, the user data gets updated to their profile and Poolerz database, and users gain full access to the application
+- Main Carpool Page: Introduced refined Poolerz landing pages for three user states:
+    1. Not logged in
+    2. Logged in but registration form not completed
+    3. Fully logged in with registration completed
+- Create & Join Carpool Page: Implemented landing pages for users creating a new carpool or joining an existing one
+- Poolerz home page:
+    - Upgraded the Poolerz home page layout
+    - Added fields for contacting Poolerz organizers and subscribing to the mailing list
+### Bug Fixes
+-  Improved mobile responsiveness for the registration form, user profile, and overall application layout (header/footer).
+### Known Issues
+- The "Remove" button does not visually remove elements before saving. Elements should be removed immediately upon clicking the button, rather than after the database save operation.
+
 ## Version 0.0.0: https://jda-4301-poolerz.vercel.app/
 
 ### Features
