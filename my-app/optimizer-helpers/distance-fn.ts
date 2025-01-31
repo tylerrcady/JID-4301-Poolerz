@@ -16,8 +16,6 @@ export function euclideanDistance(x1: number, y1: number, x2: number, y2: number
 }
 
 
-  
-
 /**
  * Returns the great-circle distance (in kilometers) between two points using the haversine formula.
  * If you want miles, you can convert the final result (1 km ~= 0.621371 mi).
@@ -49,7 +47,7 @@ function toRadians(deg: number): number {
   
 
 
-//API
+//Google API driving distance and duration
 export async function getDrivingDistance(
     originLat: number,
     originLon: number,
