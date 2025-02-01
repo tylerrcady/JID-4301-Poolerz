@@ -2,10 +2,17 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import Button from "@components/atoms/Button";
+<<<<<<< Updated upstream
 import AddModal from "./modals/add-modal";
 import TextInput from "@components/atoms/text-input";
 import NumberInput from "@components/atoms/number-input";
 import AddIcon from "./icons/AddIcon";
+=======
+
+import TextInput from "@components/atoms/text-input";
+import NumberInput from "@components/atoms/number-input";
+
+>>>>>>> Stashed changes
 
 interface UserProfileProps {
     userId: string | undefined;
@@ -139,7 +146,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 },
                 body: JSON.stringify({
                     userId,
+<<<<<<< Updated upstream
                     userFormData: { ...userFormData },
+=======
+                    userFormData:  { ...userFormData,},
+>>>>>>> Stashed changes
                 }),
             });
             if (response.ok) {
