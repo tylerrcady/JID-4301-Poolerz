@@ -29,9 +29,6 @@ export default function NumberInput({
     inputType = "number",
     key = "",
     required = false,
-    min,
-    max,
-    step,
 }: Props) {
     const [value, setValue] = useState(currentValue);
 
@@ -55,7 +52,9 @@ export default function NumberInput({
                 {...formValue}
                 className={`w-full py-2.5 px-2 bg-lightgray items-center border rounded ${
                     disabled ? "!bg-black" : "!bg-secondary-background"
-                } ${error ? "border-red" : "border-black"} text-black focus:outline-none focus:border-2 focus:border-blue`}
+                } ${
+                    error ? "border-red" : "border-black"
+                } text-black focus:outline-none focus:border-2 focus:border-blue`}
                 onClick={(event) => {
                     event.stopPropagation();
                 }}
@@ -68,10 +67,6 @@ export default function NumberInput({
                 }}
                 placeholder={placeholder}
                 value={value.toString()} // NaN issue
-                disabled={disabled}
-                min={min}
-                max={max}
-                step={step}
             />
             <ErrorText error={error} />
         </div>

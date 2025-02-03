@@ -18,13 +18,15 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [isEditingFamily, setIsEditingFamily] = useState(false);
     const [isChildModalOpen, setIsChildModalOpen] = useState(false);
-    const [isAvailabilityModalOpen, setIsAvailabilityModalOpen] = useState(false);
+    const [isAvailabilityModalOpen, setIsAvailabilityModalOpen] =
+        useState(false);
     const [newDay, setNewDay] = useState("");
     const [newTimeRange, setNewTimeRange] = useState("");
     const [newChildName, setNewChildName] = useState("");
     const [isEditingAvailability, setIsEditingAvailability] = useState(false);
     const [userFormData, setUserFormData] = useState<UserFormData | null>(null);
-    const [userFormDataBackup, setUserFormDataBackup] = useState<UserFormData | null>(null);
+    const [userFormDataBackup, setUserFormDataBackup] =
+        useState<UserFormData | null>(null);
 
     // GET user-form-data handler
     const handleUserFormGet = useCallback(async () => {
@@ -103,22 +105,21 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             return;
         }
         if (!userFormData) return;
-      
+
         const updatedAvailabilities = [
-          ...userFormData.availabilities,
-          { day: newDay.trim(), 
-            timeRange: newTimeRange.trim() },
+            ...userFormData.availabilities,
+            { day: newDay.trim(), timeRange: newTimeRange.trim() },
         ];
-      
+
         setUserFormData({
-          ...userFormData,
-          availabilities: updatedAvailabilities,
+            ...userFormData,
+            availabilities: updatedAvailabilities,
         });
-      
+
         setNewDay("");
         setNewTimeRange("");
         setIsAvailabilityModalOpen(false);
-      };
+    };
 
     const handleCancel = () => {
         if (userFormDataBackup) {
@@ -172,14 +173,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
 
     return (
         // do not change the first div at all
-        <div className="flex items-center flex-col h-auto w-full bg-w p-5 overflow-y-auto gap-4">
+        <div className="flex items-center flex-col h-auto w-full bg-w p-5 gap-4">
             {/*Profile Section*/}
-            <div className="w-3/4 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
-                <div className="justify-between items-center flex flex-wrap">
+            <div className="w-10/12 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
+                <div className="justify-between items-start flex flex-wrap flex-col gap-2">
                     <div className="text-blue text-2xl font-bold">Profile</div>
                     {isEditingProfile ? (
                         <div className="flex items-center gap-2 cursor-pointer">
-                            <div className="flex gap-6">
+                            <div className="flex gap-2">
                                 <Button
                                     text="Cancel"
                                     type="cancel"
@@ -221,7 +222,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                         <div className="text-black text-xl font-bold">
                             Car Capacity
                         </div>
-                        <div className="w-1/5 text-gray text-base font-normal">
+                        <div className="text-gray text-base font-normal">
                             {isEditingProfile ? (
                                 <NumberInput
                                     currentValue={userFormData.carCapacity}
@@ -234,9 +235,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                         });
                                     }}
                                     placeholder="Enter car capacity"
-                                    min={0}
-                                    max={10}
-                                    step={1}
                                 />
                             ) : (
                                 <p>{userFormData.carCapacity}</p>
@@ -247,12 +245,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             </div>
             {/*Right Side */}
             {/*Family Section*/}
-            <div className="w-3/4 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
-                <div className="justify-between items-center flex flex-wrap">
+            <div className="w-10/12 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
+                <div className="justify-between items-start flex flex-wrap flex-col gap-2">
                     <div className="text-blue text-2xl font-bold">Family</div>
                     {isEditingFamily ? (
                         <div className="flex items-center gap-2 cursor-pointer">
-                            <div className="flex gap-6">
+                            <div className="flex gap-2">
                                 <Button
                                     text="Cancel"
                                     type="cancel"
@@ -278,8 +276,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 <div>
                     {userFormData &&
                         userFormData.children.map((child, index) => (
-                            <div key={index} className="flex items-center justify-start gap-8">
-                                <div className="w-1/5 text-gray text-xl">
+                            <div
+                                key={index}
+                                className="flex flex-col items-start"
+                            >
+                                <div className="text-gray text-xl">
                                     {isEditingFamily ? (
                                         <TextInput
                                             currentValue={child.name}
@@ -303,74 +304,74 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                     )}
                                 </div>
                                 {isEditingFamily && (
-                                    <div className="w-1/12 text-gray text-xl">
-                                    <Button
-                                        text="Remove"
-                                        type="remove"
-                                        onClick={() => {
-                                            const updatedChildren = userFormData.children.filter(
-                                                (_, i) => i !== index
-                                            );
-                                            setUserFormData({
-                                                ...userFormData,
-                                                children: updatedChildren,
-                                                numChildren: updatedChildren.length,
-                                            });
-                                        }}
-                                    />
+                                    <div className="w text-gray text-xl">
+                                        <Button
+                                            text="Remove"
+                                            type="remove"
+                                            onClick={() => {
+                                                const updatedChildren =
+                                                    userFormData.children.filter(
+                                                        (_, i) => i !== index
+                                                    );
+                                                setUserFormData({
+                                                    ...userFormData,
+                                                    children: updatedChildren,
+                                                    numChildren:
+                                                        updatedChildren.length,
+                                                });
+                                            }}
+                                        />
                                     </div>
                                 )}
                             </div>
                         ))}
                 </div>
                 {isEditingFamily && (
-                <div className="w-1/5 flex items-center gap-2 cursor-pointer">
-                <Button
-                    icon={<AddIcon
-                        strokeColor="#FFFFFF"
-                    />}
-                    text="Add Child"
-                    type="primary"
-                    onClick={() => setIsChildModalOpen(true)}
-                />
-            </div>
-            )}
-            {/* Modal for adding a child */}
-            <AddModal
+                    <div className="flex items-center gap-2 cursor-pointer">
+                        <Button
+                            icon={<AddIcon strokeColor="#FFFFFF" />}
+                            text="Add Child"
+                            type="primary"
+                            onClick={() => setIsChildModalOpen(true)}
+                        />
+                    </div>
+                )}
+                {/* Modal for adding a child */}
+                <AddModal
                     isOpen={isChildModalOpen}
                     text="Add Child"
                     onClose={() => setIsChildModalOpen(false)}
-            >
-                <div className="flex flex-col gap-4">
-                    <TextInput
-                        currentValue={newChildName}
-                        onChange={setNewChildName}
-                        placeholder="Enter child's name"
-                    />
-                    <div className="flex w-2/5 justify-start gap-4">
-                        <Button
-                        text="Cancel"
-                        type="cancel"
-                        onClick={() => setIsChildModalOpen(false)}
+                >
+                    <div className="flex flex-col gap-4">
+                        <TextInput
+                            currentValue={newChildName}
+                            onChange={setNewChildName}
+                            placeholder="Enter child's name"
                         />
-                        <Button
-                        text="Save"
-                        type="primary"
-                        onClick={handleAddChild}
-                        />
+                        <div className="flex w-2/5 justify-start gap-4">
+                            <Button
+                                text="Cancel"
+                                type="cancel"
+                                onClick={() => setIsChildModalOpen(false)}
+                            />
+                            <Button
+                                text="Save"
+                                type="primary"
+                                onClick={handleAddChild}
+                            />
+                        </div>
                     </div>
-                </div>
-            </AddModal>
-        </div>
+                </AddModal>
+            </div>
             {/*Availability Section*/}
-            <div className="w-3/4 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
-                <div className="justify-between items-center flex flex-wrap">
+            <div className="w-10/12 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
+                <div className="justify-between items-start flex flex-wrap flex-col gap-2">
                     <div className="text-blue text-2xl font-bold">
                         Driving Availability
                     </div>
                     {isEditingAvailability ? (
                         <div className="flex items-center gap-2 cursor-pointer">
-                            <div className="flex gap-6">
+                            <div className="flex gap-2">
                                 <Button
                                     text="Cancel"
                                     type="cancel"
@@ -396,67 +397,69 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 <div className="w-full flex-col justify-start items-start gap-2.5 inline-flex">
                     {isEditingAvailability
                         ? userFormData?.availabilities?.map(
-                            (availability, index) => (
-                                <div
-                                    key={index}
-                                    className="flex items-center gap-4 text-xl"
-                                >
-                                <TextInput
-                                        currentValue={availability.day}
-                                        onChange={(value) => {
-                                            const updatedAvailabilities = [
-                                                ...userFormData.availabilities,
-                                            ];
-                                            updatedAvailabilities[index].day =
-                                                value;
-                                            setUserFormData({
-                                                ...userFormData,
-                                                availabilities:
-                                                    updatedAvailabilities,
-                                            });
-                                        }}
-                                    placeholder="Enter day"
-                                />
-                                <TextInput
-                                    currentValue={availability.timeRange}
-                                    onChange={(value) => {
-                                        const updatedAvailabilities = [
-                                            ...userFormData.availabilities,
-                                        ];
-                                        updatedAvailabilities[
-                                            index
-                                        ].timeRange = value;
-                                        setUserFormData({
-                                            ...userFormData,
-                                            availabilities:
-                                                updatedAvailabilities,
-                                        });
-                                    }}
-                                    placeholder="Enter hours"
-                                />
-                                <div className="w-1/5 text-gray text-xl">
-                                    <Button
-                                        text="Remove"
-                                        type="remove"
-                                        onClick={() => {
-                                            const updatedAvailabilities = userFormData.availabilities.filter(
-                                                (_, i) => i !== index
-                                            );
-                                            setUserFormData({
-                                                ...userFormData,
-                                                availabilities: updatedAvailabilities,
-                                            });
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                            )
-                        )
+                              (availability, index) => (
+                                  <div
+                                      key={index}
+                                      className="flex flex-col items-start gap-2 text-xl"
+                                  >
+                                      <TextInput
+                                          currentValue={availability.day}
+                                          onChange={(value) => {
+                                              const updatedAvailabilities = [
+                                                  ...userFormData.availabilities,
+                                              ];
+                                              updatedAvailabilities[index].day =
+                                                  value;
+                                              setUserFormData({
+                                                  ...userFormData,
+                                                  availabilities:
+                                                      updatedAvailabilities,
+                                              });
+                                          }}
+                                          placeholder="Enter day"
+                                      />
+                                      <TextInput
+                                          currentValue={availability.timeRange}
+                                          onChange={(value) => {
+                                              const updatedAvailabilities = [
+                                                  ...userFormData.availabilities,
+                                              ];
+                                              updatedAvailabilities[
+                                                  index
+                                              ].timeRange = value;
+                                              setUserFormData({
+                                                  ...userFormData,
+                                                  availabilities:
+                                                      updatedAvailabilities,
+                                              });
+                                          }}
+                                          placeholder="Enter hours"
+                                      />
+                                      <div className="text-gray text-xl">
+                                          <Button
+                                              text="Remove"
+                                              type="remove"
+                                              onClick={() => {
+                                                  const updatedAvailabilities =
+                                                      userFormData.availabilities.filter(
+                                                          (_, i) => i !== index
+                                                      );
+                                                  setUserFormData({
+                                                      ...userFormData,
+                                                      availabilities:
+                                                          updatedAvailabilities,
+                                                  });
+                                              }}
+                                          />
+                                      </div>
+                                  </div>
+                              )
+                          )
                         : userFormData?.availabilities?.map(
                               (availability, index) => (
                                   <div
                                       key={index}
-                                      className="justify-start items-center gap-4 flex"
+                                      className="flex-col justify-start items-start gap-2 flex"
                                   >
                                       <div className="text-black text-2xl font-bold">
                                           {availability.day}
@@ -466,10 +469,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                       </div>
                                   </div>
                               )
-                        )}
+                          )}
                 </div>
                 {isEditingAvailability && (
-                    <div className="w-1/5 flex items-center gap-2 cursor-pointer">
+                    <div className="flex items-center gap-2 cursor-pointer">
                         <Button
                             icon={<AddIcon strokeColor="#FFFFFF" />}
                             text="Add Availability"
@@ -485,44 +488,55 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 >
                     <div className="flex flex-col gap-4">
                         <div className="mb-4">
-                        <label className="block text-xl font-bold text-black mb-2">Day</label>
-                        <select
-                            className="border p-2 w-full mb-2 rounded text-gray focus:ring-2 focus:ring-blue"
-                            value={newDay}
-                            onChange={(e) => setNewDay(e.target.value)}
-                        >
-                            <option value="">Select a day</option>
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                            <option value="Saturday">Saturday</option>
-                            <option value="Sunday">Sunday</option>
-                        </select>
+                            <label className="block text-xl font-bold text-black mb-2">
+                                Day
+                            </label>
+                            <select
+                                className="border p-2 w-full mb-2 rounded text-gray focus:ring-2 focus:ring-blue"
+                                value={newDay}
+                                onChange={(e) => setNewDay(e.target.value)}
+                            >
+                                <option value="">Select a day</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
                         </div>
 
                         <div className="mb-4">
-                        <label className="block text-xl font-bold text-black mb-2">Time Range</label>
-                        <input
-                            type="text"
-                            placeholder="HH:MM - HH:MM"
-                            className="border p-2 w-full rounded text-gray focus:ring-2 focus:ring-blue"
-                            value={newTimeRange}
-                            onInput={(e) => {
-                                const input = e.target as HTMLInputElement;
-                                input.value = input.value.replace(/[^0-9:-]/g, "");
-                            }}
-                            pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]$"
-                            title="Please enter a time range in the format HH:MM-HH:MM (e.g., 09:00-17:00)"
-                            onChange={(e) => setNewTimeRange(e.target.value)}
-                        />
+                            <label className="block text-xl font-bold text-black mb-2">
+                                Time Range
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="HH:MM - HH:MM"
+                                className="border p-2 w-full rounded text-gray focus:ring-2 focus:ring-blue"
+                                value={newTimeRange}
+                                onInput={(e) => {
+                                    const input = e.target as HTMLInputElement;
+                                    input.value = input.value.replace(
+                                        /[^0-9:-]/g,
+                                        ""
+                                    );
+                                }}
+                                pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]$"
+                                title="Please enter a time range in the format HH:MM-HH:MM (e.g., 09:00-17:00)"
+                                onChange={(e) =>
+                                    setNewTimeRange(e.target.value)
+                                }
+                            />
                         </div>
                         <div className="flex w-2/5 justify-start gap-4">
                             <Button
                                 text="Cancel"
                                 type="cancel"
-                                onClick={() => setIsAvailabilityModalOpen(false)}
+                                onClick={() =>
+                                    setIsAvailabilityModalOpen(false)
+                                }
                             />
                             <Button
                                 text="Save"
