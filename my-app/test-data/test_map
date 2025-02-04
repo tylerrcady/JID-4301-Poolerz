@@ -1,0 +1,29 @@
+import folium
+from geopy.geocoders import Nominatim
+import json
+
+# Load data
+json_path = "C:/Users/Annie/OneDrive - Georgia Institute of Technology/Documents/Junior Design/JID-4301-Poolerz/my-app/test-data/test_data3.json"
+
+with open(json_path) as f:
+    data = json.load(f)
+
+geolocator = Nominatim(user_agent="carpool_map")
+
+# Create a map centered around Cumming, GA
+m = folium.Map(location=[34.2073, -84.1402], zoom_start=12)
+
+# Loop through users and add markers
+for user in data["users"]:
+    address = f"{user['location']['address']}, {user['location']['city']}, {user['location']['state']} {user['location']['zipCode']}"
+    location = geolocator.geocode(address)
+    
+    if location:
+        folium.Marker(
+            [location.latitude, location.longitude],
+            popup=f"User ID: {user['userId']}<br>Name: {user['name']}",
+            tooltip=f"User {user['userId']}"
+        ).add_to(m)
+
+# Save map to an HTML file
+m.save("carpool_map.html")
