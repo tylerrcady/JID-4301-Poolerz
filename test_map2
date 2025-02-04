@@ -36,7 +36,7 @@
             });
 
             try {
-                const response = await fetch("my-app\test-data\test_data3.json"); // Ensure test_data3.json is accessible
+                const response = await fetch("test-data/test_data3.json"); // Ensure test_data3.json is accessible
                 const jsonData = await response.json();
 
                 const users = jsonData.users || []; // Extract users list safely
