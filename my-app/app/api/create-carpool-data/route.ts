@@ -12,8 +12,8 @@ export async function POST(request: Request) {
         });
     }
     try {
-        // generate 6-digit alphanumeric ID
-        const carpoolId = "";
+        // creating random carpoolID
+        let carpoolId = "";
         let existingID: boolean = true;
 
         // ensure there is no existing carpool whilst generating random 6-digit ID
@@ -21,8 +21,9 @@ export async function POST(request: Request) {
             // generate random carpoolId
             const ALPHANUMERIC = '0123456789abcdefghijklmnopqrstuvwxyz';
             const nanoid = customAlphabet(ALPHANUMERIC, 6);
-            const carpoolId = nanoid();
+            carpoolId = nanoid();
             try {
+                console.log(carpoolId); // for testing purposes ONLY
                 await getCreateCarpoolData(carpoolId);
     
             } catch (error) {
