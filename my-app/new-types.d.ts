@@ -22,7 +22,7 @@ interface CreateCarpoolData {
     creatorId: string; // owner's user ID
     times: Availability[]; // same thing thing with above comment
     notes: string;
-    members: string[];
+    members: [creatorId]; // initializes members[0] = creatorId
 }
 
 //separate interface for the database document structure 
