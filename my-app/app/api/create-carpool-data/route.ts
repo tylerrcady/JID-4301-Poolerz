@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { postCreateCarpoolData, getCreateCarpoolData } from "@/lib/create-carpool-data";
+import { customAlphabet } from 'nanoid';
 
 // POST
 export async function POST(request: Request) {
@@ -10,13 +11,30 @@ export async function POST(request: Request) {
             status: 500,
         });
     }
-
     try {
+        // generate 6-digit alphanumeric ID
+        const carpoolId = "";
+        let existingID: boolean = true;
+
+        // ensure there is no existing carpool whilst generating random 6-digit ID
+        while (existingID) {
+            // generate random carpoolId
+            const ALPHANUMERIC = '0123456789abcdefghijklmnopqrstuvwxyz';
+            const nanoid = customAlphabet(ALPHANUMERIC, 6);
+            const carpoolId = nanoid();
+            try {
+                await getCreateCarpoolData(carpoolId);
+    
+            } catch (error) {
+                existingID = false;
+            } 
+        }
+
         // get passed-in data
-        const {carpoolId, createCarpoolData} = await request.json();
+        const {createCarpoolData} = await request.json();
 
         // check if data is valid
-        if (!carpoolId) {
+        if (!createCarpoolData) {
             return new Response(
                 JSON.stringify({
                     error: "Invalid data",
