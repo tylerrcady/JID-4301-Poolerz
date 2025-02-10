@@ -19,10 +19,10 @@ interface UserFormData {
 }
 
 interface CreateCarpoolData {
-    owner: string;
-    location: UserLocation; // should I re-use that interface to keep it consistent, or should it be a string, or diff type of object?
+    creatorId: string; // owner's user ID
     times: Availability[]; // same thing thing with above comment
     notes: string;
+    members: string[];
 }
 
 //separate interface for the database document structure 
