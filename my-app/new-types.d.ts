@@ -18,6 +18,13 @@ interface UserFormData {
     location: UserLocation;
 }
 
+interface CreateCarpoolData {
+    creatorId: string; // owner's user ID
+    times: Availability[]; // same thing thing with above comment
+    notes: string;
+    members: string[];
+}
+
 //separate interface for the database document structure 
 interface UserDocument {
     userId: string;
