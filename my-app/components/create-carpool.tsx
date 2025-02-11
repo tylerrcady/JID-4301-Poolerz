@@ -34,11 +34,12 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
     );
   };
 
-  // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  // Handle form submission and connect to the database via API
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
+    // Validate required fields
     if (
       !poolName.trim() ||
       !sharedLocation.trim() ||
@@ -49,21 +50,42 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       return;
     }
 
+    // Build the times array based on selected days and the provided start time
     const times = selectedDays.map((day) => ({
       day,
       timeRange: startTime,
     }));
 
+    // Assemble the carpool data object according to our schema
     const formData = {
       creatorId: userId,
       times,
+      // Combine pool name and shared location into the notes field.
       notes: `Pool Name: ${poolName}; Shared Location: ${sharedLocation}`,
       members: [userId],
     };
 
-    console.log("Carpool JSON:", formData);
-    // Later, you or your teammate can hook this up to an API call.
-    // For example: router.push("/carpools");
+    try {
+      const response = await fetch("/api/create-carpool-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Our API expects the data under the key "createCarpoolData"
+        body: JSON.stringify({ createCarpoolData: formData }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        setError(result.error || "Failed to create carpool.");
+        return;
+      }
+      // On success, redirect to the carpools page (or show a success message)
+      router.push("/carpools");
+    } catch (error: any) {
+      console.error("Error submitting form:", error);
+      setError("Internal Server Error. Please try again.");
+    }
   };
 
   return (
@@ -115,7 +137,6 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
             <label className="text-black text-xl font-bold font-['Open Sans']">
               Days Available <span className="text-red-500">*</span>
             </label>
-            {/* Responsive grid: 2 columns on mobile, 3 columns on medium+ */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {DAYS_OF_WEEK.map((day) => (
                 <label

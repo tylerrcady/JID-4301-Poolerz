@@ -14,22 +14,14 @@ export async function POST(request: Request) {
     try {
         // creating random carpoolID
         let carpoolId = "";
-        let existingID: boolean = true;
-
-        // ensure there is no existing carpool whilst generating random 6-digit ID
-        while (existingID) {
-            // generate random carpoolId
-            const ALPHANUMERIC = '0123456789abcdefghijklmnopqrstuvwxyz';
-            const nanoid = customAlphabet(ALPHANUMERIC, 6);
+        let existingData: any = null;
+        const ALPHANUMERIC = '0123456789abcdefghijklmnopqrstuvwxyz';
+        const nanoid = customAlphabet(ALPHANUMERIC, 6);
+        // use a do-while loop to generate and check the ID
+        do {
             carpoolId = nanoid();
-            try {
-                console.log(carpoolId); // for testing purposes ONLY
-                await getCreateCarpoolData(carpoolId);
-    
-            } catch (error) {
-                existingID = false;
-            } 
-        }
+            existingData = await getCreateCarpoolData(carpoolId);
+        } while (existingData); // continue looping if any record is found
 
         // get passed-in data
         const {createCarpoolData} = await request.json();
