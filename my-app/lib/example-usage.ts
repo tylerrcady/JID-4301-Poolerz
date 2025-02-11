@@ -1,13 +1,19 @@
 // example-usage.ts
 import { optimizeCarpools } from "@/optimizer/optimizer";
-import data from ".././test-data/test_data2.json";
 
-export async function runOptimizer() {
-    async function runExample() {
-        const exampleData = data;
-        const apiKey = "AIzaSyCGFoau74-eJjeaKFqh0CXiqsGPe5Rx5Yc";
-        console.log(await optimizeCarpools(exampleData, apiKey));
+export async function runOptimizer(testDataNumber: number) {
+    async function run() {
+        const data = await import(`../public/test_data${testDataNumber}.json`);
+        console.log(data.default);
+        const apiKey = "AIzaSyCGFoau74-eJjeaKFqh0CXiqsGPe5Rx5Yc"; // probably change to .env variable later on (@ ignacio)
+        const results = await optimizeCarpools(data.default, apiKey); // call and return the optimizer & its outputs
+        return {
+            initialClusters: results.initialClusters,
+            validatedClusters: results.validatedClusters,
+            finalClusters: results.finalClusters,
+            unclusteredUsers: results.unclusteredUsers,
+        };
     }
 
-    runExample();
+    return await run(); // run the example and return the results
 }

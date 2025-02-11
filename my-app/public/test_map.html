@@ -17,6 +17,11 @@
         <script>
             let map;
 
+            function getQueryParam(param) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(param);
+            }
+
             async function geocodeAddress(address) {
                 try {
                     const response = await fetch(
@@ -38,13 +43,20 @@
             }
 
             async function initMap() {
+                window.initMap = initMap;
                 map = new google.maps.Map(document.getElementById("map"), {
                     zoom: 11,
                     center: { lat: 34.2073, lng: -84.1402 }, // Centered on Cumming, GA
                 });
 
+                const input = getQueryParam("input");
+                if (!input) {
+                    console.error("No input parameter provided in the URL.");
+                    return;
+                }
+
                 try {
-                    const response = await fetch("test_data2.json"); // Ensure test_data3.json is accessible
+                    const response = await fetch(`test_data${input}.json`); // Fetch the JSON file based on the input parameter
                     const jsonData = await response.json();
 
                     const users = jsonData.users || []; // Extract users list safely
