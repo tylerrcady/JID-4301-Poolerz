@@ -1,57 +1,161 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface CreateCarpoolProps {
-    userId: string | undefined;
-    // may add more variables if necessary, like in user-profile.tsx
+  userId: string;
 }
 
-const CreateCarpool: React.FC<CreateCarpoolProps> = () => {
-    const router = useRouter();
-    return (
-        <div className="flex flex-col w-10/12 max-w-md gap-6 p-4">
-            {/* Back Button */}
-            <div>
-                <button
-                    onClick={() => router.back()}
-                    className="text-b text-lg md:text-2xl font-normal"
-                >
-                    Back
-                </button>
-            </div>
-            {/* Pool Name Field */}
-            <div className="flex flex-col gap-2">
-                <label className="text-d text-lg md:text-xl font-normal">
-                    Pool Name <span className="text-d">*</span>
-                </label>
-                <input
-                    type="text"
-                    className="w-full h-10 rounded-md border border-d px-3 py-2 outline-none"
-                    placeholder="Enter pool name"
-                />
-            </div>
+const DAYS_OF_WEEK = [
+  { label: "Sunday", value: "U" },
+  { label: "Monday", value: "M" },
+  { label: "Tuesday", value: "T" },
+  { label: "Wednesday", value: "W" },
+  { label: "Thursday", value: "R" },
+  { label: "Friday", value: "F" },
+  { label: "Saturday", value: "S" },
+];
 
-            {/* Shared Location Field */}
-            <div className="flex flex-col gap-2">
-                <label className="text-d text-lg md:text-xl font-normal">
-                    Shared Location <span className="text-d">*</span>
-                </label>
-                <input
-                    type="text"
-                    className="w-full h-10 rounded-md border border-d px-3 py-2 outline-none"
-                    placeholder="Enter shared location"
-                />
-            </div>
+const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
+  const router = useRouter();
 
-            {/* Continue Button */}
-            <div>
-                <button className="w-full md:w-auto px-6 py-3 bg-b rounded-lg text-w text-lg md:text-xl font-normal">
-                    Continue
-                </button>
-            </div>
-        </div>
+  // Form state
+  const [poolName, setPoolName] = useState("");
+  const [sharedLocation, setSharedLocation] = useState("");
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [startTime, setStartTime] = useState("");
+  const [error, setError] = useState("");
+
+  // Toggle day selection
+  const handleDayToggle = (day: string) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
+  };
+
+  // Handle form submission
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (
+      !poolName.trim() ||
+      !sharedLocation.trim() ||
+      selectedDays.length === 0 ||
+      !startTime
+    ) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
+    const times = selectedDays.map((day) => ({
+      day,
+      timeRange: startTime,
+    }));
+
+    const formData = {
+      creatorId: userId,
+      times,
+      notes: `Pool Name: ${poolName}; Shared Location: ${sharedLocation}`,
+      members: [userId],
+    };
+
+    console.log("Carpool JSON:", formData);
+    // Later, you or your teammate can hook this up to an API call.
+    // For example: router.push("/carpools");
+  };
+
+  return (
+    <div className="flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6">
+      {/* Title */}
+      <h1 className="text-black text-2xl font-bold font-['Open Sans']">
+        Create Carpool
+      </h1>
+      {/* Back Button */}
+      <div>
+        <button
+          onClick={() => router.back()}
+          className="text-b text-lg md:text-2xl"
+        >
+          Back
+        </button>
+      </div>
+      {/* Form Card */}
+      <div className="bg-white rounded-md shadow-md p-4 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {/* Pool Name Field */}
+          <div className="flex flex-col gap-1">
+            <label className="text-black text-xl font-bold font-['Open Sans']">
+              Pool Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter pool name"
+              value={poolName}
+              onChange={(e) => setPoolName(e.target.value)}
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f]"
+            />
+          </div>
+          {/* Shared Location Field */}
+          <div className="flex flex-col gap-1">
+            <label className="text-black text-xl font-bold font-['Open Sans']">
+              Shared Location <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter shared location"
+              value={sharedLocation}
+              onChange={(e) => setSharedLocation(e.target.value)}
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f]"
+            />
+          </div>
+          {/* Days Available */}
+          <div className="flex flex-col gap-1">
+            <label className="text-black text-xl font-bold font-['Open Sans']">
+              Days Available <span className="text-red-500">*</span>
+            </label>
+            {/* Responsive grid: 2 columns on mobile, 3 columns on medium+ */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {DAYS_OF_WEEK.map((day) => (
+                <label
+                  key={day.value}
+                  className="flex items-center space-x-2 p-2 border rounded-md cursor-pointer font-['Open Sans']"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedDays.includes(day.value)}
+                    onChange={() => handleDayToggle(day.value)}
+                    className="form-checkbox h-5 w-5 text-[#4b859f]"
+                  />
+                  <span className="text-black">{day.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          {/* Start Time Field */}
+          <div className="flex flex-col gap-1">
+            <label className="text-black text-xl font-bold font-['Open Sans']">
+              Start Time <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f]"
+            />
+          </div>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <button
+            type="submit"
+            className="px-6 py-2 bg-[#4b859f] rounded-md border border-[#4b859f] text-white text-lg md:text-xl font-semibold font-['Open Sans']"
+          >
+            Continue
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 };
+
 export default CreateCarpool;
