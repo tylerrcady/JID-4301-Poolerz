@@ -42,7 +42,7 @@ export async function POST(request: Request) {
         // return success/failure
         if (result && result.success) {
             return new Response(
-                JSON.stringify({ message: "Success with POST user-form-data" }),
+                JSON.stringify({ message: "Success with POST user-form-data", joinCode: carpoolId }),
                 {
                     status: 200,
                 }
