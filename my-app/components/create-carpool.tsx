@@ -38,8 +38,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    // Validate required fields
+  
     if (
       !poolName.trim() ||
       !sharedLocation.trim() ||
@@ -49,39 +48,38 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       setError("Please fill in all required fields.");
       return;
     }
-
-    // Build the times array based on selected days and the provided start time
+  
     const times = selectedDays.map((day) => ({
       day,
       timeRange: startTime,
     }));
-
-    // Assemble the carpool data object according to our schema
+  
     const formData = {
       creatorId: userId,
       times,
-      // Combine pool name and shared location into the notes field.
       notes: `Pool Name: ${poolName}; Shared Location: ${sharedLocation}`,
       members: [userId],
     };
-
+  
     try {
       const response = await fetch("/api/create-carpool-data", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        // Our API expects the data under the key "createCarpoolData"
+        // Our API expects the carpool data under the key "createCarpoolData"
         body: JSON.stringify({ createCarpoolData: formData }),
       });
-
+  
       const result = await response.json();
       if (!response.ok) {
         setError(result.error || "Failed to create carpool.");
         return;
       }
-      // On success, redirect to the carpools page (or show a success message)
-      router.push("/carpools");
+      // Assuming the API now returns a JSON including { joinCode: "actual_code" }
+      router.push(
+        `/carpool-created?joinCode=${result.joinCode}&poolName=${encodeURIComponent(poolName)}`
+      );
     } catch (error: any) {
       console.error("Error submitting form:", error);
       setError("Internal Server Error. Please try again.");
