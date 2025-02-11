@@ -24,8 +24,8 @@ async function postCreateCarpoolData(carpoolId: string, createCarpoolData: Creat
         const db = client.db(dbName);
         const collection = db.collection(collectionName);
 
-        // get any existingUserFormData
-        const existingCarpoolData = await collection.findOne({ carpoolID: carpoolId }); // for testing only
+        // get any existing carpool Data
+        const existingCarpoolData = await collection.findOne({ carpoolID: carpoolId }); // to test for carpool ID collision
 
         console.log(createCarpoolData); // for testing only-- refer to Iggy's team message about logging on console if any issues persist
 
@@ -33,7 +33,6 @@ async function postCreateCarpoolData(carpoolId: string, createCarpoolData: Creat
             carpoolID: carpoolId,
             createCarpoolData,
             // isFormComplete: true -- will I add this line at some point?
-    
         };
 
         if (!existingCarpoolData) {
