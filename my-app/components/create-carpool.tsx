@@ -114,7 +114,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
               placeholder="Enter pool name"
               value={poolName}
               onChange={(e) => setPoolName(e.target.value)}
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f]"
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
             />
           </div>
           {/* Shared Location Field */}
@@ -127,7 +127,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
               placeholder="Enter shared location"
               value={sharedLocation}
               onChange={(e) => setSharedLocation(e.target.value)}
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f]"
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
             />
           </div>
           {/* Days Available */}
@@ -161,7 +161,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
               type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f]"
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
             />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
