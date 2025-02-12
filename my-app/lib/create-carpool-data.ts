@@ -25,14 +25,13 @@ async function postCreateCarpoolData(carpoolId: string, createCarpoolData: Creat
         const collection = db.collection(collectionName);
 
         // get any existing carpool Data
-        const existingCarpoolData = await collection.findOne({ carpoolID: carpoolId }); // to test for carpool ID collision
+        const existingCarpoolData = await collection.findOne({ carpoolID: carpoolId });
 
-        console.log(createCarpoolData); // for testing only-- refer to Iggy's team message about logging on console if any issues persist
+        console.log(createCarpoolData); // for testing only
 
         const JSON = {
             carpoolID: carpoolId,
             createCarpoolData,
-            // isFormComplete: true -- will I add this line at some point?
         };
 
         if (!existingCarpoolData) {
@@ -53,8 +52,8 @@ async function postCreateCarpoolData(carpoolId: string, createCarpoolData: Creat
     }
 }
 
-// GET (user form data)
-async function getCreateCarpoolData(carpoolId: string) {
+// GET (CreateCarpoolData)
+async function getCreateCarpoolData(query: any) {
     try {
         // make db connection
         const client = await connect();
@@ -62,7 +61,7 @@ async function getCreateCarpoolData(carpoolId: string) {
         const collection = db.collection(collectionName);
 
         // get the createCarpoolData
-        const createCarpoolData = await collection.findOne({ carpoolId });
+        const createCarpoolData = await collection.findOne( query );
 
         // return the createCarpoolData or ""
         if (!createCarpoolData) {

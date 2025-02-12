@@ -20,7 +20,7 @@ export async function POST(request: Request) {
         // use a do-while loop to generate and check the ID
         do {
             carpoolId = nanoid();
-            existingData = await getCreateCarpoolData(carpoolId);
+            existingData = await getCreateCarpoolData({"carpoolId" : carpoolId});
         } while (existingData); // continue looping if any record is found
 
         // get passed-in data
@@ -78,9 +78,10 @@ export async function GET(request: Request) {
         // get parameters
         const { searchParams } = new URL(request.url);
         const carpoolId = searchParams.get("carpoolId");
+        const creatorId = searchParams.get("creatorId");
 
         // check if parameters are valid
-        if (!carpoolId) {
+        if (!carpoolId && !creatorId) {
             return new Response(
                 JSON.stringify({ error: "Invalid parameters" }),
                 {
@@ -90,7 +91,16 @@ export async function GET(request: Request) {
         }
 
         // GET the data
-        const createCarpoolData = await getCreateCarpoolData(carpoolId); // currently returns "" if none
+        // Build query conditions based on provided parameters
+        let query = [];
+        if (carpoolId) {
+        query.push({"carpoolId" : carpoolId});
+        } else if (creatorId) {
+        query.push({"createCarpoolData.creatorId" : creatorId});
+        }
+
+        // Retrieve the data from the database
+        const createCarpoolData = await getCreateCarpoolData(query[0]);
 
         // return success/failure
         if (createCarpoolData == "" || createCarpoolData) {

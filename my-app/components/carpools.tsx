@@ -1,14 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface CarpoolsProps {
     userId: string | undefined;
 }
 
-const Carpools: React.FC<CarpoolsProps> = () => {
+const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     const router = useRouter();
+    const [createCarpoolData, setCreateCarpoolData] = useState<CreateCarpoolData | null>(null);
 
     const handleCreateCarpool = () => {
         router.push("/create-carpool");
@@ -17,6 +18,41 @@ const Carpools: React.FC<CarpoolsProps> = () => {
     const handleJoinCarpool = () => {
         router.push("/join-carpool");
     };
+
+    // GET create-carpool data handler
+    const handleCarpoolsGet = useCallback(async () => {
+        try {
+            const response = await fetch(
+                `/api/create-carpool-data?creatorId=${userId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                
+                setCreateCarpoolData(
+                    data && data.createCarpoolData
+                        ? data.createCarpoolData.createCarpoolData
+                        : ""
+                ); // update variable with returned data if any exists
+                console.log(createCarpoolData);
+            } else {
+                console.error("Failed to fetch data:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }, [userId]);
+
+    // get createFormData handler/caller effect
+    useEffect(() => {
+        handleCarpoolsGet();
+    }, [userId, handleCarpoolsGet]);
 
     return (
         <div className="flex flex-col md:flex-row justify-start items-start gap-6 m-6">
@@ -64,8 +100,7 @@ const Carpools: React.FC<CarpoolsProps> = () => {
                         Current Carpools
                     </h2>
                     <p className="mt-2 text-gray-600 text-lg md:text-xl font-normal font-['Open Sans']">
-                        You currently have no carpools - create or join one to
-                        start!
+                        { createCarpoolData?.notes || "You currently have no carpools - create or join one to start!"}
                     </p>
                 </div>
             </div>
