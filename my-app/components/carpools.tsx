@@ -7,9 +7,14 @@ interface CarpoolsProps {
     userId: string | undefined;
 }
 
+interface CarpoolData {
+    carpoolID: string | undefined;
+    createCarpoolData: CreateCarpoolData | undefined; 
+}
+
 const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     const router = useRouter();
-    const [createCarpoolData, setCreateCarpoolData] = useState<CreateCarpoolData | null>(null);
+    const [createCarpoolData, setCreateCarpoolData] = useState<CarpoolData[]>([]);
 
     const handleCreateCarpool = () => {
         router.push("/create-carpool");
@@ -33,14 +38,10 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
             );
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
-                
                 setCreateCarpoolData(
-                    data && data.createCarpoolData
-                        ? data.createCarpoolData.createCarpoolData
-                        : ""
+                    data?.createCarpoolData
                 ); // update variable with returned data if any exists
-                console.log(createCarpoolData);
+                
             } else {
                 console.error("Failed to fetch data:", response.statusText);
             }
@@ -52,6 +53,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     // get createFormData handler/caller effect
     useEffect(() => {
         handleCarpoolsGet();
+        console.log("Updated createCarpoolData:", createCarpoolData);
     }, [userId, handleCarpoolsGet]);
 
     return (
@@ -99,12 +101,25 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                     <h2 className="text-black text-xl md:text-2xl font-bold font-['Open Sans']">
                         Current Carpools
                     </h2>
-                    <p className="mt-2 text-gray-600 text-lg md:text-xl font-normal font-['Open Sans']">
-                        { createCarpoolData?.notes || "You currently have no carpools - create or join one to start!"}
-                    </p>
+                    {createCarpoolData.length > 0 ? (
+                        <div className="mt-2 space-y-3">
+                            {createCarpoolData.map((carpool, index) => (
+                                <div key={index} className="bg-gray-100 p-3 rounded-md shadow-sm">
+                                    <p className="text-lg font-semibold text-gray-800">
+                                        {carpool?.createCarpoolData?.notes || "No notes available"}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="mt-2 text-gray-600 text-lg md:text-xl font-normal font-['Open Sans']">
+                            You currently have no carpools - create or join one to start!
+                        </p>
+                    )}
                 </div>
             </div>
         </div>
     );
 };
 export default Carpools;
+

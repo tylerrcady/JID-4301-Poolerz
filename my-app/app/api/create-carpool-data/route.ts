@@ -103,7 +103,8 @@ export async function GET(request: Request) {
         const createCarpoolData = await getCreateCarpoolData(query[0]);
 
         // return success/failure
-        if (createCarpoolData == "" || createCarpoolData) {
+        if (createCarpoolData) {
+            // console.log(createCarpoolData);
             return new Response(JSON.stringify({ createCarpoolData }), {
                 status: 200,
             });

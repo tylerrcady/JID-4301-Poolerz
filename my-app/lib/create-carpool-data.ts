@@ -25,9 +25,9 @@ async function postCreateCarpoolData(carpoolId: string, createCarpoolData: Creat
         const collection = db.collection(collectionName);
 
         // get any existing carpool Data
-        const existingCarpoolData = await collection.findOne({ carpoolID: carpoolId });
+        const existingCarpoolData = await collection.findOne({ carpoolID : carpoolId });
 
-        console.log(createCarpoolData); // for testing only
+        console.log(existingCarpoolData); // for testing only
 
         const JSON = {
             carpoolID: carpoolId,
@@ -60,13 +60,16 @@ async function getCreateCarpoolData(query: any) {
         const db = client.db(dbName);
         const collection = db.collection(collectionName);
 
+        console.log(query);
+
         // get the createCarpoolData
-        const createCarpoolData = await collection.findOne( query );
+        const createCarpoolData = await collection.find(query).toArray();
 
         // return the createCarpoolData or ""
-        if (!createCarpoolData) {
-            return "";
+        if (!createCarpoolData || createCarpoolData.length == 0) {
+            return null;
         } else {
+            //console.log(createCarpoolData);
             return createCarpoolData;
         }
     } catch (error) {
