@@ -10,13 +10,13 @@ interface CreateCarpoolProps {
 }
 
 const DAYS_OF_WEEK = [
-  { label: "Sunday", value: "U" },
-  { label: "Monday", value: "M" },
-  { label: "Tuesday", value: "T" },
-  { label: "Wednesday", value: "W" },
-  { label: "Thursday", value: "R" },
-  { label: "Friday", value: "F" },
-  { label: "Saturday", value: "S" },
+  { label: "Su", value: "Su" },
+  { label: "M", value: "M" },
+  { label: "T", value: "T" },
+  { label: "W", value: "W" },
+  { label: "Th", value: "Th" },
+  { label: "F", value: "F" },
+  { label: "S", value: "S" },
 ];
 
 const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
@@ -54,7 +54,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-  
+
     if (
       !poolName.trim() ||
       !sharedLocation.trim() ||
@@ -64,39 +64,41 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       setError("Please fill in all required fields.");
       return;
     }
-  
+
     const times = selectedDays.map((day) => ({
       day,
       timeRange: startTime,
     }));
-  
+
     const formData = {
       creatorId: userId,
       times,
       notes: `Pool Name: ${poolName}; Shared Location: ${sharedLocation}`,
       members: [userId],
     };
-  
+
     try {
       const response = await fetch("/api/create-carpool-data", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        // Our API expects the carpool data under the key "createCarpoolData"
+        // API expects the carpool data under the key "createCarpoolData"
         body: JSON.stringify({ createCarpoolData: formData }),
       });
-  
+
       const result = await response.json();
       if (!response.ok) {
         setError(result.error || "Failed to create carpool.");
         return;
       }
-      // Assuming the API now returns a JSON including { joinCode: "actual_code" }
+      // This should work if API returns a JSON including { joinCode: "actual_code" }
       router.push(
-        `/carpool-created?joinCode=${result.joinCode}&poolName=${encodeURIComponent(poolName)}`
+        `/carpool-created?joinCode=${result.joinCode}&poolName=${encodeURIComponent(
+          poolName
+        )}`
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error submitting form:", error);
       setError("Internal Server Error. Please try again.");
     }
@@ -146,26 +148,29 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
               className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
             />
           </div>
-          {/* Days Available */}
+          {/* Days Available - New UI as clickable circles */}
           <div className="flex flex-col gap-1">
             <label className="text-black text-xl font-bold font-['Open Sans']">
-              Days Available <span className="text-red-500">*</span>
+              Carpool Days <span className="text-red-500">*</span>
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {DAYS_OF_WEEK.map((day) => (
-                <label
-                  key={day.value}
-                  className="flex items-center space-x-2 p-2 border rounded-md cursor-pointer font-['Open Sans']"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedDays.includes(day.value)}
-                    onChange={() => handleDayToggle(day.value)}
-                    className="form-checkbox h-5 w-5 text-[#4b859f]"
-                  />
-                  <span className="text-black">{day.label}</span>
-                </label>
-              ))}
+            <div className="flex flex-wrap gap-3">
+              {DAYS_OF_WEEK.map((day) => {
+                const selected = selectedDays.includes(day.value);
+                return (
+                  <div
+                    key={day.value}
+                    onClick={() => handleDayToggle(day.value)}
+                    className={`flex items-center justify-center rounded-full cursor-pointer font-['Open Sans'] text-lg ${
+                      selected
+                        ? "bg-[#4b859f] text-white"
+                        : "bg-white border border-[#666666] text-black"
+                    }`}
+                    style={{ width: "40px", height: "40px" }}
+                  >
+                    {day.label}
+                  </div>
+                );
+              })}
             </div>
           </div>
           {/* Start Time Field */}
