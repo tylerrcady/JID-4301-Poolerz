@@ -1,14 +1,20 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface CarpoolsProps {
     userId: string | undefined;
 }
 
-const Carpools: React.FC<CarpoolsProps> = () => {
+interface CarpoolData {
+    carpoolID: string | undefined;
+    createCarpoolData: CreateCarpoolData | undefined; 
+}
+
+const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     const router = useRouter();
+    const [createCarpoolData, setCreateCarpoolData] = useState<CarpoolData[]>([]);
 
     const handleCreateCarpool = () => {
         router.push("/create-carpool");
@@ -17,6 +23,38 @@ const Carpools: React.FC<CarpoolsProps> = () => {
     const handleJoinCarpool = () => {
         router.push("/join-carpool");
     };
+
+    // GET create-carpool data handler
+    const handleCarpoolsGet = useCallback(async () => {
+        try {
+            const response = await fetch(
+                `/api/create-carpool-data?creatorId=${userId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (response.ok) {
+                const data = await response.json();
+                setCreateCarpoolData(
+                    data?.createCarpoolData
+                ); // update variable with returned data if any exists
+                
+            // } else { //! can keep this out for now as it creates an unecessary error which will show up when a user has no carpools
+            //     console.error("Failed to fetch data:", response.statusText); // ! this is where the console error pops up if you visit carpools without being in a carpool
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }, [userId]);
+
+    // get createFormData handler/caller effect
+    useEffect(() => {
+        handleCarpoolsGet();
+        console.log("Updated createCarpoolData:", createCarpoolData);
+    }, [userId, handleCarpoolsGet]);
 
     return (
         <div className="flex flex-col md:flex-row justify-start items-start gap-6 m-6">
@@ -63,13 +101,25 @@ const Carpools: React.FC<CarpoolsProps> = () => {
                     <h2 className="text-black text-xl md:text-2xl font-bold font-['Open Sans']">
                         Current Carpools
                     </h2>
-                    <p className="mt-2 text-gray-600 text-lg md:text-xl font-normal font-['Open Sans']">
-                        You currently have no carpools - create or join one to
-                        start!
-                    </p>
+                    {createCarpoolData.length > 0 ? (
+                        <div className="mt-2 space-y-3">
+                            {createCarpoolData.map((carpool, index) => (
+                                <div key={index} className="bg-gray-100 p-3 rounded-md shadow-sm">
+                                    <p className="text-lg font-semibold text-gray-800">
+                                        {carpool?.createCarpoolData?.notes || "No notes available"}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="mt-2 text-gray-600 text-lg md:text-xl font-normal font-['Open Sans']">
+                            You currently have no carpools - create or join one to start!
+                        </p>
+                    )}
                 </div>
             </div>
         </div>
     );
 };
 export default Carpools;
+
