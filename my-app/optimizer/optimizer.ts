@@ -346,7 +346,7 @@ export class CarpoolOptimizer {
 
     // split large cluster helper method:
     private splitLargeCluster(cluster: UserWithCoords[]): Cluster[] {
-        const TARGET_SIZE = 3; // this signals a target cluster size if splitting
+        const TARGET_SIZE = 3; // ! this signals a target cluster size if splitting
         const subClusters: Cluster[] = [];
         let remainingUsers = [...cluster];
 
