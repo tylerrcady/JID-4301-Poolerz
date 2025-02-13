@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import AddModal from "@/components/modals/add-modal";
+import Button from "@/components/atoms/Button";
 
 interface CreateCarpoolProps {
   userId: string;
@@ -26,12 +28,26 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [startTime, setStartTime] = useState("");
   const [error, setError] = useState("");
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
   // Toggle day selection
   const handleDayToggle = (day: string) => {
     setSelectedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
+  };
+
+  const handleBackClick = () => {
+    setIsBackModalOpen(true);
+  };
+
+  const handleConfirmBack = () => {
+    setIsBackModalOpen(false);
+    router.back();
+  };
+
+  const handleCancelBack = () => {
+    setIsBackModalOpen(false);
   };
 
   // Handle form submission and connect to the database via API
@@ -95,7 +111,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       {/* Back Button */}
       <div>
         <button
-          onClick={() => router.back()}
+          onClick={handleBackClick}
           className="text-b text-lg md:text-2xl"
         >
           Back
@@ -173,6 +189,22 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
           </button>
         </form>
       </div>
+      {/* Back Confirmation Modal */}
+      <AddModal
+        isOpen={isBackModalOpen}
+        text="Are you sure?"
+        onClose={handleCancelBack}
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-black">
+            Returning to the previous page will lose all progress. The information for this carpool will not be saved.
+          </p>
+          <div className="flex justify-end gap-4">
+            <Button text="No, continue" type="secondary" onClick={handleCancelBack} />
+            <Button text="Yes, go back" type="primary" onClick={handleConfirmBack} />
+          </div>
+        </div>
+      </AddModal>
     </div>
   );
 };
