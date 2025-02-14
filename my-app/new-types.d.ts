@@ -19,10 +19,12 @@ interface UserFormData {
 }
 
 interface CreateCarpoolData {
-    creatorId: string; // owner's user ID
-    times: Availability[]; // same thing thing with above comment
+    creatorId: string; // person who creates carpool
+    carpoolName: string;
+    carpoolLocation: UserLocation;
+    carpoolDays: number[];
     notes: string;
-    members: [creatorId]; // initializes members[0] = creatorId
+    carpoolMembers: [creatorId]; // initializes members[0] = creatorId
 }
 
 //separate interface for the database document structure 
