@@ -24,7 +24,13 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
 
   // Form state
   const [poolName, setPoolName] = useState("");
-  const [sharedLocation, setSharedLocation] = useState("");
+  const [sharedLocation, setSharedLocation] = useState<SharedLocation>({
+    name: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+  });
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [startTime, setStartTime] = useState("");
   const [error, setError] = useState("");
@@ -59,7 +65,11 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
 
     if (
       !poolName.trim() ||
-      !sharedLocation.trim() ||
+      !sharedLocation.name.trim() ||
+      !sharedLocation.address.trim() ||
+      !sharedLocation.city.trim() ||
+      !sharedLocation.state.trim() ||
+      !sharedLocation.zipCode.trim() ||
       selectedDays.length === 0 ||
       !startTime
     ) {
@@ -158,9 +168,50 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
             </label>
             <input
               type="text"
-              placeholder="Enter shared location"
-              value={sharedLocation}
-              onChange={(e) => setSharedLocation(e.target.value)}
+              placeholder="Enter location name"
+              value={sharedLocation.name}
+              onChange={(e) =>
+                setSharedLocation({ ...sharedLocation, name: e.target.value })
+              }
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+            />
+            <input
+              type="text"
+              placeholder="Enter address"
+              value={sharedLocation.address}
+              onChange={(e) =>
+                setSharedLocation({ ...sharedLocation, address: e.target.value })
+              }
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+            />
+            <input
+              type="text"
+              placeholder="Enter city"
+              value={sharedLocation.city}
+              onChange={(e) =>
+                setSharedLocation({ ...sharedLocation, city: e.target.value })
+              }
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+            />
+            <input
+              type="text"
+              placeholder="Enter state"
+              value={sharedLocation.state}
+              onChange={(e) =>
+                setSharedLocation({ ...sharedLocation, state: e.target.value })
+              }
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+            />
+            <input
+              type="text"
+              placeholder="Enter zip code"
+              value={sharedLocation.zipCode}
+              onChange={(e) =>
+                setSharedLocation({
+                  ...sharedLocation,
+                  zipCode: e.target.value,
+                })
+              }
               className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
             />
           </div>

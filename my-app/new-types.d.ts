@@ -18,10 +18,14 @@ interface UserFormData {
     location: UserLocation;
 }
 
+interface SharedLocation extends UserLocation {
+    name: string;
+  }
+
 interface CreateCarpoolData {
     creatorId: string; // person who creates carpool
     carpoolName: string;
-    carpoolLocation: string; // will change to UserLocation later
+    carpoolLocation: SharedLocation;
     carpoolDays: number[];
     notes: string;
     carpoolMembers: [creatorId]; // initializes members[0] = creatorId
