@@ -23,7 +23,7 @@ Poolerz is a web-based carpooling application designed to support busy professio
 ### Known Issues
 - Given the current data layout, optimizer isn't fully handling errors for failed clustering scenarios
 - The "Remove" button still doesn't visually remove elements before saving
-- Form UI still needs to be fixed and fully checked for regex edge cases
+- Registration Form UI still needs to be fixed and fully checked for regex edge cases
 
 ## Version 0.1.0: https://jda-4301-poolerz.vercel.app/
 ### Features
