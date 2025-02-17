@@ -10,13 +10,13 @@ interface CreateCarpoolProps {
 }
 
 const DAYS_OF_WEEK = [
-  { label: "Su", value: "Su" },
-  { label: "M", value: "M" },
-  { label: "T", value: "T" },
-  { label: "W", value: "W" },
-  { label: "Th", value: "Th" },
-  { label: "F", value: "F" },
-  { label: "S", value: "S" },
+  { label: "Su", value: "Su", number: 0 },
+  { label: "M", value: "M", number: 1 },
+  { label: "T", value: "T", number: 2 },
+  { label: "W", value: "W", number: 3 },
+  { label: "Th", value: "Th", number: 4 },
+  { label: "F", value: "F", number: 5 },
+  { label: "S", value: "S", number: 6 },
 ];
 
 const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
@@ -24,17 +24,25 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
 
   // Form state
   const [poolName, setPoolName] = useState("");
-  const [sharedLocation, setSharedLocation] = useState("");
+  const [sharedLocation, setSharedLocation] = useState<SharedLocation>({
+    name: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+  });
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [startTime, setStartTime] = useState("");
   const [error, setError] = useState("");
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const [additionalNotes, setAdditionalNotes] = useState("");
 
   // Toggle day selection
   const handleDayToggle = (day: string) => {
     setSelectedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
+    console.log(selectedDays);
   };
 
   const handleBackClick = () => {
@@ -57,7 +65,11 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
 
     if (
       !poolName.trim() ||
-      !sharedLocation.trim() ||
+      !sharedLocation.name.trim() ||
+      !sharedLocation.address.trim() ||
+      !sharedLocation.city.trim() ||
+      !sharedLocation.state.trim() ||
+      !sharedLocation.zipCode.trim() ||
       selectedDays.length === 0 ||
       !startTime
     ) {
@@ -70,11 +82,25 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       timeRange: startTime,
     }));
 
+    // Format the times array into a readable string
+    const formattedTimes = times
+    .map(({ day, timeRange }) => `${day}: ${timeRange}`)
+    .join(", ");
+
+    // map days to int
+    const selectedDaysAsInt = selectedDays
+    .map(dayAbbr => DAYS_OF_WEEK.find(day => day.value === dayAbbr)?.number)
+    .filter((num): num is number => num !== undefined);
+
     const formData = {
       creatorId: userId,
-      times,
-      notes: `Pool Name: ${poolName}; Shared Location: ${sharedLocation}`,
-      members: [userId],
+      carpoolName: poolName,
+      carpoolLocation: sharedLocation,
+      carpoolDays: selectedDaysAsInt,
+      notes: additionalNotes
+        ? `Times: ${formattedTimes}. Additional Notes: ${additionalNotes}`
+        : `Times: ${formattedTimes}`,
+      carpoolMembers: [userId],
     };
 
     try {
@@ -142,9 +168,50 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
             </label>
             <input
               type="text"
-              placeholder="Enter shared location"
-              value={sharedLocation}
-              onChange={(e) => setSharedLocation(e.target.value)}
+              placeholder="Enter location name"
+              value={sharedLocation.name}
+              onChange={(e) =>
+                setSharedLocation({ ...sharedLocation, name: e.target.value })
+              }
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+            />
+            <input
+              type="text"
+              placeholder="Enter address"
+              value={sharedLocation.address}
+              onChange={(e) =>
+                setSharedLocation({ ...sharedLocation, address: e.target.value })
+              }
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+            />
+            <input
+              type="text"
+              placeholder="Enter city"
+              value={sharedLocation.city}
+              onChange={(e) =>
+                setSharedLocation({ ...sharedLocation, city: e.target.value })
+              }
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+            />
+            <input
+              type="text"
+              placeholder="Enter state"
+              value={sharedLocation.state}
+              onChange={(e) =>
+                setSharedLocation({ ...sharedLocation, state: e.target.value })
+              }
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+            />
+            <input
+              type="text"
+              placeholder="Enter zip code"
+              value={sharedLocation.zipCode}
+              onChange={(e) =>
+                setSharedLocation({
+                  ...sharedLocation,
+                  zipCode: e.target.value,
+                })
+              }
               className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
             />
           </div>
@@ -183,6 +250,19 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
               className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+            />
+          </div>
+          {/* Additional Notes Field */}
+          <div className="flex flex-col gap-1">
+            <label className="text-black text-xl font-bold font-['Open Sans']">
+              Additional Notes
+            </label>
+            <textarea
+              placeholder="Enter any additional notes (optional)"
+              value={additionalNotes}
+              onChange={(e) => setAdditionalNotes(e.target.value)}
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+              rows={3}
             />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}

@@ -106,7 +106,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                             {createCarpoolData.map((carpool, index) => (
                                 <div key={index} className="bg-gray-100 p-3 rounded-md shadow-sm">
                                     <p className="text-lg font-semibold text-gray-800">
-                                        {carpool?.createCarpoolData?.notes || "No notes available"}
+                                        {carpool?.createCarpoolData?.carpoolName || "No notes available"}
                                     </p>
                                 </div>
                             ))}
