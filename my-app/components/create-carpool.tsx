@@ -29,6 +29,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   const [startTime, setStartTime] = useState("");
   const [error, setError] = useState("");
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const [additionalNotes, setAdditionalNotes] = useState("");
 
   // Toggle day selection
   const handleDayToggle = (day: string) => {
@@ -86,7 +87,9 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       carpoolName: poolName,
       carpoolLocation: sharedLocation,
       carpoolDays: selectedDaysAsInt,
-      notes: `Times: ${formattedTimes}`,
+      notes: additionalNotes
+        ? `Times: ${formattedTimes}. Additional Notes: ${additionalNotes}`
+        : `Times: ${formattedTimes}`,
       carpoolMembers: [userId],
     };
 
@@ -196,6 +199,19 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
               className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+            />
+          </div>
+          {/* Additional Notes Field */}
+          <div className="flex flex-col gap-1">
+            <label className="text-black text-xl font-bold font-['Open Sans']">
+              Additional Notes
+            </label>
+            <textarea
+              placeholder="Enter any additional notes (optional)"
+              value={additionalNotes}
+              onChange={(e) => setAdditionalNotes(e.target.value)}
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+              rows={3}
             />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
