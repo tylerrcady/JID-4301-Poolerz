@@ -4,21 +4,26 @@ Poolerz is a web-based carpooling application designed to support busy professio
 # Release Notes
 ## Version 0.2.0: https://jda-4301-poolerz.vercel.app/
 ### Features
-- Creating Carpool Flow:
-  - Each carpool is now stored in a separate collection, called 'Carpools', uniquely identified by a 6-digit alphanumeric carpoolId
-  - Implemented GET/POST functions to retrieve and store carpool data in the database.
-  - Connected Create-Carpool Form to the database with unique join code generation.
 - Create Carpool Form UI:
   - Users can now create carpools using the create-carpool form
   - Added a confirmation page once user completes the create-carpool form
   - User can view their list of created carpools
+- Creating Carpool Flow:
+  - Each carpool is now stored in a separate collection, called 'Carpools', uniquely identified by a 6-digit alphanumeric carpoolId
+  - Implemented GET/POST functions to retrieve and store carpool data in the database.
+  - Connected Create-Carpool Form to the database with unique join code generation.
 - Optimization Algorithm for Grouping People into Carpools
   - Uses DBSCAN to group users into clusters by geographic proximity
   - Validates clusters based on capacity and driving day availability
   - Implements a correction mechanism:
       - Attempts to add/swap users from an unclustered pool if a cluster fails validation
 ### Bug Fixes
+- Fixed UI layout issues for adding driver availability to improve user experience
+- Users now input driving availability under the create-carpool form rather than registration to simplify registration process
 ### Known Issues
+- Given the current data layout, optimizer isn't fully handling errors for failed clustering scenarios
+- The "Remove" button still doesn't visually remove elements before saving
+- Form UI still needs to be fixed and fully checked for regex edge cases
 
 ## Version 0.1.0: https://jda-4301-poolerz.vercel.app/
 ### Features
