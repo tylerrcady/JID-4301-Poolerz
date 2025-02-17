@@ -15,8 +15,6 @@ Poolerz is a web-based carpooling application designed to support busy professio
 - Optimization Algorithm for Grouping People into Carpools
   - Uses DBSCAN to group users into clusters by geographic proximity
   - Validates clusters based on capacity and driving day availability
-  - Implements a correction mechanism:
-      - Attempts to add/swap users from an unclustered pool if a cluster fails validation
 ### Bug Fixes
 - Fixed UI layout issues for adding driver availability to improve user experience
 - Users now input driving availability under the create-carpool form rather than registration to simplify registration process
