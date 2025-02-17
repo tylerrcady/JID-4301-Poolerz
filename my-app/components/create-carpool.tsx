@@ -10,25 +10,14 @@ interface CreateCarpoolProps {
 }
 
 const DAYS_OF_WEEK = [
-  { label: "Su", value: "Su" },
-  { label: "M", value: "M" },
-  { label: "T", value: "T" },
-  { label: "W", value: "W" },
-  { label: "Th", value: "Th" },
-  { label: "F", value: "F" },
-  { label: "S", value: "S" },
+  { label: "Su", value: "Su", number: 0 },
+  { label: "M", value: "M", number: 1 },
+  { label: "T", value: "T", number: 2 },
+  { label: "W", value: "W", number: 3 },
+  { label: "Th", value: "Th", number: 4 },
+  { label: "F", value: "F", number: 5 },
+  { label: "S", value: "S", number: 6 },
 ];
-
-// Mapping day abbreviations to integer values
-const dayMapping: { [key: string]: number } = {
-  Su: 0,
-  M: 1,
-  T: 2,
-  W: 3,
-  Th: 4,
-  F: 5,
-  S: 6,
-};
 
 const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   const router = useRouter();
@@ -83,13 +72,14 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
     }));
 
     // Format the times array into a readable string
-  const formattedTimes = times
-  .map(({ day, timeRange }) => `${day}: ${timeRange}`)
-  .join(", ");
+    const formattedTimes = times
+    .map(({ day, timeRange }) => `${day}: ${timeRange}`)
+    .join(", ");
 
     // map days to int
-    const selectedDaysAsInt = selectedDays.map((day) => dayMapping[day]);
-    console.log(selectedDaysAsInt);
+    const selectedDaysAsInt = selectedDays
+    .map(dayAbbr => DAYS_OF_WEEK.find(day => day.value === dayAbbr)?.number)
+    .filter((num): num is number => num !== undefined);
 
     const formData = {
       creatorId: userId,
