@@ -72,9 +72,11 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
 
     const formData = {
       creatorId: userId,
-      times,
-      notes: `Pool Name: ${poolName}; Shared Location: ${sharedLocation}`,
-      members: [userId],
+      carpoolName: poolName,
+      carpoolLocation: {sharedLocation},
+      carpoolDays: selectedDays,
+      notes: `Times: ${times}`,
+      carpoolMembers: [userId],
     };
 
     try {

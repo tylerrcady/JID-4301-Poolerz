@@ -2,7 +2,7 @@ import clientPromise from "@/lib/db";
 
 // db information
 const dbName = "poolerz";
-const collectionName = "create-carpool";
+const collectionName = "carpools";
 
 // database connection
 // Note: copied/pasted this exact method from user-form-data; it may be cleaner to later import this to enforce cleaner code

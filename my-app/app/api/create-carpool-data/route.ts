@@ -104,7 +104,7 @@ export async function GET(request: Request) {
 
         // return success/failure
         if (createCarpoolData) {
-            // console.log(createCarpoolData);
+            console.log(createCarpoolData);
             return new Response(JSON.stringify({ createCarpoolData }), {
                 status: 200,
             });
