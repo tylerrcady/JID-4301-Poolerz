@@ -19,6 +19,17 @@ const DAYS_OF_WEEK = [
   { label: "S", value: "S" },
 ];
 
+// Mapping day abbreviations to integer values
+const dayMapping: { [key: string]: number } = {
+  Su: 0,
+  M: 1,
+  T: 2,
+  W: 3,
+  Th: 4,
+  F: 5,
+  S: 6,
+};
+
 const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   const router = useRouter();
 
@@ -35,6 +46,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
     setSelectedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
+    console.log(selectedDays);
   };
 
   const handleBackClick = () => {
@@ -70,12 +82,21 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       timeRange: startTime,
     }));
 
+    // Format the times array into a readable string
+  const formattedTimes = times
+  .map(({ day, timeRange }) => `${day}: ${timeRange}`)
+  .join(", ");
+
+    // map days to int
+    const selectedDaysAsInt = selectedDays.map((day) => dayMapping[day]);
+    console.log(selectedDaysAsInt);
+
     const formData = {
       creatorId: userId,
       carpoolName: poolName,
-      carpoolLocation: {sharedLocation},
-      carpoolDays: selectedDays,
-      notes: `Times: ${times}`,
+      carpoolLocation: sharedLocation,
+      carpoolDays: selectedDaysAsInt,
+      notes: `Times: ${formattedTimes}`,
       carpoolMembers: [userId],
     };
 

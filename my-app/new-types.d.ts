@@ -21,7 +21,7 @@ interface UserFormData {
 interface CreateCarpoolData {
     creatorId: string; // person who creates carpool
     carpoolName: string;
-    carpoolLocation: UserLocation;
+    carpoolLocation: string; // will change to UserLocation later
     carpoolDays: number[];
     notes: string;
     carpoolMembers: [creatorId]; // initializes members[0] = creatorId
