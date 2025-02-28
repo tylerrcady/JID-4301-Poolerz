@@ -20,7 +20,7 @@ export async function POST(request: Request) {
         // use a do-while loop to generate and check the ID
         do {
             carpoolId = nanoid();
-            existingData = await getCreateCarpoolData({"carpoolId" : carpoolId});
+            existingData = await getCreateCarpoolData({"carpoolID" : carpoolId});
         } while (existingData); // continue looping if any record is found
 
         // get passed-in data
@@ -94,7 +94,7 @@ export async function GET(request: Request) {
         // Build query conditions based on provided parameters
         let query = [];
         if (carpoolId) {
-        query.push({"carpoolId" : carpoolId});
+        query.push({"carpoolID" : carpoolId});
         } else if (creatorId) {
         query.push({"createCarpoolData.creatorId" : creatorId});
         }
