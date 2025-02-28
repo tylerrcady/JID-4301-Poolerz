@@ -3,6 +3,7 @@ import Footer from "@/components/footer";
 import Header from "@/components/header";
 import Main from "@/components/main";
 import { checkFormCompletion } from "@/lib/user-form-data";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function Home() {
@@ -28,6 +29,7 @@ export default async function Home() {
                     <Main userName={session?.user?.name} />
                 )}
             </main>
+            <Link href="/optimizer">opt</Link>
             <Footer />
         </div>
     );
