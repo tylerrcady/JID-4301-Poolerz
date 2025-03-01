@@ -32,7 +32,7 @@ interface JoinCarpoolData {
     userLocation: UserLocation,
     drivingAvailability: number[],
     carCapacity: number,
-    carpools: Carpool
+    carpools: Carpool[]
 }
 
 interface CreateCarpoolData {

@@ -21,10 +21,13 @@ export async function POST(request: Request) {
                 { status: 400 }
             );
         }
-        const carpoolId = joinCarpoolData.joinData.carpools.carpoolId;
+        const carpoolId = joinCarpoolData.joinData.carpools[0].carpoolId;
         const createCarpoolData = joinCarpoolData.createCarpoolData;
         const userId = joinCarpoolData.userId;
         const joinData = joinCarpoolData.joinData;
+
+        console.log("carpool ID is");
+        console.log(carpoolId);
 
         // POST the data
         // Run both functions concurrently
@@ -48,7 +51,6 @@ export async function POST(request: Request) {
                 }
             );
         }
-        
     } catch(error) {
         console.error("Error with POST join-carpool-data: ", error);
         return new Response(
