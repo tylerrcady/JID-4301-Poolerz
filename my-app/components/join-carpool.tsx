@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AddModal from "@/components/modals/add-modal";
 import Button from "@/components/atoms/Button";
+import CreateCarpool from "./create-carpool";
 
 const DAYS_OF_WEEK = [
   { label: "Su", value: "Su", number: 0 },
@@ -184,7 +185,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
     }
   }, [address, city, stateField, zip, carCapacity, drivingAvailability]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!carpoolDoc) {
       setError("Carpool data not loaded. Please try again.");
@@ -207,12 +208,40 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
     };
     console.log("Join Carpool Data:", joinData);
 
-    // In production, perform an API call to store join data
-    router.push(
-      `/carpool-joined?joinCode=${joinCode}&poolName=${encodeURIComponent(
-        carpoolDoc.createCarpoolData.carpoolName
-      )}`
-    );
+    // add member
+    carpoolDoc.createCarpoolData.carpoolMembers.push(joinData.userId || "");
+
+    try {
+      // reformat so that's similar to createCarpoolData
+      const reformat = {
+        carpoolId: joinData.carpoolId,
+        createCarpoolData: carpoolDoc.createCarpoolData,
+      }
+
+      const response = await fetch("/api/join-carpool-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // API expects the carpool data under the key "createCarpoolData"
+        body: JSON.stringify({ joinCarpoolData: reformat }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        setError(result.error || "Failed to add member to carpool.");
+        return;
+      }
+      // In production, perform an API call to store join data
+      router.push(
+        `/carpool-joined?joinCode=${joinCode}&poolName=${encodeURIComponent(
+          carpoolDoc.createCarpoolData.carpoolName
+        )}`
+      );
+    } catch (error: unknown) {
+      console.error("Error submitting form:", error);
+      setError("Internal Server Error. Please try again.");
+    }
   };
 
   // Step 1: Code Entry
