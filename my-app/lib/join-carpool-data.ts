@@ -27,23 +27,42 @@ async function postUserCarpoolData(userId: string, userData : JoinCarpoolData) {
         const collection = db.collection(collectionName);
 
         // get any existing carpool Data
-        const existingCarpoolData = await collection.findOne({ userId : userId});
-        console.log(existingCarpoolData);
+        const existingUser = await collection.findOne({ userId : userId});
+        console.log(existingUser);
 
         const JSON = {
             userId: userId,
             userData,
         }
 
-        if (!existingCarpoolData) {
+        if (!existingUser) {
             // post the user data
             await collection.insertOne(JSON);
             return { success: true };
         } else {
-            // for testing only (updates)
+            // There is existing data: merge the joinedCarpools arrays.
+            const existingJoinedCarpools: Carpool[] = existingUser.userData.carpools || [];
+            const newJoinedCarpools: Carpool[] = userData.carpools;
+
+            // Merge while avoiding duplicates based on carpoolId.
+            const updatedJoinedCarpools = [
+                ...existingJoinedCarpools.filter(
+                (existing: Carpool) =>
+                    !newJoinedCarpools.some((newOne: Carpool) => newOne.carpoolId === existing.carpoolId)
+                ),
+                ...newJoinedCarpools
+            ];
+
+            // Update the entire userData field with the new changes,
+            // but override the joinedCarpools with our merged array.
+            const updatedUserData: JoinCarpoolData = {
+                ...userData,
+                carpools: updatedJoinedCarpools
+            };
+
             await collection.updateOne(
-                { _id: existingCarpoolData._id },
-                { $set: JSON }
+                { _id: existingUser._id },
+                { $set: { userData: updatedUserData } }
             );
             return { success: true };
         }
