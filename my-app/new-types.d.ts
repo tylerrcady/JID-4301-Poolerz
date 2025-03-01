@@ -20,7 +20,14 @@ interface UserFormData {
 
 interface SharedLocation extends UserLocation {
     name: string;
-  }
+}
+
+interface JoinCarpoolData {
+    userLocation: UserLocation,
+    drivingAvailability: number[],
+    carCapacity: number,
+
+}
 
 interface CreateCarpoolData {
     creatorId: string; // person who creates carpool
@@ -28,7 +35,7 @@ interface CreateCarpoolData {
     carpoolLocation: SharedLocation;
     carpoolDays: number[];
     notes: string;
-    carpoolMembers: [creatorId]; // initializes members[0] = creatorId
+    carpoolMembers: string[];
 }
 
 //separate interface for the database document structure 

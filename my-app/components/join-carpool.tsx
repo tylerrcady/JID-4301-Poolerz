@@ -217,7 +217,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
         carpoolId: joinData.carpoolId,
         createCarpoolData: carpoolDoc.createCarpoolData,
       }
-
+      
       const response = await fetch("/api/join-carpool-data", {
         method: "POST",
         headers: {
@@ -228,7 +228,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
       });
 
       const result = await response.json();
-      if (!response.ok) {
+      if (!response) {
         setError(result.error || "Failed to add member to carpool.");
         return;
       }
