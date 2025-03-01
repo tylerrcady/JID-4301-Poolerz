@@ -21,7 +21,7 @@ export async function POST(request: Request) {
                 { status: 400 }
             );
         }
-        const carpoolId = joinCarpoolData.joinData.carpoolId;
+        const carpoolId = joinCarpoolData.joinData.carpools.carpoolId;
         const createCarpoolData = joinCarpoolData.createCarpoolData;
         const userId = joinCarpoolData.userId;
         const joinData = joinCarpoolData.joinData;

@@ -22,13 +22,17 @@ interface SharedLocation extends UserLocation {
     name: string;
 }
 
+interface Carpool {
+    carpoolId: string;
+    riders: string[];
+    notes: string;
+}
+
 interface JoinCarpoolData {
     userLocation: UserLocation,
     drivingAvailability: number[],
     carCapacity: number,
-    carpoolId: string,
-    riders: string[],
-    notes: string
+    carpools: Carpool
 }
 
 interface CreateCarpoolData {

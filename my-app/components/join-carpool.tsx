@@ -211,9 +211,12 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
       },
       drivingAvailability: selectedDaysAsInt, // Example hours available for driving
       carCapacity: Number(carCapacity),
-      carpoolId: carpoolDoc.carpoolID,
-      riders: selectedRiderNames,
-      notes: additionalNotes
+      carpools: {
+        carpoolId: carpoolDoc.carpoolID,
+        riders: selectedRiderNames,
+        notes: additionalNotes
+      }
+      
     };
     console.log("Join Carpool Data:", joinUserData);
 
