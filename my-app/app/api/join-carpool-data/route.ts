@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { postCreateCarpoolData } from "@/lib/create-carpool-data";
+import { postUserCarpoolData } from "@/lib/join-carpool-data";
 
 // POST
 export async function POST(request: Request) {
@@ -20,14 +21,19 @@ export async function POST(request: Request) {
                 { status: 400 }
             );
         }
-        const carpoolId = joinCarpoolData.carpoolId;
+        const carpoolId = joinCarpoolData.joinData.carpoolId;
         const createCarpoolData = joinCarpoolData.createCarpoolData;
+        const userId = joinCarpoolData.userId;
+        const joinData = joinCarpoolData.joinData;
 
         // POST the data
-        const result = await postCreateCarpoolData(carpoolId, createCarpoolData);
-        
+        // Run both functions concurrently
+        const [createCarpoolResult, userCarpoolResult] = await Promise.all([
+            postCreateCarpoolData(carpoolId, createCarpoolData),
+            postUserCarpoolData(userId, joinData)
+        ]);
         // return success/failure
-        if (result && result.success) {
+        if (createCarpoolResult?.success && userCarpoolResult?.success) {
             return new Response(
                 JSON.stringify({ message: "Success with POST create-carpool-data", joinCode: carpoolId }),
                 {

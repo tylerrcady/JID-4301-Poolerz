@@ -28,8 +28,7 @@ async function postUserCarpoolData(userId: string, userData : JoinCarpoolData) {
 
         // get any existing carpool Data
         const existingCarpoolData = await collection.findOne({ userId : userId});
-
-        console.log(existingCarpoolData)
+        console.log(existingCarpoolData);
 
         const JSON = {
             userId: userId,

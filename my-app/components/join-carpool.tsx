@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AddModal from "@/components/modals/add-modal";
 import Button from "@/components/atoms/Button";
-import CreateCarpool from "./create-carpool";
 
 const DAYS_OF_WEEK = [
   { label: "Su", value: "Su", number: 0 },
@@ -192,30 +191,41 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
       return;
     }
 
-    const joinData = {
-      joinCode,
+    // map days to int
+    const selectedDaysAsInt = drivingAvailability
+    .map(dayAbbr => DAYS_OF_WEEK.find(day => day.value === dayAbbr)?.number)
+    .filter((num): num is number => num !== undefined);
+
+    // get selected riders
+    const selectedRiderNames: string[] = riders
+    .filter(rider => rider.selected) // Keep only selected riders
+    .map(rider => rider.name);       // Step 2: Extract names
+
+    // convert joinData into JoinCarpoolData
+    const joinUserData: JoinCarpoolData = {
+      userLocation: {
+          address,
+          city,
+          state: stateField,
+          zipCode: zip
+      },
+      drivingAvailability: selectedDaysAsInt, // Example hours available for driving
+      carCapacity: Number(carCapacity),
       carpoolId: carpoolDoc.carpoolID,
-      userId,
-      carpoolName: carpoolDoc.createCarpoolData.carpoolName,
-      riders: riders.filter((r) => r.selected),
-      address,
-      city,
-      state: stateField,
-      zip,
-      drivingAvailability,
-      carCapacity,
-      additionalNotes,
+      riders: selectedRiderNames,
+      notes: additionalNotes
     };
-    console.log("Join Carpool Data:", joinData);
+    console.log("Join Carpool Data:", joinUserData);
 
     // add member
-    carpoolDoc.createCarpoolData.carpoolMembers.push(joinData.userId || "");
+    carpoolDoc.createCarpoolData.carpoolMembers.push(userId || "");
 
     try {
       // reformat so that's similar to createCarpoolData
-      const reformat = {
-        carpoolId: joinData.carpoolId,
+      const combine = {
+        userId: userId,
         createCarpoolData: carpoolDoc.createCarpoolData,
+        joinData: joinUserData
       }
       
       const response = await fetch("/api/join-carpool-data", {
@@ -223,8 +233,8 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        // API expects the carpool data under the key "createCarpoolData"
-        body: JSON.stringify({ joinCarpoolData: reformat }),
+        // API expects the carpool data under the key "joinCarpoolData"
+        body: JSON.stringify({ joinCarpoolData: combine }),
       });
 
       const result = await response.json();
