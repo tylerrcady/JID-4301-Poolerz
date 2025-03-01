@@ -20,7 +20,7 @@ export default async function Home() {
     }
 
     return (
-        <div className="flex items-center justify-between h-screen flex-col bg-w text-d">
+        <div className="flex items-center justify-between h-full flex-col bg-w text-d">
             <Header userId={userId} isFormComplete={isFormComplete} />
             <main className="flex-grow">
                 {userId ? (
