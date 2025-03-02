@@ -88,54 +88,6 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
         }));
     };
 
-    // Handle car capacity input
-    const handleCarCapacityChange = (value: number) => {
-        if (!isNaN(value)) {
-            setUserFormData((prev) => ({
-                ...prev,
-                carCapacity: value,
-            }));
-        }
-    };
-
-    // Add a new availability entry
-    const addAvailability = () => {
-        setUserFormData((prev) => ({
-            ...prev,
-            availabilities: [
-                ...prev.availabilities,
-                { day: "", timeRange: "" },
-            ],
-        }));
-    };
-
-    // Remove an availability entry by index
-    const removeAvailability = (index: number) => {
-        setUserFormData((prev) => {
-            const updatedAvailabilities = prev.availabilities.filter(
-                (_, i) => i !== index
-            );
-            return {
-                ...prev,
-                availabilities: updatedAvailabilities,
-            };
-        });
-    };
-
-    // Update a specific availability entry
-    const updateAvailability = (
-        index: number,
-        key: "day" | "timeRange",
-        value: string
-    ) => {
-        const updatedAvailabilities = [...userFormData.availabilities];
-        updatedAvailabilities[index][key] = value;
-        setUserFormData((prev) => ({
-            ...prev,
-            availabilities: updatedAvailabilities,
-        }));
-    };
-
     const handleLocationChange = (
         key: "address" | "city" | "state" | "zipCode",
         value: string
@@ -170,18 +122,6 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 return false;
             }
         } else if (currentPage === 2) {
-            if (userFormData.carCapacity === 0) {
-                alert("Please enter a valid car capacity before continuing.");
-                return false;
-            }
-
-            if (userFormData.availabilities.length === 0) {
-                alert(
-                    "Please add at least one availability before continuing."
-                );
-                return false;
-            }
-
             const { address, city, state, zipCode } = userFormData.location;
             if (
                 !address.trim() ||
@@ -192,30 +132,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 alert("Please fill in all location fields before continuing.");
                 return false;
             }
-
-            const timeRangeRegex =
-                /^([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-            const invalidTimeRanges = userFormData.availabilities.some(
-                (availability) => !timeRangeRegex.test(availability.timeRange)
-            );
-            if (invalidTimeRanges) {
-                alert(
-                    "Please enter a valid time range in the format HH:MM-HH:MM (e.g., 09:00-17:00)."
-                );
-                return false;
-            }
-
-            const incompleteAvailabilities = userFormData.availabilities.some(
-                (availability) =>
-                    !availability.day.trim() || !availability.timeRange.trim()
-            );
-            if (incompleteAvailabilities) {
-                alert(
-                    "Please ensure all availability slots are filled before continuing."
-                );
-                return false;
-            }
-        }
+        } 
 
         return true;
     };
@@ -274,7 +191,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
     return (
         // do not change the first div at all
         <div className="flex items-center flex-col h-auto w-full bg-w p-5 gap-4 text-center">
-            <div className="text-base underline">
+            <div className="text-base underline text-black">
                 Complete our onboarding form below to get access to the full
                 application.
             </div>
@@ -316,7 +233,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                                     <input
                                         type="text"
                                         placeholder={`Child ${index + 1} Name`}
-                                        className="border p-2 w-full"
+                                        className="border p-2 w-full text-black rounded-lg active:border-blue"
                                         value={child.name}
                                         onChange={(e) =>
                                             handleChildNameChange(
@@ -340,24 +257,16 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
 
             {currentPage === 2 && (
                 <>
-                    <h1 className="text-2xl font-bold">Enter Car Capacity</h1>
-                    <div className="w-auto h-5 px-4 py-5 bg-white justify-center items-center flex">
-                        <NumberInput
-                            currentValue={userFormData.carCapacity}
-                            onChange={(e) => handleCarCapacityChange(e)}
-                            placeholder="Enter car capacity"
-                        />
-                    </div>
-                    <h2 className="text-xl font-bold">Location</h2>
+                    <h2 className="text-xl font-bold text-black">Location</h2>
                     <div className="flex flex-col gap-4 mb-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-gray">
                                 Address
                             </label>
                             <input
                                 type="text"
-                                className="border p-2 w-full rounded"
-                                placeholder="Enter your address"
+                                className="border p-2 w-full rounded text-black rounded-lg active:border-blue"
+                                placeholder="Street Name"
                                 value={userFormData.location.address}
                                 onChange={(e) =>
                                     handleLocationChange(
@@ -368,13 +277,13 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-gray">
                                 City
                             </label>
                             <input
                                 type="text"
-                                className="border p-2 w-full rounded"
-                                placeholder="Enter your city"
+                                className="border p-2 w-full rounded text-black rounded-lg active:border-blue"
+                                placeholder="City"
                                 value={userFormData.location.city}
                                 onChange={(e) =>
                                     handleLocationChange("city", e.target.value)
@@ -382,13 +291,13 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-gray">
                                 State
                             </label>
                             <input
                                 type="text"
-                                className="border p-2 w-full rounded"
-                                placeholder="Enter your state"
+                                className="border p-2 w-full rounded text-black rounded-lg active:border-blue"
+                                placeholder="State"
                                 value={userFormData.location.state}
                                 onChange={(e) =>
                                     handleLocationChange(
@@ -399,13 +308,13 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-gray">
                                 Zip Code
                             </label>
                             <input
                                 type="text"
-                                className="border p-2 w-full rounded"
-                                placeholder="Enter your zip code"
+                                className="border p-2 w-full rounded text-black rounded-lg active:border-blue"
+                                placeholder="Zip Code"
                                 value={userFormData.location.zipCode}
                                 onChange={(e) =>
                                     handleLocationChange(
@@ -416,79 +325,12 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                             />
                         </div>
                     </div>
-                    <button
-                        className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded mb-4"
-                        onClick={addAvailability}
-                    >
-                        Add Availability
-                    </button>
-
-                    {userFormData.availabilities.map((availability, index) => (
-                        <div
-                            key={index}
-                            className="block text-sm font-medium mb-2"
-                        >
-                            <label className="block text-sm font-medium mb-2">
-                                Day
-                            </label>
-                            <select
-                                className="border p-2 w-full mb-2 rounded"
-                                value={availability.day}
-                                onChange={(e) =>
-                                    updateAvailability(
-                                        index,
-                                        "day",
-                                        e.target.value
-                                    )
-                                }
-                            >
-                                <option value="">Select a day</option>
-                                <option value="Monday">Monday</option>
-                                <option value="Tuesday">Tuesday</option>
-                                <option value="Wednesday">Wednesday</option>
-                                <option value="Thursday">Thursday</option>
-                                <option value="Friday">Friday</option>
-                                <option value="Saturday">Saturday</option>
-                                <option value="Sunday">Sunday</option>
-                            </select>
-                            {availability.day.trim() === "" && (
-                                <p className="block text-sm font-medium mb-2">
-                                    Please select a day.
-                                </p>
-                            )}
-
-                            <label className="block text-sm font-medium mb-2">
-                                Time Range
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="HH:MM - HH:MM"
-                                className="border p-2 w-full rounded"
-                                value={availability.timeRange || ""}
-                                pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]$"
-                                title="Please enter a time range in the format HH:MM-HH:MM (e.g., 09:00-17:00)"
-                                onChange={(e) =>
-                                    updateAvailability(
-                                        index,
-                                        "timeRange",
-                                        e.target.value
-                                    )
-                                }
-                            />
-                            <button
-                                className="text-r rounded mt-2 p-2"
-                                onClick={() => removeAvailability(index)}
-                            >
-                                Remove Availability
-                            </button>
-                        </div>
-                    ))}
 
                     <div className="flex justify-center w-full gap-4">
                         <BackButton onClick={handleBack} />
                         {!isLoading && (
                             <button
-                                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded"
+                                className="px-4 py-2 bg-blue text-w rounded min-w-1/6"
                                 onClick={handleSubmit}
                                 disabled={isLoading}
                             >
@@ -496,7 +338,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                             </button>
                         )}
                         {isLoading && (
-                            <p className="text-center text-gray-500">
+                            <p className="text-center text-gray">
                                 Submitting...
                             </p>
                         )}

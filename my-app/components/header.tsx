@@ -12,14 +12,14 @@ const Header: React.FC<HeaderProps> = ({ userId, isFormComplete }) => {
     const callbackUrl = "/";
 
     return (
-        <header className="flex justify-between flex-wrap items-center bg-white py-4 px-3 text-w gap-2 border border-[#D3D3D3] m-2 rounded-md w-11/12">
+        <header className="flex justify-between flex-wrap items-center bg-white py-4 px-3 text-w gap-2 m-2 rounded-md w-11/12">
             <Link href="/" aria-label="Go to home">
                 <div className="relative w-full max-w-xs">
                     <Image
                         layout="responsive"
-                        width={245}
-                        height={42}
-                        src="/poolerz.jpg"
+                        width={175}
+                        height={30}
+                        src="/Poolerz.io.png"
                         alt="Poolerz logo"
                     />
                 </div>
@@ -29,11 +29,11 @@ const Header: React.FC<HeaderProps> = ({ userId, isFormComplete }) => {
                     <>
                         {isFormComplete && (
                             <>
-                                <span className="text-base mr-5 text-blue font-semibold">
-                                    <Link href="/carpools">Carpools</Link>
+                                <span className="text-lg mr-5 text-blue font-medium">
+                                <Link href="/carpools">Carpools</Link>
                                 </span>
-                                <span className="text-base mr-5 text-blue font-semibold">
-                                    <Link href="/user-profile">Profile</Link>
+                                <span className="text-lg mr-5 text-blue font-medium">
+                                <Link href="/user-profile">Profile</Link>
                                 </span>
                             </>
                         )}

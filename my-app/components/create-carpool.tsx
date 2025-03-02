@@ -73,7 +73,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       selectedDays.length === 0 ||
       !startTime
     ) {
-      setError("Please fill in all required fields.");
+      setError("Please fill in all required fields!");
       return;
     }
 
@@ -133,7 +133,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   return (
     <div className="flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6">
       {/* Title */}
-      <h1 className="text-black text-2xl font-bold font-['Open Sans']">
+      <h1 className="text-gray text-2xl font-bold font-['Open Sans']">
         Create Carpool
       </h1>
       {/* Back Button */}
@@ -146,25 +146,25 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
         </button>
       </div>
       {/* Form Card */}
-      <div className="bg-white rounded-md shadow-md p-4 flex flex-col gap-4">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="bg-white rounded-md p-4 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-10">
           {/* Pool Name Field */}
-          <div className="flex flex-col gap-1">
-            <label className="text-black text-xl font-bold font-['Open Sans']">
-              Pool Name <span className="text-red-500">*</span>
+          <div className="flex flex-col gap-4">
+            <label className="text-gray text-xl font-bold font-['Open Sans']">
+              Pool Name <span className="text-red">*</span>
             </label>
             <input
               type="text"
               placeholder="Enter pool name"
               value={poolName}
               onChange={(e) => setPoolName(e.target.value)}
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+              className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-[#4b859f] text-gray placeholder:text-gray"
             />
           </div>
           {/* Shared Location Field */}
-          <div className="flex flex-col gap-1">
-            <label className="text-black text-xl font-bold font-['Open Sans']">
-              Shared Location <span className="text-red-500">*</span>
+          <div className="flex flex-col gap-4">
+            <label className="text-gray text-xl font-bold font-['Open Sans']">
+              Shared Location <span className="text-red">*</span>
             </label>
             <input
               type="text"
@@ -173,7 +173,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
               onChange={(e) =>
                 setSharedLocation({ ...sharedLocation, name: e.target.value })
               }
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+              className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
             />
             <input
               type="text"
@@ -182,7 +182,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
               onChange={(e) =>
                 setSharedLocation({ ...sharedLocation, address: e.target.value })
               }
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+              className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
             />
             <input
               type="text"
@@ -191,7 +191,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
               onChange={(e) =>
                 setSharedLocation({ ...sharedLocation, city: e.target.value })
               }
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+              className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
             />
             <input
               type="text"
@@ -200,7 +200,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
               onChange={(e) =>
                 setSharedLocation({ ...sharedLocation, state: e.target.value })
               }
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+              className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
             />
             <input
               type="text"
@@ -212,13 +212,13 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                   zipCode: e.target.value,
                 })
               }
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+              className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
             />
           </div>
           {/* Days Available - New UI as clickable circles */}
           <div className="flex flex-col gap-1">
-            <label className="text-black text-xl font-bold font-['Open Sans']">
-              Carpool Days <span className="text-red-500">*</span>
+            <label className="text-gray text-xl font-bold font-['Open Sans']">
+              Carpool Days <span className="text-red">*</span>
             </label>
             <div className="flex flex-wrap gap-3">
               {DAYS_OF_WEEK.map((day) => {
@@ -229,8 +229,8 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                     onClick={() => handleDayToggle(day.value)}
                     className={`flex items-center justify-center rounded-full cursor-pointer font-['Open Sans'] text-lg ${
                       selected
-                        ? "bg-[#4b859f] text-white"
-                        : "bg-white border border-[#666666] text-black"
+                        ? "bg-blue text-white"
+                        : "bg-white border border-gray text-gray"
                     }`}
                     style={{ width: "40px", height: "40px" }}
                   >
@@ -242,30 +242,30 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
           </div>
           {/* Start Time Field */}
           <div className="flex flex-col gap-1">
-            <label className="text-black text-xl font-bold font-['Open Sans']">
-              Start Time <span className="text-red-500">*</span>
+            <label className="text-gray text-xl font-bold font-['Open Sans']">
+              Start Time <span className="text-red">*</span>
             </label>
             <input
               type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
             />
           </div>
           {/* Additional Notes Field */}
           <div className="flex flex-col gap-1">
-            <label className="text-black text-xl font-bold font-['Open Sans']">
+            <label className="text-gray text-xl font-bold font-['Open Sans']">
               Additional Notes
             </label>
             <textarea
               placeholder="Enter any additional notes (optional)"
               value={additionalNotes}
               onChange={(e) => setAdditionalNotes(e.target.value)}
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
+              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
               rows={3}
             />
           </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <p className="text-red text-med">{error}</p>}
           <button
             type="submit"
             className="px-6 py-2 bg-[#4b859f] rounded-md border border-[#4b859f] text-white text-lg md:text-xl font-semibold font-['Open Sans']"

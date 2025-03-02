@@ -8,7 +8,7 @@ export default async function Page() {
     const session = await auth();
 
     return (
-        <div className="flex items-center justify-between h-screen flex-col bg-w">
+        <div className="flex items-center justify-between h-full flex-col bg-w">
             <Header userId={session?.user?.id} isFormComplete={true} />
             {session?.user?.id ? (
                 //this part should be tweaked based on the page you created above, and the interface you created
