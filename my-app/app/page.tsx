@@ -21,7 +21,10 @@ export default async function Home() {
 
     return (
         <div className="flex items-center justify-between h-full flex-col bg-w text-d">
-            <Header userId={userId} isFormComplete={isFormComplete} />
+            <Header userId={userId} 
+            isFormComplete={isFormComplete} 
+            currentPath="/" 
+            />
             <main className="flex-grow">
                 {userId ? (
                     <Main userName={session?.user?.name} />
