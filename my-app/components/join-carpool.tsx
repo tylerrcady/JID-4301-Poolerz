@@ -184,35 +184,76 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
     }
   }, [address, city, stateField, zip, carCapacity, drivingAvailability]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!carpoolDoc) {
       setError("Carpool data not loaded. Please try again.");
       return;
     }
 
-    const joinData = {
-      joinCode,
-      carpoolId: carpoolDoc.carpoolID,
-      userId,
-      carpoolName: carpoolDoc.createCarpoolData.carpoolName,
-      riders: riders.filter((r) => r.selected),
-      address,
-      city,
-      state: stateField,
-      zip,
-      drivingAvailability,
-      carCapacity,
-      additionalNotes,
-    };
-    console.log("Join Carpool Data:", joinData);
+    // map days to int
+    const selectedDaysAsInt = drivingAvailability
+    .map(dayAbbr => DAYS_OF_WEEK.find(day => day.value === dayAbbr)?.number)
+    .filter((num): num is number => num !== undefined);
 
-    // In production, perform an API call to store join data
-    router.push(
-      `/carpool-joined?joinCode=${joinCode}&poolName=${encodeURIComponent(
-        carpoolDoc.createCarpoolData.carpoolName
-      )}`
-    );
+    // get selected riders
+    const selectedRiderNames: string[] = riders
+    .filter(rider => rider.selected) // Keep only selected riders
+    .map(rider => rider.name);       // Step 2: Extract names
+
+    // convert joinData into JoinCarpoolData
+    const joinUserData: JoinCarpoolData = {
+      userLocation: {
+          address,
+          city,
+          state: stateField,
+          zipCode: zip
+      },
+      drivingAvailability: selectedDaysAsInt, // Example hours available for driving
+      carCapacity: Number(carCapacity),
+      carpools: [{
+        carpoolId: carpoolDoc.carpoolID,
+        riders: selectedRiderNames,
+        notes: additionalNotes
+      }]
+    };
+    console.log("Join Carpool Data:", joinUserData);
+
+    // add member
+    carpoolDoc.createCarpoolData.carpoolMembers.push(userId || "");
+
+    try {
+      // reformat so that's similar to createCarpoolData
+      const combine = {
+        userId: userId,
+        createCarpoolData: carpoolDoc.createCarpoolData,
+        joinData: joinUserData
+      }
+      
+      const response = await fetch("/api/join-carpool-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // API expects the carpool data under the key "joinCarpoolData"
+        body: JSON.stringify({ joinCarpoolData: combine }),
+      });
+
+      const result = await response.json();
+      if (!response) {
+        setError(result.error || "Failed to add member to carpool.");
+        return;
+      }
+      // In production, perform an API call to store join data
+      router.push(
+        `/carpool-joined?joinCode=${joinCode}&poolName=${encodeURIComponent(
+          carpoolDoc.createCarpoolData.carpoolName
+        )}`
+      );
+    } catch (error: unknown) {
+      console.error("Error submitting form:", error);
+      setError("Internal Server Error. Please try again.");
+    }
   };
 
   // Step 1: Code Entry
