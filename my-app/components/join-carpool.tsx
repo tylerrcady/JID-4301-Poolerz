@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import BackButton from "@/components/atoms/back-button";
 
 interface JoinCarpoolProps {
     userId: string | undefined;
@@ -11,21 +12,24 @@ const JoinCarpool: React.FC<JoinCarpoolProps> = () => {
     const router = useRouter();
 
     return (
+        
         <div className="flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6">
             {/* Title */}
             <h1 className="text-black text-2xl font-bold font-['Open Sans']">
                 Carpool Invites
             </h1>
+
             {/* Back Button */}
+            {/* <div className="w-11/12 mx-auto px-1 -mt-20 -translate-y-16"> */}
             <div>
-                <button
+                {/* <button
                     onClick={() => router.back()}
                     className="text-b text-lg md:text-2xl"
                 >
                     Back
-                </button>
+                </button> */}
+            <BackButton onClick={() => router.back()} />
             </div>
-
             {/* Invite 1 */}
             <div className="bg-white rounded-md shadow-md p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -86,6 +90,7 @@ const JoinCarpool: React.FC<JoinCarpoolProps> = () => {
                 </div>
             </div>
         </div>
+        
     );
 };
 export default JoinCarpool;
