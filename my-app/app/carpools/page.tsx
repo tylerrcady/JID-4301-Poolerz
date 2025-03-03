@@ -24,6 +24,7 @@ export default async function Page() {
             <Header
                 userId={session?.user?.id}
                 isFormComplete={isFormComplete}
+                currentPath="/carpools"
             />
             {session?.user?.id ? (
                 <Carpools userId={session?.user?.id} />

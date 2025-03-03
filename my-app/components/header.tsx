@@ -1,15 +1,21 @@
+//"use client";
 import React from "react";
 import { signIn, signOut } from "@/auth";
 import Link from "next/link";
 import Image from "next/image";
 
+//import { usePathname } from 'next/navigation'
+
 interface HeaderProps {
     userId: string | undefined;
     isFormComplete: boolean;
+    currentPath: string // prop
+
 }
 
-const Header: React.FC<HeaderProps> = ({ userId, isFormComplete }) => {
+const Header: React.FC<HeaderProps> = ({ userId, isFormComplete, currentPath }) => {
     const callbackUrl = "/";
+
 
     return (
         <header className="flex justify-between flex-wrap items-center bg-white py-4 px-3 text-w gap-2 m-2 rounded-md w-11/12">
@@ -29,11 +35,21 @@ const Header: React.FC<HeaderProps> = ({ userId, isFormComplete }) => {
                     <>
                         {isFormComplete && (
                             <>
-                                <span className="text-lg mr-5 text-blue font-medium">
-                                <Link href="/carpools">Carpools</Link>
+                                <span className="text-lg mr-5 font-medium transition-colors duration-200"> 
+                                    <Link 
+                                        href="/carpools"
+                                        className={currentPath === "/carpools" ? 'text-blue' : 'text-gray hover:text-blue'}
+                                    >
+                                        Carpools
+                                    </Link>
                                 </span>
-                                <span className="text-lg mr-5 text-blue font-medium">
-                                <Link href="/user-profile">Profile</Link>
+                                <span className="text-lg mr-5 font-medium transition-colors duration-200">
+                                    <Link 
+                                        href="/user-profile"
+                                        className={currentPath === "/user-profile" ? 'text-blue' : 'text-gray hover:text-blue'}
+                                    >
+                                        Profile
+                                    </Link>
                                 </span>
                             </>
                         )}
@@ -49,6 +65,7 @@ const Header: React.FC<HeaderProps> = ({ userId, isFormComplete }) => {
                             await signIn("google", { callbackUrl });
                         }
                     }}
+            
                 >
                     {userId ? "Log Out" : "Log In"}
                 </span>
