@@ -42,14 +42,14 @@ export async function POST(request: Request) {
         // return success/failure
         if (result && result.success) {
             return new Response(
-                JSON.stringify({ message: "Success with POST user-form-data", joinCode: carpoolId }),
+                JSON.stringify({ message: "Success with POST create-carpool-data", joinCode: carpoolId }),
                 {
                     status: 200,
                 }
             );
         } else {
             return new Response(
-                JSON.stringify({ error: "Failure with POST user-form-data" }),
+                JSON.stringify({ error: "Failure with POST create-carpool-data" }),
                 {
                     status: 500,
                 }
