@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+
 import AddModal from "@/components/modals/add-modal";
 import Button from "@/components/atoms/Button";
 
@@ -14,6 +15,7 @@ const DAYS_OF_WEEK = [
   { label: "F", value: "F", number: 5 },
   { label: "S", value: "S", number: 6 },
 ];
+
 
 interface JoinCarpoolProps {
   userId: string | undefined;
@@ -37,6 +39,7 @@ interface CarpoolDoc {
   };
 }
 
+
 // Parse "Times: ..." from notes
 function parseTimeFromNotes(notes: string): string {
   const prefix = "Times:";
@@ -56,6 +59,7 @@ function decodeDays(dayNumbers: number[]): string {
     })
     .join(", ");
 }
+
 
 export default function JoinCarpool({ userId }: JoinCarpoolProps) {
   const router = useRouter();
@@ -417,6 +421,8 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
             })}
           </div>
         </div>
+
+
         {/* Car Capacity */}
         <div className="flex flex-col gap-1">
           <label className="text-black text-xl font-bold font-['Open Sans']">
@@ -460,3 +466,4 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
     </div>
   );
 }
+

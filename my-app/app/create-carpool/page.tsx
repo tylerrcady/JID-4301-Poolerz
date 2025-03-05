@@ -9,7 +9,10 @@ export default async function Page() {
 
     return (
         <div className="flex items-center justify-between h-full flex-col bg-w">
-            <Header userId={session?.user?.id} isFormComplete={true} />
+            <Header userId={session?.user?.id} 
+            isFormComplete={true} 
+            currentPath="/create-carpool" 
+            />
             {session?.user?.id ? (
                 //this part should be tweaked based on the page you created above, and the interface you created
                 <CreateCarpool userId={session?.user?.id} />

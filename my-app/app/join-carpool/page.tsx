@@ -9,7 +9,10 @@ export default async function Page() {
 
     return (
         <div className="flex items-center justify-between h-screen flex-col bg-w">
-            <Header userId={session?.user?.id} isFormComplete={true} />
+            <Header userId={session?.user?.id} 
+            isFormComplete={true} 
+            currentPath="/join-carpool" 
+            />
             {session?.user?.id ? (
                 <JoinCarpool userId={session?.user?.id} />
             ) : (

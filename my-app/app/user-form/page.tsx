@@ -10,7 +10,10 @@ export default async function Page() {
 
     return (
         <div className="flex items-center justify-between h-screen flex-col bg-w">
-            <Header userId={session?.user?.id} isFormComplete={false} />
+            <Header userId={session?.user?.id} 
+            isFormComplete={false} 
+            currentPath="/user-form" 
+            />
             {session?.user?.id ? (
                 <UserForm userId={session?.user?.id} />
             ) : (
