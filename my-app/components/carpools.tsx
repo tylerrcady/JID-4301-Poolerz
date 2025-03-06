@@ -57,9 +57,9 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     }, [userId, handleCarpoolsGet]);
 
     return (
-        <div className="flex flex-col md:flex-row justify-start items-start gap-6 m-6">
+        <div className="flex flex-col md:flex-row justify-between items-stretch gap-6 m-6 px-20 w-full">
             {/* Create Carpool */}
-            <div className="flex flex-col w-full max-w-md bg-white rounded-md shadow-lg p-6 md:p-8 gap-6">
+            <div className="flex flex-col w-full max-w-lg bg-white rounded-md shadow-lg p-6 md:p-8 gap-6">
                 <div>
                     <h2 className="text-black text-xl md:text-2xl font-bold font-['Open Sans']">
                         Create Carpool
@@ -77,7 +77,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
             </div>
 
             {/* Join Carpool */}
-            <div className="flex flex-col w-full max-w-md bg-white rounded-md shadow-lg p-6 md:p-8 gap-6">
+            <div className="flex flex-col w-full max-w-lg bg-white rounded-md shadow-lg p-6 md:p-8 gap-6">
                 <div>
                     <h2 className="text-black text-xl md:text-2xl font-bold font-['Open Sans']">
                         Join Carpool
@@ -96,7 +96,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
             </div>
 
             {/* Current Carpools */}
-            <div className="flex flex-col w-full max-w-md bg-white rounded-md shadow-lg p-6 md:p-8 gap-6">
+            <div className="flex flex-col w-full max-w-lg bg-white rounded-md shadow-lg p-6 md:p-8 gap-6">
                 <div>
                     <h2 className="text-black text-xl md:text-2xl font-bold font-['Open Sans']">
                         Current Carpools

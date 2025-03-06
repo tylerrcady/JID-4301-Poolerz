@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
+import BackButton from "@/components/atoms/back-button";
 import AddModal from "@/components/modals/add-modal";
 import Button from "@/components/atoms/Button";
 
@@ -73,6 +73,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
   const [isEnterVisible, setIsEnterVisible] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [fetchError, setFetchError] = useState("");
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
   // 2) Join Form state
   const [riders, setRiders] = useState<{ id: string; name: string; selected: boolean }[]>([]);
@@ -147,6 +148,19 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
   const handleEnterClick = () => {
     if (!carpoolDoc) return;
     setIsConfirmModalOpen(true);
+  };
+
+  const handleBackClick = () => {
+    setIsBackModalOpen(true);
+  };
+
+  const handleConfirmBack = () => {
+    setIsBackModalOpen(false);
+    router.back();
+  };
+
+  const handleCancelBack = () => {
+    setIsBackModalOpen(false);
   };
 
   const handleConfirmNo = () => {
@@ -263,13 +277,24 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
   // Step 1: Code Entry
   if (step === "codeEntry") {
     return (
-      <div className="flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6">
+      <>
+      {/* Back Button first to align with header*/}
+      <div className="w-11/12 mx-auto px-1">
+      {/* <button
+        onClick={handleBackClick}
+        className="text-b text-lg md:text-2xl"
+      >
+        Back
+      </button> */}
+        <BackButton onClick={handleBackClick} />
+      </div>
+      <div className="h-screen flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6">
         {/* Back Button */}
-        <div>
+        {/* <div>
           <button onClick={() => router.back()} className="text-b text-lg md:text-2xl">
             Back
-          </button>
-        </div>
+          </button> 
+        </div>*/}
         {/* Title */}
         <h1 className="text-black text-2xl font-bold font-['Open Sans']">Join a Carpool</h1>
         {/* Instructions */}
@@ -284,17 +309,17 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
             maxLength={6}
             value={joinCode}
             onChange={(e) => setJoinCode(e.target.value)}
-            placeholder="______"
-            className="text-center text-2xl font-bold font-['Open Sans'] border-b-2 border-black focus:outline-none"
+            //placeholder="______"
+            className="text-center text-2xl text-black font-bold font-['Open Sans'] border-b-2 border-black focus:outline-none"
           />
         </div>
-        {fetchError && <p className="text-red-500 text-sm text-center">{fetchError}</p>}
+        {fetchError && <p className="text-red text-sm text-center">{fetchError}</p>}
         {/* Enter Button */}
         {isEnterVisible && carpoolDoc && (
           <div className="flex justify-center">
             <button
               onClick={handleEnterClick}
-              className="px-6 py-2 bg-[#4b859f] rounded-md border border-[#4b859f] text-white text-lg md:text-xl font-semibold font-['Open Sans']"
+              className="px-6 py-2 bg-blue rounded-md border border-blue text-white text-lg md:text-xl font-semibold font-['Open Sans']"
             >
               Enter
             </button>
@@ -316,30 +341,52 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
             </div>
           </div>
         </AddModal>
+        {/* Back Confirmation Modal */}
+        <AddModal
+          isOpen={isBackModalOpen}
+          text="Are you sure?"
+          onClose={handleCancelBack}
+        >
+          <div className="flex flex-col gap-4">
+            <p className="text-black">
+              Returning to the previous page will lose all progress. The join code for this carpool will not be saved.
+            </p>
+            <div className="flex justify-end gap-4">
+              <Button text="No, continue" type="secondary" onClick={handleCancelBack} />
+              <Button text="Yes, go back" type="primary" onClick={handleConfirmBack} />
+            </div>
+          </div>
+        </AddModal>
       </div>
+      </>
     );
   }
 
   // Step 2: Join Form
   return (
+    <>
+      {/* Back Button first to align with header*/}
+      <div className="w-11/12 mx-auto px-1">
+      {/* <button
+        onClick={handleBackClick}
+        className="text-b text-lg md:text-2xl"
+      >
+        Back
+      </button> */}
+      <BackButton onClick={handleBackClick} />
+    </div>
     <div className="flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6">
-      {/* Back Button */}
-      <div>
-        <button onClick={() => setStep("codeEntry")} className="text-b text-lg md:text-2xl">
-          Back
-        </button>
-      </div>
-      <h1 className="text-black text-2xl font-bold font-['Open Sans']">
+      <h1 className="text-gray text-2xl font-bold font-['Open Sans']">
         Join {carpoolDoc?.createCarpoolData.carpoolName}
       </h1>
-      <p className="text-black text-lg font-bold font-['Open Sans']">Add Ride Information</p>
+      <p className="text-gray text-lg font-bold font-['Open Sans']">Add Ride Information</p>
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-md shadow-md p-4 flex flex-col gap-4"
+        className="bg-white rounded-md p-4 flex flex-col gap-4"
       >
         {/* Riders */}
         <div className="flex flex-col gap-1">
-          <label className="text-black text-xl font-bold font-['Open Sans']">Riders</label>
+          <label className="text-gray text-xl font-bold font-['Open Sans']">Riders</label>
           <div className="flex gap-4">
             {riders.map((rider) => (
               <label key={rider.id} className="flex items-center gap-1 font-['Open Sans']">
@@ -347,7 +394,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                   type="checkbox"
                   checked={rider.selected}
                   onChange={() => handleRiderToggle(rider.id)}
-                  className="form-checkbox h-5 w-5 text-[#4b859f]"
+                  className="form-checkbox h-5 w-5 text-blue"
                 />
                 <span className="text-black">{rider.name}</span>
               </label>
@@ -356,39 +403,39 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
         </div>
         {/* Your Address */}
         <div className="flex flex-col gap-1">
-          <label className="text-black text-xl font-bold font-['Open Sans']">Your Address</label>
+          <label className="text-gray text-xl font-bold font-['Open Sans']">Your Address</label>
           <input
             type="text"
             placeholder="Address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="p-2 border border-[#666666] rounded-md text-black"
+            className="p-2 border border-gray rounded-md text-black"
           />
           <input
             type="text"
             placeholder="City"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className="p-2 border border-[#666666] rounded-md text-black"
+            className="p-2 border border-gray rounded-md text-black"
           />
           <input
             type="text"
             placeholder="State"
             value={stateField}
             onChange={(e) => setStateField(e.target.value)}
-            className="p-2 border border-[#666666] rounded-md text-black"
+            className="p-2 border border-gray rounded-md text-black"
           />
           <input
             type="text"
             placeholder="Zip Code"
             value={zip}
             onChange={(e) => setZip(e.target.value)}
-            className="p-2 border border-[#666666] rounded-md text-black"
+            className="p-2 border border-gray rounded-md text-black"
           />
         </div>
         {/* Carpool Info */}
         <div className="flex flex-col gap-1">
-          <label className="text-black text-xl font-bold font-['Open Sans']">
+          <label className="text-gray text-xl font-bold font-['Open Sans']">
             {carpoolDoc?.createCarpoolData.carpoolName} Information
           </label>
           <p className="text-black">
@@ -398,7 +445,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
         </div>
         {/* Driving Availability */}
         <div className="flex flex-col gap-1">
-          <label className="text-black text-xl font-bold font-['Open Sans']">
+          <label className="text-gray text-xl font-bold font-['Open Sans']">
             Your Driving Availability
           </label>
           <div className="flex flex-wrap gap-3">
@@ -410,8 +457,8 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                   onClick={() => toggleAvailability(day.value)}
                   className={`flex items-center justify-center rounded-full cursor-pointer text-lg ${
                     selected
-                      ? "bg-[#4b859f] text-white"
-                      : "bg-white border border-[#666666] text-black"
+                      ? "bg-blue text-white"
+                      : "bg-white border border-gray text-black"
                   }`}
                   style={{ width: "40px", height: "40px" }}
                 >
@@ -425,7 +472,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
 
         {/* Car Capacity */}
         <div className="flex flex-col gap-1">
-          <label className="text-black text-xl font-bold font-['Open Sans']">
+          <label className="text-gray text-xl font-bold font-['Open Sans']">
             Car Capacity
           </label>
           <input
@@ -433,37 +480,54 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
             placeholder="Enter capacity (max 8)"
             value={carCapacity}
             onChange={(e) => setCarCapacity(e.target.value)}
-            className="p-2 border border-[#666666] rounded-md text-black"
+            className="p-2 border border-gray rounded-md text-black"
             max={8}
           />
         </div>
         {/* Additional Notes */}
         <div className="flex flex-col gap-1">
-          <label className="text-black text-xl font-bold font-['Open Sans']">
+          <label className="text-gray text-xl font-bold font-['Open Sans']">
             Additional Notes
           </label>
           <textarea
             placeholder="Enter comments, accommodations, etc."
             value={additionalNotes}
             onChange={(e) => setAdditionalNotes(e.target.value)}
-            className="p-2 border border-[#666666] rounded-md text-black"
+            className="p-2 border border-gray rounded-md text-black"
             rows={3}
           />
         </div>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && <p className="text-red text-sm">{error}</p>}
         <button
           type="submit"
           disabled={isSubmitDisabled}
           className={`px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] ${
             isSubmitDisabled
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-[#4b859f] border border-[#4b859f]"
+              : "bg-blue border border-blue"
           }`}
         >
           Continue
         </button>
       </form>
+      {/* Back Confirmation Modal */}
+      <AddModal
+        isOpen={isBackModalOpen}
+        text="Are you sure?"
+        onClose={handleCancelBack}
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-black">
+            Returning to the previous page will lose all progress. The information for this carpool will not be saved.
+          </p>
+          <div className="flex justify-end gap-4">
+            <Button text="No, continue" type="secondary" onClick={handleCancelBack} />
+            <Button text="Yes, go back" type="primary" onClick={handleConfirmBack} />
+          </div>
+        </div>
+      </AddModal>
     </div>
+    </>
   );
 }
 
