@@ -1,15 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import AddModal from "@/components/modals/add-modal";
 import Button from "@/components/atoms/Button";
+import JoinCarpool from "./join-carpool";
 
 
 interface PoolInfoProps {
   userId: string | undefined;
 }
 
+interface CarpoolData {
+    carpoolID: string | undefined;
+    createCarpoolData: CreateCarpoolData | undefined; 
+}
+
+// will tweak and remove
 interface CarpoolDoc {
   carpoolID: string;
   createCarpoolData: {
@@ -28,12 +35,69 @@ interface CarpoolDoc {
   };
 }
 
-  export default function CarpoolPage() {
+const CarpoolPage: React.FC<PoolInfoProps> = ({ userId }) => {
+    const [createCarpoolData, setCreateCarpoolData] = useState<CarpoolData[]>([]);
+    const [joinCarpoolData, setJoinCarpoolData] = useState<JoinCarpoolData | null>(null);
+
+    // GET create-carpool data handler
+    const handleCarpoolsGet = useCallback(async () => {
+        try {
+            const response = await fetch(
+                `/api/create-carpool-data?creatorId=${userId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data?.createCarpoolData);
+                setCreateCarpoolData(
+                    data?.createCarpoolData
+                );
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }, [userId]);
+
+    // get createFormData handler/caller effect
+    useEffect(() => {
+        handleCarpoolsGet();
+        console.log(createCarpoolData);
+    }, [userId, handleCarpoolsGet]);
+
+    // GET user-carpool-data handler
+    const handleUserDataGet = useCallback(async () => {
+        try {
+            const response = await fetch(
+                `/api/join-carpool-data?userId=${userId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (response.ok) {
+                const data = await response.json();
+                setJoinCarpoolData(
+                    data?.userData
+                )
+            } else {
+                console.error("Failed to fetch data:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }, [userId])
     return (
-      <div className="flex flex-col w-8/12 mx-auto p-10 gap-6 rounded-md shadow-lg">
+        <div className="flex flex-col w-8/12 mx-auto p-10 gap-6 rounded-md shadow-lg">
         {/*Title Card*/}
         <div className="flex-col justify-start items-start gap-5 flex">
-            <div className="text-black text-2xl font-bold font-['Open Sans']">Run Club</div>
+            <div className="text-black text-2xl font-bold font-['Open Sans']">{createCarpoolData[0]?.createCarpoolData?.carpoolName}</div>
             <div className="self-stretch justify-start items-start inline-flex gap-10">
                 <div className="text-gray text-xl font-normal font-['Open Sans']">Closes on March 4</div>
                 <div className="text-blue text-xl font-bold font-['Open Sans']">Close Now</div>
@@ -41,22 +105,22 @@ interface CarpoolDoc {
         </div>
         {/*Carpool Info*/}
         <div className="flex-col justify-start items-start gap-5 flex">
-          <div className="w-8/12 justify-between items-start inline-flex">
-              <div className="text-black text-xl font-bold font-['Open Sans']">Carpool Information</div>
-              <div className="text-blue text-xl font-bold font-['Open Sans']">Edit</div>
-          </div>
-          <div className="flex-col justify-start items-start gap-2.5 flex">
-              <div className="text-gray text-xl font-bold font-['Open Sans']">Location</div>
-              <div className="text-gray text-xl font-normal font-['Open Sans']">Peak to Peak High School, 78 Emma Street, Lafayette CO, 80234</div>
-          </div>
-          <div className="flex-col justify-start items-start gap-2.5 flex">
-              <div className="text-gray text-xl font-bold font-['Open Sans']">Occurs Every</div>
-              <div className="text-gray text-xl font-normal font-['Open Sans']">Monday, Wednesday, Thursday</div>
-          </div>
-          <div className="flex-col justify-start items-start gap-2.5 flex">
-              <div className="text-gray text-xl font-bold font-['Open Sans']">Time</div>
-              <div className="text-gray text-xl font-normal font-['Open Sans']">3-5pm</div>
-          </div>
+            <div className="w-8/12 justify-between items-start inline-flex">
+                <div className="text-black text-xl font-bold font-['Open Sans']">Carpool Information</div>
+                <div className="text-blue text-xl font-bold font-['Open Sans']">Edit</div>
+            </div>
+            <div className="flex-col justify-start items-start gap-2.5 flex">
+                <div className="text-gray text-xl font-bold font-['Open Sans']">Location</div>
+                <div className="text-gray text-xl font-normal font-['Open Sans']">Peak to Peak High School, 78 Emma Street, Lafayette CO, 80234</div>
+            </div>
+            <div className="flex-col justify-start items-start gap-2.5 flex">
+                <div className="text-gray text-xl font-bold font-['Open Sans']">Occurs Every</div>
+                <div className="text-gray text-xl font-normal font-['Open Sans']">Monday, Wednesday, Thursday</div>
+            </div>
+            <div className="flex-col justify-start items-start gap-2.5 flex">
+                <div className="text-gray text-xl font-bold font-['Open Sans']">Time</div>
+                <div className="text-gray text-xl font-normal font-['Open Sans']">3-5pm</div>
+            </div>
         </div>
         {/*Carpools*/}
         <div className=" w-8/12 flex-col justify-start items-start gap-5 flex">
@@ -73,8 +137,8 @@ interface CarpoolDoc {
                 <div className="text-gray text-xl font-bold font-['Open Sans']">All Members</div>
                 <div className="flex-col justify-start items-start gap-2.5 flex">
                     <div className="text-gray text-xl font-normal font-['Open Sans']">Megan Wagner, Asha Vora, Tom Papa, Ben Aimasiko, David Pursell, 
-                                                                                      Bijoy Vallamattam, Lorie Langan, Michael Li, Mary Rice, John Barry, 
-                                                                                      Janice McAniff, Nadia Lin</div>
+                                                                                        Bijoy Vallamattam, Lorie Langan, Michael Li, Mary Rice, John Barry, 
+                                                                                        Janice McAniff, Nadia Lin</div>
                 </div>
             </div>
             <div className="flex-col justify-start items-start gap-2.5 flex">
@@ -130,4 +194,6 @@ interface CarpoolDoc {
         </div>
     </div>
     );
-  }
+};
+
+export default CarpoolPage;

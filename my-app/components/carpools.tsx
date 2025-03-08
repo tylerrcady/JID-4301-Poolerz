@@ -41,10 +41,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                 const data = await response.json();
                 setCreateCarpoolData(
                     data?.createCarpoolData
-                ); // update variable with returned data if any exists
-                
-            // } else { //! can keep this out for now as it creates an unecessary error which will show up when a user has no carpools
-            //     console.error("Failed to fetch data:", response.statusText); // ! this is where the console error pops up if you visit carpools without being in a carpool
+                );
             }
         } catch (error) {
             console.error("Error fetching data:", error);
