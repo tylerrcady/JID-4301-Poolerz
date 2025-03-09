@@ -26,6 +26,7 @@ Poolerz is a web-based carpooling application designed to support busy professio
 - In the carpool-info page, the list of riders AND members for a pool is currently hardcoded and needs to be dynamically rendered
 - Join-carpool uses the backbutton component but is not aligned with the header due to the positioning of the content.
 - The "Remove" button doesn't visually remove elements before saving
+- Registration Form UI's input fields still needs to be fully checked for regex edge cases
 
 ## Version 0.2.0: https://jda-4301-poolerz.vercel.app/
 ### Features
