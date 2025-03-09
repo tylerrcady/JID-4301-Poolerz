@@ -1,11 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import AddModal from "@/components/modals/add-modal";
-import Button from "@/components/atoms/Button";
-import JoinCarpool from "./join-carpool";
-
 
 interface PoolInfoProps {
   userId: string | undefined;
@@ -37,9 +32,11 @@ interface CarpoolDoc {
 }
 
 const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
-    const [createCarpoolData, setCreateCarpoolData] = useState<CarpoolData[]>([]);
     const [foundCarpool, setFoundCarpool] = useState<CreateCarpoolData>();
     const [joinCarpoolData, setJoinCarpoolData] = useState<JoinCarpoolData | null>(null);
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const [carpoolDays, setCarpoolDays] = useState<string>();
+    const [times, setTimes] = useState<string>();
 
     // GET create-carpool data handler
     const handleCarpoolsGet = useCallback(async () => {
@@ -56,10 +53,14 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             if (response.ok) {
                 const data = await response.json();
                 console.log(data?.createCarpoolData);
-                setCreateCarpoolData(
-                    data?.createCarpoolData
-                );
-                setFoundCarpool(data.createCarpoolData[Number(index)]?.createCarpoolData)
+                setFoundCarpool(data.createCarpoolData[Number(index)]?.createCarpoolData);
+                const selectedArray = data.createCarpoolData[Number(index)]?.createCarpoolData?.carpoolDays;
+                const daysString = selectedArray?.length 
+                    ? selectedArray.map((dayIndex: number) => daysOfWeek[dayIndex]).join(", ")
+                    : "";
+                setCarpoolDays(daysString);
+                const notes = data.createCarpoolData[Number(index)]?.createCarpoolData?.notes;
+                setTimes(notes.substring(10, 15))
             }
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -69,7 +70,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     // get createFormData handler/caller effect
     useEffect(() => {
         handleCarpoolsGet();
-        console.log(createCarpoolData);
+        console.log(foundCarpool);
     }, [userId, handleCarpoolsGet]);
 
     // GET user-carpool-data handler
@@ -114,15 +115,15 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             </div>
             <div className="flex-col justify-start items-start gap-2.5 flex">
                 <div className="text-gray text-xl font-bold font-['Open Sans']">Location</div>
-                <div className="text-gray text-xl font-normal font-['Open Sans']">Peak to Peak High School, 78 Emma Street, Lafayette CO, 80234</div>
+                <div className="text-gray text-xl font-normal font-['Open Sans']">{`${foundCarpool?.carpoolLocation.name}, ${foundCarpool?.carpoolLocation.address}, ${foundCarpool?.carpoolLocation.city}, ${foundCarpool?.carpoolLocation.state} ${foundCarpool?.carpoolLocation.zipCode}`}</div>
             </div>
             <div className="flex-col justify-start items-start gap-2.5 flex">
                 <div className="text-gray text-xl font-bold font-['Open Sans']">Occurs Every</div>
-                <div className="text-gray text-xl font-normal font-['Open Sans']">Monday, Wednesday, Thursday</div>
+                <div className="text-gray text-xl font-normal font-['Open Sans']">{carpoolDays}</div>
             </div>
             <div className="flex-col justify-start items-start gap-2.5 flex">
                 <div className="text-gray text-xl font-bold font-['Open Sans']">Time</div>
-                <div className="text-gray text-xl font-normal font-['Open Sans']">3-5pm</div>
+                <div className="text-gray text-xl font-normal font-['Open Sans']">{times}</div>
             </div>
         </div>
         {/*Carpools*/}
