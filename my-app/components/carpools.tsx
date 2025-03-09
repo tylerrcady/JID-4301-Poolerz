@@ -102,14 +102,13 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                     {createCarpoolData.length > 0 ? (
                         <div className="mt-2 space-y-3">
                             {createCarpoolData.map((carpool, index) => (
-                                <Link href="/pool-info" key={index} className="block">
+                                <Link href={`/pool-info/${index}`} key={index} className="block">
                                     <div className="bg-gray-100 p-3 rounded-md shadow-sm hover:bg-gray-200 cursor-pointer flex justify-between items-center">
                                         <p className="text-lg font-semibold text-gray-800">
                                             {carpool?.createCarpoolData?.carpoolName || "No notes available"}
                                         </p>  
                                         <span className="text-blue text-5xl">›</span>
                                     </div>
-                                    
                                 </Link>
                             ))}
                         </div>

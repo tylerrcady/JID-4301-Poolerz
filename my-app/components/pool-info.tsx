@@ -9,6 +9,7 @@ import JoinCarpool from "./join-carpool";
 
 interface PoolInfoProps {
   userId: string | undefined;
+  index: string;
 }
 
 interface CarpoolData {
@@ -35,8 +36,9 @@ interface CarpoolDoc {
   };
 }
 
-const CarpoolPage: React.FC<PoolInfoProps> = ({ userId }) => {
+const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [createCarpoolData, setCreateCarpoolData] = useState<CarpoolData[]>([]);
+    const [foundCarpool, setFoundCarpool] = useState<CreateCarpoolData>();
     const [joinCarpoolData, setJoinCarpoolData] = useState<JoinCarpoolData | null>(null);
 
     // GET create-carpool data handler
@@ -57,6 +59,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId }) => {
                 setCreateCarpoolData(
                     data?.createCarpoolData
                 );
+                setFoundCarpool(data.createCarpoolData[Number(index)]?.createCarpoolData)
             }
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -97,7 +100,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId }) => {
         <div className="flex flex-col w-8/12 mx-auto p-10 gap-6 rounded-md shadow-lg">
         {/*Title Card*/}
         <div className="flex-col justify-start items-start gap-5 flex">
-            <div className="text-black text-2xl font-bold font-['Open Sans']">{createCarpoolData[0]?.createCarpoolData?.carpoolName}</div>
+            <div className="text-black text-2xl font-bold font-['Open Sans']">{foundCarpool?.carpoolName}</div>
             <div className="self-stretch justify-start items-start inline-flex gap-10">
                 <div className="text-gray text-xl font-normal font-['Open Sans']">Closes on March 4</div>
                 <div className="text-blue text-xl font-bold font-['Open Sans']">Close Now</div>
