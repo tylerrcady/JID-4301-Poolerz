@@ -2,6 +2,30 @@
 Poolerz is a web-based carpooling application designed to support busy professionals with children between the ages of 7 and 15 who attend camps, schools, or clubs with no transportation option. Carpooling among parents is the preferred solution, but some parents may not have a strong network or may not know any other parents and have a limited opportunity to connect. For parents who are connected, carpooling is complex and complicated and requires the exchange of a lot of information, such as capacity, availability, constraints, proximity, and more. It's a logistical challenge. At Poolerz, we strive to solve all of these problems.
 
 # Release Notes
+## Version 0.3.0: https://jda-4301-poolerz.vercel.app/
+### Features
+- Join Carpool Flow & Implementation
+    - Users can now join carpools by inputting the 6-character join code
+    - Carpools database is updated when a user joins a carpool
+    - User carpool data, including their personal address, car capacity, driving availability, etc., are now stored in a new database called 'user-carpool-data'
+- Carpool Information Display
+    - When displaying a user's list of carpools, each carpool links to a dynamic page that displays the respective carpool and user-carpool information
+- UI Enhancement:
+    - When user hovers over header buttons (Carpools, Profile), it changes from gray to blue; and when on its respective page, that button will be blue to indicate to user which page they're on
+    - Implemented back button component and added the back arrow image to the original button
+- Optimization Algorithm Refinement:
+    - Ensure a useable schedule-oriented output of the optimizer that can be used to later display carpool assignments
+   
+### Bug Fixes
+- UI Fix:
+  - Aligned the back button with the header for create-carpool
+  - {add stuff from Annie's PR}
+- Optimizer is now handling failed clustering scenarios by implementing additional validation checks AND looking into cluster and unclustered user corrections
+### Known Issues
+- Carpool Information page's UI still needs to be fixed and mobile responsive
+- In the carpool-info page, the list of riders AND members for a pool still needs to be dynamically rendered
+- Join-carpool uses the backbutton component, but is not aligned with the header due to the positioning of the content.
+
 ## Version 0.2.0: https://jda-4301-poolerz.vercel.app/
 ### Features
 - Create Carpool Form UI:
