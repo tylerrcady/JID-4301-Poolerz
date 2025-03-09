@@ -7,24 +7,25 @@ Poolerz is a web-based carpooling application designed to support busy professio
 - Join Carpool Flow & Implementation
     - Users can now join carpools by inputting the 6-character join code
     - Carpools database is updated when a user joins a carpool
-    - User carpool data, including their personal address, car capacity, driving availability, etc., are now stored in a new database called 'user-carpool-data'
+    - User carpool data, including their personal address, car capacity, driving availability, etc., is now stored in a new database called 'user-carpool-data'
+    - Updated profile page so that it doesn't render driving availability or car capacity until join-carpool form is completed
 - Carpool Information Display
-    - When displaying a user's list of carpools, each carpool links to a dynamic page that displays the respective carpool and user-carpool information
+    - When displaying a user's list of carpools, each carpool dynamically links to page that displays the respective carpool and user-carpool-data information
 - UI Enhancement:
-    - When user hovers over header buttons (Carpools, Profile), it changes from gray to blue; and when on its respective page, that button will be blue to indicate to user which page they're on
-    - Implemented back button component and added the back arrow image to the original button
+    - Header buttons (Carpools, Profile) now change from gray to blue on hover and remain blue when on their respective pages for better navigation clarity.
+    - Added a back button component with a back arrow icon for improved usability.
 - Optimization Algorithm Refinement:
-    - Ensure a useable schedule-oriented output of the optimizer that can be used to later display carpool assignments
-   
+    - Implemented a useable schedule-oriented output of the optimizer that can be used to later display carpool assignments   
 ### Bug Fixes
-- UI Fix:
+- UI Fixes:
   - Aligned the back button with the header for create-carpool
-  - {add stuff from Annie's PR}
+  - Background and footer are now properly rendered on all screens
 - Optimizer is now handling failed clustering scenarios by implementing additional validation checks AND looking into cluster and unclustered user corrections
 ### Known Issues
 - Carpool Information page's UI still needs to be fixed and mobile responsive
-- In the carpool-info page, the list of riders AND members for a pool still needs to be dynamically rendered
-- Join-carpool uses the backbutton component, but is not aligned with the header due to the positioning of the content.
+- In the carpool-info page, the list of riders AND members for a pool is currently hardcoded and needs to be dynamically rendered
+- Join-carpool uses the backbutton component but is not aligned with the header due to the positioning of the content.
+- The "Remove" button doesn't visually remove elements before saving
 
 ## Version 0.2.0: https://jda-4301-poolerz.vercel.app/
 ### Features
@@ -46,6 +47,7 @@ Poolerz is a web-based carpooling application designed to support busy professio
 - Given the current data layout, optimizer isn't fully handling errors for failed clustering scenarios
 - The "Remove" button still doesn't visually remove elements before saving
 - Registration Form UI still needs to be fixed and fully checked for regex edge cases
+- Background and footer is improperly rendered on certain screens
 
 ## Version 0.1.0: https://jda-4301-poolerz.vercel.app/
 ### Features
