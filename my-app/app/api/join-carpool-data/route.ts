@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { postCreateCarpoolData } from "@/lib/create-carpool-data";
-import { postUserCarpoolData } from "@/lib/join-carpool-data";
+import { postUserCarpoolData, getUserCarpoolData } from "@/lib/join-carpool-data";
 
 // POST
 export async function POST(request: Request) {
@@ -53,6 +53,54 @@ export async function POST(request: Request) {
         }
     } catch(error) {
         console.error("Error with POST join-carpool-data: ", error);
+        return new Response(
+            JSON.stringify({ error: "Internal Server Error" }),
+            { status: 500 }
+        );
+    }
+}
+
+// GET
+export async function GET(request: Request) {
+    // check if authenticated
+    const session = await auth();
+    if (!session) {
+        return new Response(JSON.stringify({ error: "Not authenticated" }), {
+            status: 500,
+        });
+    }
+
+    try {
+        // get parameters
+        const { searchParams } = new URL(request.url);
+        const userId = searchParams.get("userId");
+
+        // check if parameters are valid
+        if (!userId) {
+            return new Response(
+                JSON.stringify({ error: "Invalid parameters" }),
+                {
+                    status: 400,
+                }
+            );
+        }
+
+        // Retrieve the data from the database
+        const userCarpoolData = await getUserCarpoolData(userId);
+
+        // return success/failure
+        if (userCarpoolData) {
+            return new Response(JSON.stringify({ createCarpoolData: userCarpoolData }), {
+                status: 200,
+            });
+        } else {
+            return new Response(
+                JSON.stringify({ error: "Failure with GET create-carpool-data" }),
+                { status: 500 }
+            );
+        }
+    } catch (error) {
+        console.error("Error with GET create-carpool-data: ", error);
         return new Response(
             JSON.stringify({ error: "Internal Server Error" }),
             { status: 500 }

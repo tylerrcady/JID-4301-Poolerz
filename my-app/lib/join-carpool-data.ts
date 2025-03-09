@@ -4,10 +4,7 @@ import clientPromise from "@/lib/db";
 const dbName = "poolerz";
 const collectionName = "user-carpool-data";
 
-// ADD additional DB for displaying users information for carpoolMembers
-
 // database connection
-// Note: copied/pasted this exact method from user-form-data; it may be cleaner to later import this to enforce cleaner code
 async function connect() {
     try {
         const client = await clientPromise;
@@ -72,24 +69,23 @@ async function postUserCarpoolData(userId: string, userData : JoinCarpoolData) {
     }
 }
 
-// GET (CreateCarpoolData)
-async function getUserCarpoolData(query: any) {
+// GET (UserCarpoolData)
+async function getUserCarpoolData(userId: string) {
     try {
         // make db connection
         const client = await connect();
         const db = client.db(dbName);
         const collection = db.collection(collectionName);
 
-        console.log(query);
+        console.log(userId); // for testing only
 
-        // get the createCarpoolData
-        const userCarpoolData = await collection.find(query).toArray();
+        // get the userCarpoolData
+        const userCarpoolData = await collection.findOne({ userId });;
 
-        // return the createCarpoolData or ""
-        if (!userCarpoolData || userCarpoolData.length == 0) {
+        // return the userCarpoolData or ""
+        if (!userCarpoolData) {
             return null;
         } else {
-            //console.log(createCarpoolData);
             return userCarpoolData;
         }
     } catch (error) {
