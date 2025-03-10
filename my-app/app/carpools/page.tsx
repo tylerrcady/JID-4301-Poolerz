@@ -15,7 +15,7 @@ export default async function Page() {
     if (userId) {
         isFormComplete = await checkFormCompletion(userId);
         if (!isFormComplete) {
-            redirect("/user-form"); // Redirect to form if incomplete
+            redirect("/user-form");
         }
     }
 

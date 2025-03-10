@@ -57,7 +57,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
         }
     }, [userId]);
 
-    // get userFormData handler/caller useEffect
     useEffect(() => {
         handleUserFormGet();
     }, [userId, handleUserFormGet]);
