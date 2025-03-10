@@ -1,4 +1,5 @@
 import { MouseEventHandler } from "react";
+import Image from "next/image";
 
 interface Props {
   onClick?: MouseEventHandler<HTMLButtonElement>;
@@ -8,17 +9,19 @@ interface Props {
 
 export default function BackButton({ onClick, disabled, darkerColor }: Props) {
   return (
-    <button
-      className={`group flex items-center gap-[2px] text-base font-normal ${!darkerColor ? "text-medium-gray" : "text-primary-text font-semibold"}`}
+    <button //cremove text-base after [2px]
+      className={`group flex items-center gap-[2px] font-normal ${!darkerColor ? "text-blue" : "text-primary-text font-semibold"}`}
       onClick={onClick}
       disabled={disabled}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
+      {/* <svg //!MIGHT WANT TO FIGURE THIS OUT FOR LATER BECAUSE OF SCALING
+        xmlns="/back-arrow.svg"
+        //xmlns="http://www.w3.org/2000/svg"
+        width="24" //24 before
+        height="24" //24 before
         viewBox="0 0 24 24"
         fill="none"
+        className="mr-1" // margin for space between arrow and text
       >
         <path
           d="M15 18L9 12L15 6"
@@ -27,9 +30,22 @@ export default function BackButton({ onClick, disabled, darkerColor }: Props) {
           strokeLinecap="square"
           strokeLinejoin="round"
         />
-      </svg>
+      </svg> */}
+
+      <Image 
+        src="/back-arrow.svg"  // This will look in the public folder automatically
+        alt="Back arrow"
+        width={30}
+        height={30}
+        className={`mr-1 ${
+          !darkerColor
+            ? "brightness-0 invert-[42%] sepia-[25%] saturate-[510%] hue-rotate-[190deg] brightness-[95%] contrast-[88%]"
+            : ""
+        }`}
+      />
+
       <div
-        className={`${disabled ? "text-dark-gray" : "group-hover:text-dark-gray"}`}
+        className={`text-xl md:text-2xl ${disabled ? "text-blue" : "group-hover:text-dark-gray"}`}
       >
         Back
       </div>

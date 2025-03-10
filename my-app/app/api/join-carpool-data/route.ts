@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
-import { postCreateCarpoolData, getCreateCarpoolData } from "@/lib/create-carpool-data";
-import { customAlphabet } from 'nanoid';
+import { postCreateCarpoolData } from "@/lib/create-carpool-data";
+import { postUserCarpoolData, getUserCarpoolData } from "@/lib/join-carpool-data";
 
 // POST
 export async function POST(request: Request) {
@@ -12,22 +12,8 @@ export async function POST(request: Request) {
         });
     }
     try {
-        // creating random carpoolID
-        let carpoolId = "";
-        let existingData: any = null;
-        const ALPHANUMERIC = '0123456789abcdefghijklmnopqrstuvwxyz';
-        const nanoid = customAlphabet(ALPHANUMERIC, 6);
-        // use a do-while loop to generate and check the ID
-        do {
-            carpoolId = nanoid();
-            existingData = await getCreateCarpoolData({"carpoolID" : carpoolId});
-        } while (existingData); // continue looping if any record is found
-
-        // get passed-in data
-        const {createCarpoolData} = await request.json();
-
-        // check if data is valid
-        if (!createCarpoolData) {
+        const {joinCarpoolData} = await request.json();
+        if (!joinCarpoolData) {
             return new Response(
                 JSON.stringify({
                     error: "Invalid data",
@@ -35,12 +21,22 @@ export async function POST(request: Request) {
                 { status: 400 }
             );
         }
+        const carpoolId = joinCarpoolData.joinData.carpools[0].carpoolId;
+        const createCarpoolData = joinCarpoolData.createCarpoolData;
+        const userId = joinCarpoolData.userId;
+        const joinData = joinCarpoolData.joinData;
+
+        console.log("carpool ID is");
+        console.log(carpoolId);
 
         // POST the data
-        const result = await postCreateCarpoolData(carpoolId, createCarpoolData);
-
+        // Run both functions concurrently
+        const [createCarpoolResult, userCarpoolResult] = await Promise.all([
+            postCreateCarpoolData(carpoolId, createCarpoolData),
+            postUserCarpoolData(userId, joinData)
+        ]);
         // return success/failure
-        if (result && result.success) {
+        if (createCarpoolResult?.success && userCarpoolResult?.success) {
             return new Response(
                 JSON.stringify({ message: "Success with POST create-carpool-data", joinCode: carpoolId }),
                 {
@@ -55,8 +51,8 @@ export async function POST(request: Request) {
                 }
             );
         }
-    } catch (error) {
-        console.error("Error with POST create-carpool-data: ", error);
+    } catch(error) {
+        console.error("Error with POST join-carpool-data: ", error);
         return new Response(
             JSON.stringify({ error: "Internal Server Error" }),
             { status: 500 }
@@ -77,11 +73,10 @@ export async function GET(request: Request) {
     try {
         // get parameters
         const { searchParams } = new URL(request.url);
-        const carpoolId = searchParams.get("carpoolId");
-        const creatorId = searchParams.get("creatorId");
+        const userId = searchParams.get("userId");
 
         // check if parameters are valid
-        if (!carpoolId && !creatorId) {
+        if (!userId) {
             return new Response(
                 JSON.stringify({ error: "Invalid parameters" }),
                 {
@@ -90,21 +85,12 @@ export async function GET(request: Request) {
             );
         }
 
-        // GET the data
-        // Build query conditions based on provided parameters
-        let query = [];
-        if (carpoolId) {
-        query.push({"carpoolID" : carpoolId});
-        } else if (creatorId) {
-        query.push({"createCarpoolData.creatorId" : creatorId});
-        }
-
         // Retrieve the data from the database
-        const createCarpoolData = await getCreateCarpoolData(query[0]);
+        const userCarpoolData = await getUserCarpoolData(userId);
 
         // return success/failure
-        if (createCarpoolData) {
-            return new Response(JSON.stringify({ createCarpoolData }), {
+        if (userCarpoolData) {
+            return new Response(JSON.stringify({ createCarpoolData: userCarpoolData }), {
                 status: 200,
             });
         } else {

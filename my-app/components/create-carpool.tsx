@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import AddModal from "@/components/modals/add-modal";
 import Button from "@/components/atoms/Button";
+import BackButton from "@/components/atoms/back-button";
 
 interface CreateCarpoolProps {
   userId: string;
@@ -73,7 +74,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       selectedDays.length === 0 ||
       !startTime
     ) {
-      setError("Please fill in all required fields.");
+      setError("Please fill in all required fields!");
       return;
     }
 
@@ -131,167 +132,172 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   };
 
   return (
-    <div className="flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6">
-      {/* Title */}
-      <h1 className="text-black text-2xl font-bold font-['Open Sans']">
-        Create Carpool
-      </h1>
-      {/* Back Button */}
-      <div>
-        <button
-          onClick={handleBackClick}
-          className="text-b text-lg md:text-2xl"
+    <>
+      {/* Back Button first to align with header*/}
+      <div className="w-11/12 mx-auto px-1">
+      {/* <button
+        onClick={handleBackClick}
+        className="text-b text-lg md:text-2xl"
+      >
+        Back
+      </button> */}
+      <BackButton onClick={handleBackClick} />
+    </div>
+      <div className="flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6">
+        {/* Title */}
+        <h1 className="text-gray text-2xl font-bold font-['Open Sans']">
+          Create Carpool
+        </h1>
+        
+        {/* Form Card */}
+        <div className="bg-white rounded-md p-4 flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-10">
+            {/* Pool Name Field */}
+            <div className="flex flex-col gap-4">
+              <label className="text-gray text-xl font-bold font-['Open Sans']">
+                Pool Name <span className="text-red">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Enter pool name"
+                value={poolName}
+                onChange={(e) => setPoolName(e.target.value)}
+                className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-[#4b859f] text-gray placeholder:text-gray"
+              />
+            </div>
+            {/* Shared Location Field */}
+            <div className="flex flex-col gap-4">
+              <label className="text-gray text-xl font-bold font-['Open Sans']">
+                Shared Location <span className="text-red">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Enter location name"
+                value={sharedLocation.name}
+                onChange={(e) =>
+                  setSharedLocation({ ...sharedLocation, name: e.target.value })
+                }
+                className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+              />
+              <input
+                type="text"
+                placeholder="Enter address"
+                value={sharedLocation.address}
+                onChange={(e) =>
+                  setSharedLocation({ ...sharedLocation, address: e.target.value })
+                }
+                className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+              />
+              <input
+                type="text"
+                placeholder="Enter city"
+                value={sharedLocation.city}
+                onChange={(e) =>
+                  setSharedLocation({ ...sharedLocation, city: e.target.value })
+                }
+                className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+              />
+              <input
+                type="text"
+                placeholder="Enter state"
+                value={sharedLocation.state}
+                onChange={(e) =>
+                  setSharedLocation({ ...sharedLocation, state: e.target.value })
+                }
+                className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+              />
+              <input
+                type="text"
+                placeholder="Enter zip code"
+                value={sharedLocation.zipCode}
+                onChange={(e) =>
+                  setSharedLocation({
+                    ...sharedLocation,
+                    zipCode: e.target.value,
+                  })
+                }
+                className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+              />
+            </div>
+            {/* Days Available - New UI as clickable circles */}
+            <div className="flex flex-col gap-1">
+              <label className="text-gray text-xl font-bold font-['Open Sans']">
+                Carpool Days <span className="text-red">*</span>
+              </label>
+              <div className="flex flex-wrap gap-3">
+                {DAYS_OF_WEEK.map((day) => {
+                  const selected = selectedDays.includes(day.value);
+                  return (
+                    <div
+                      key={day.value}
+                      onClick={() => handleDayToggle(day.value)}
+                      className={`flex items-center justify-center rounded-full cursor-pointer font-['Open Sans'] text-lg ${
+                        selected
+                          ? "bg-blue text-white"
+                          : "bg-white border border-gray text-gray"
+                      }`}
+                      style={{ width: "40px", height: "40px" }}
+                    >
+                      {day.label}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            {/* Start Time Field */}
+            <div className="flex flex-col gap-1">
+              <label className="text-gray text-xl font-bold font-['Open Sans']">
+                Start Time <span className="text-red">*</span>
+              </label>
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+              />
+            </div>
+            {/* Additional Notes Field */}
+            <div className="flex flex-col gap-1">
+              <label className="text-gray text-xl font-bold font-['Open Sans']">
+                Additional Notes
+              </label>
+              <textarea
+                placeholder="Enter any additional notes (optional)"
+                value={additionalNotes}
+                onChange={(e) => setAdditionalNotes(e.target.value)}
+                className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+                rows={3}
+              />
+            </div>
+            {error && <p className="text-red text-med">{error}</p>}
+            <button
+              type="submit"
+              className="px-6 py-2 bg-[#4b859f] rounded-md border border-[#4b859f] text-white text-lg md:text-xl font-semibold font-['Open Sans']"
+            >
+              Continue
+            </button>
+          </form>
+        </div>
+        {/* Back Confirmation Modal */}
+        <AddModal
+          isOpen={isBackModalOpen}
+          text="Are you sure?"
+          onClose={handleCancelBack}
         >
-          Back
-        </button>
-      </div>
-      {/* Form Card */}
-      <div className="bg-white rounded-md shadow-md p-4 flex flex-col gap-4">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Pool Name Field */}
-          <div className="flex flex-col gap-1">
-            <label className="text-black text-xl font-bold font-['Open Sans']">
-              Pool Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter pool name"
-              value={poolName}
-              onChange={(e) => setPoolName(e.target.value)}
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
-            />
-          </div>
-          {/* Shared Location Field */}
-          <div className="flex flex-col gap-1">
-            <label className="text-black text-xl font-bold font-['Open Sans']">
-              Shared Location <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter location name"
-              value={sharedLocation.name}
-              onChange={(e) =>
-                setSharedLocation({ ...sharedLocation, name: e.target.value })
-              }
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
-            />
-            <input
-              type="text"
-              placeholder="Enter address"
-              value={sharedLocation.address}
-              onChange={(e) =>
-                setSharedLocation({ ...sharedLocation, address: e.target.value })
-              }
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
-            />
-            <input
-              type="text"
-              placeholder="Enter city"
-              value={sharedLocation.city}
-              onChange={(e) =>
-                setSharedLocation({ ...sharedLocation, city: e.target.value })
-              }
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
-            />
-            <input
-              type="text"
-              placeholder="Enter state"
-              value={sharedLocation.state}
-              onChange={(e) =>
-                setSharedLocation({ ...sharedLocation, state: e.target.value })
-              }
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
-            />
-            <input
-              type="text"
-              placeholder="Enter zip code"
-              value={sharedLocation.zipCode}
-              onChange={(e) =>
-                setSharedLocation({
-                  ...sharedLocation,
-                  zipCode: e.target.value,
-                })
-              }
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
-            />
-          </div>
-          {/* Days Available - New UI as clickable circles */}
-          <div className="flex flex-col gap-1">
-            <label className="text-black text-xl font-bold font-['Open Sans']">
-              Carpool Days <span className="text-red-500">*</span>
-            </label>
-            <div className="flex flex-wrap gap-3">
-              {DAYS_OF_WEEK.map((day) => {
-                const selected = selectedDays.includes(day.value);
-                return (
-                  <div
-                    key={day.value}
-                    onClick={() => handleDayToggle(day.value)}
-                    className={`flex items-center justify-center rounded-full cursor-pointer font-['Open Sans'] text-lg ${
-                      selected
-                        ? "bg-[#4b859f] text-white"
-                        : "bg-white border border-[#666666] text-black"
-                    }`}
-                    style={{ width: "40px", height: "40px" }}
-                  >
-                    {day.label}
-                  </div>
-                );
-              })}
+          <div className="flex flex-col gap-4">
+            <p className="text-black">
+              Returning to the previous page will lose all progress. The information for this carpool will not be saved.
+            </p>
+            <div className="flex justify-end gap-4">
+              <Button text="No, continue" type="secondary" onClick={handleCancelBack} />
+              <Button text="Yes, go back" type="primary" onClick={handleConfirmBack} />
             </div>
           </div>
-          {/* Start Time Field */}
-          <div className="flex flex-col gap-1">
-            <label className="text-black text-xl font-bold font-['Open Sans']">
-              Start Time <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
-            />
-          </div>
-          {/* Additional Notes Field */}
-          <div className="flex flex-col gap-1">
-            <label className="text-black text-xl font-bold font-['Open Sans']">
-              Additional Notes
-            </label>
-            <textarea
-              placeholder="Enter any additional notes (optional)"
-              value={additionalNotes}
-              onChange={(e) => setAdditionalNotes(e.target.value)}
-              className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-black"
-              rows={3}
-            />
-          </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <button
-            type="submit"
-            className="px-6 py-2 bg-[#4b859f] rounded-md border border-[#4b859f] text-white text-lg md:text-xl font-semibold font-['Open Sans']"
-          >
-            Continue
-          </button>
-        </form>
+        </AddModal>
       </div>
-      {/* Back Confirmation Modal */}
-      <AddModal
-        isOpen={isBackModalOpen}
-        text="Are you sure?"
-        onClose={handleCancelBack}
-      >
-        <div className="flex flex-col gap-4">
-          <p className="text-black">
-            Returning to the previous page will lose all progress. The information for this carpool will not be saved.
-          </p>
-          <div className="flex justify-end gap-4">
-            <Button text="No, continue" type="secondary" onClick={handleCancelBack} />
-            <Button text="Yes, go back" type="primary" onClick={handleConfirmBack} />
-          </div>
-        </div>
-      </AddModal>
-    </div>
-  );
+      </>
+    );
+    
 };
 
 export default CreateCarpool;

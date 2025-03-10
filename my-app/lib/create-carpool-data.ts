@@ -47,7 +47,7 @@ async function postCreateCarpoolData(carpoolId: string, createCarpoolData: Creat
             return { success: true };
         }
     } catch (error) {
-        console.error("Failed to POST user form data", error);
+        console.error("Failed to POST create carpool data", error);
         throw error;
     }
 }

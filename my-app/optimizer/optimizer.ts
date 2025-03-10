@@ -52,6 +52,16 @@ interface Cluster {
     centroid: Coordinates;
 }
 
+interface DrivingSchedule {
+    userId: string;
+    drivingDays: number[];
+}
+
+// ! cluster with schedule (final output)
+interface ClusterWithSchedule extends Cluster {
+    drivingSchedule: DrivingSchedule[];
+}
+
 export class CarpoolOptimizer {
     // class variables:
     private users: UserWithCoords[] = [];
@@ -60,6 +70,7 @@ export class CarpoolOptimizer {
     private readonly apiKey: string;
     private static readonly MAX_CLUSTER_SIZE = 6; // ! this ensures a maximum cluster size
     private static readonly MIN_CLUSTER_SIZE = 2; // ! this ensures a minimum cluster size
+    private static readonly DISTANCE_THRESHOLD_FACTOR = 2; // ! factor to multiply eps for distance validation
 
     // constructor:
     constructor(apiKey: string) {
@@ -70,7 +81,7 @@ export class CarpoolOptimizer {
     async optimize(input: CarpoolInput): Promise<{
         initialClusters: Cluster[];
         validatedClusters: Cluster[];
-        finalClusters: Cluster[];
+        finalClusters: ClusterWithSchedule[];
         unclusteredUsers: UserWithCoords[];
     }> {
         // 1. initialize users and carpool days:
@@ -91,7 +102,10 @@ export class CarpoolOptimizer {
             this.validateAndSplitClusters(initialClusters);
 
         // 5. finalize and correct clusters if necessary:
-        const finalResults = this.finalizeAndCorrectClusters(validatedClusters);
+        const finalResults = this.finalizeAndCorrectClusters(
+            validatedClusters,
+            eps
+        );
 
         // 6. return output from all stages for testing:
         return {
@@ -132,7 +146,7 @@ export class CarpoolOptimizer {
     // optimze eps helper method:
     private findOptimalEpsilon(): number {
         const distances: number[] = [];
-        // for each unique pair of users, calculate the haversine distance between them
+        // for each unique pair of users, calculate the haversine distance between them:
         for (let i = 0; i < this.users.length; i++) {
             for (let j = i + 1; j < this.users.length; j++) {
                 distances.push(
@@ -146,7 +160,7 @@ export class CarpoolOptimizer {
             }
         }
         // ! sort distances in ascending order and take the x-th percentile's value as eps (should likely modify going forward):
-        distances.sort();
+        distances.sort((a, b) => a - b);
         const index = Math.floor(distances.length * 0.075); // 5th - 10th percentile at the moment seem to be the most promising
         console.log("Optimized Eps: ", distances[index]);
         return distances[index];
@@ -287,16 +301,45 @@ export class CarpoolOptimizer {
             return false;
         }
 
-        // (tentative) if some user cannot drive every day, return invalid; OW, return valid:
-        return this.carpoolDays.every((day) =>
+        // check if all carpool days can be covered by the users in the cluster:
+        const allDaysCovered = this.carpoolDays.every((day) =>
             cluster.users.some((user) => user.availability.includes(day))
-        ); // ! might want to make this ensuring a user can drive at least one day vs. that everyday can be driven (see below...)
-        // return cluster.users.some((user) =>
-        //     user.availability.some((day) => this.carpoolDays.includes(day))
-        // );
+        );
+        if (!allDaysCovered) {
+            return false;
+        }
 
-        // ! should add a distance check here that checks if a cluster is within eps or a threshold still for the split clusters
-        // ! potentially remove far points in clusters if causing it to be too far (Sprint 3?)
+        // ! check if each user can drive at least one day: (new)
+        const allUsersCanDriveSomeDay = cluster.users.every((user) =>
+            user.availability.some((day) => this.carpoolDays.includes(day))
+        );
+        if (!allUsersCanDriveSomeDay) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // ! validate distance within cluster: (new function)
+    private validateClusterDistance(
+        cluster: Cluster,
+        distanceThreshold: number
+    ): boolean {
+        // for each pair of users in the cluster, check if they are within the distance threshold:
+        for (let i = 0; i < cluster.users.length; i++) {
+            for (let j = i + 1; j < cluster.users.length; j++) {
+                const distance = haversineDistance(
+                    cluster.users[i].coordinates.lat,
+                    cluster.users[i].coordinates.lng,
+                    cluster.users[j].coordinates.lat,
+                    cluster.users[j].coordinates.lng
+                );
+                if (distance > distanceThreshold) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     // validate and split clusters helper method:
@@ -321,27 +364,229 @@ export class CarpoolOptimizer {
     }
 
     // finalize and correct clusters helper method:
-    private finalizeAndCorrectClusters(clusters: Cluster[]): {
-        finalClusters: Cluster[];
+    private finalizeAndCorrectClusters(
+        clusters: Cluster[],
+        eps: number
+    ): {
+        finalClusters: ClusterWithSchedule[];
         unclusteredUsers: UserWithCoords[];
     } {
-        const finalClusters: Cluster[] = [];
-        const processedUnclusteredUsers = [...this.unclusteredUsers];
+        const finalClusters: ClusterWithSchedule[] = [];
+        let processedUnclusteredUsers = [...this.unclusteredUsers];
 
-        // ! for each cluster, if valid, make it a final cluster, otherwise, uncluster (later try to group unclustered users within this correction stage):
+        // ! calculate distance threshold for validation: (new)
+        const distanceThreshold =
+            eps * CarpoolOptimizer.DISTANCE_THRESHOLD_FACTOR;
+
+        // ! first, validate existing clusters with distance check: (new)
         for (const cluster of clusters) {
-            if (this.validateCluster(cluster)) {
-                finalClusters.push(cluster);
+            if (
+                this.validateCluster(cluster) &&
+                this.validateClusterDistance(cluster, distanceThreshold)
+            ) {
+                // ! create driving schedule for valid cluster: (new)
+                const drivingSchedule = this.createDrivingSchedule(cluster);
+                finalClusters.push({
+                    ...cluster,
+                    drivingSchedule,
+                });
             } else {
                 processedUnclusteredUsers.push(...cluster.users);
             }
         }
 
-        // return the final and unclustered clusters:
+        // ! try to form new clusters from unclustered users: (new)
+        const newClusters = this.formClustersFromUnclustered(
+            processedUnclusteredUsers,
+            distanceThreshold
+        );
+
+        // ! add new clusters to final clusters with driving schedules: (new)
+        for (const cluster of newClusters) {
+            const drivingSchedule = this.createDrivingSchedule(cluster);
+            finalClusters.push({
+                ...cluster,
+                drivingSchedule,
+            });
+        }
+
+        // ! update unclustered users list: (new)
+        processedUnclusteredUsers = processedUnclusteredUsers.filter(
+            (user) =>
+                !newClusters.some((cluster) =>
+                    cluster.users.some((u) => u.userId === user.userId)
+                )
+        );
+
         return {
             finalClusters,
             unclusteredUsers: processedUnclusteredUsers,
         };
+    }
+
+    // ! create optimal driving schedule for a cluster: (new function) [needs attention]
+    private createDrivingSchedule(cluster: Cluster): DrivingSchedule[] {
+        const schedule: DrivingSchedule[] = [];
+
+        // create a map of days to eligible drivers:
+        const dayToDriversMap: Map<number, string[]> = new Map();
+
+        // initialize the map for each carpool day:
+        this.carpoolDays.forEach((day) => {
+            dayToDriversMap.set(day, []);
+        });
+
+        // populate the map with eligible drivers for each day:
+        cluster.users.forEach((user) => {
+            user.availability.forEach((day) => {
+                if (this.carpoolDays.includes(day)) {
+                    const drivers = dayToDriversMap.get(day) || [];
+                    drivers.push(user.userId);
+                    dayToDriversMap.set(day, drivers);
+                }
+            });
+        });
+
+        // initialize driving days count for each user:
+        const userDrivingCount: Map<string, number> = new Map();
+        cluster.users.forEach((user) => {
+            userDrivingCount.set(user.userId, 0);
+        });
+
+        // assign drivers for each day based on who has driven the least so far:
+        this.carpoolDays.forEach((day) => {
+            const eligibleDrivers = dayToDriversMap.get(day) || [];
+            if (eligibleDrivers.length > 0) {
+                // sort drivers by how many days they've already been assigned:
+                eligibleDrivers.sort(
+                    (a, b) =>
+                        (userDrivingCount.get(a) || 0) -
+                        (userDrivingCount.get(b) || 0)
+                );
+
+                // assign the day to the driver who has driven the least:
+                const driverId = eligibleDrivers[0];
+                userDrivingCount.set(
+                    driverId,
+                    (userDrivingCount.get(driverId) || 0) + 1
+                );
+
+                // add or update the driving schedule for this user:
+                const existingSchedule = schedule.find(
+                    (s) => s.userId === driverId
+                );
+                if (existingSchedule) {
+                    existingSchedule.drivingDays.push(day);
+                } else {
+                    schedule.push({
+                        userId: driverId,
+                        drivingDays: [day],
+                    });
+                }
+            }
+        });
+
+        return schedule;
+    }
+
+    // ! form new clusters from unclustered users: (new function)
+    private formClustersFromUnclustered(
+        unclusteredUsers: UserWithCoords[],
+        distanceThreshold: number
+    ): Cluster[] {
+        const newClusters: Cluster[] = [];
+        const remainingUsers = [...unclusteredUsers];
+
+        // try to form clusters with MIN_CLUSTER_SIZE to MAX_CLUSTER_SIZE users:
+        while (remainingUsers.length >= CarpoolOptimizer.MIN_CLUSTER_SIZE) {
+            let bestCluster: UserWithCoords[] | null = null;
+            let bestScore = Infinity;
+
+            // try each user as a potential center:
+            for (let i = 0; i < remainingUsers.length; i++) {
+                const center = remainingUsers[i];
+
+                // calculate distances from this center to all other users:
+                const distances = remainingUsers
+                    .filter((u) => u.userId !== center.userId)
+                    .map((u) => ({
+                        user: u,
+                        distance: haversineDistance(
+                            center.coordinates.lat,
+                            center.coordinates.lng,
+                            u.coordinates.lat,
+                            u.coordinates.lng
+                        ),
+                    }))
+                    .sort((a, b) => a.distance - b.distance);
+
+                // try different cluster sizes:
+                for (
+                    let size = CarpoolOptimizer.MIN_CLUSTER_SIZE;
+                    size <=
+                    Math.min(
+                        CarpoolOptimizer.MAX_CLUSTER_SIZE,
+                        distances.length + 1
+                    );
+                    size++
+                ) {
+                    const potentialCluster = [
+                        center,
+                        ...distances.slice(0, size - 1).map((d) => d.user),
+                    ];
+
+                    // check if this cluster would be valid:
+                    const clusterObj = {
+                        users: potentialCluster,
+                        centroid: this.calculateCentroid(potentialCluster),
+                    };
+
+                    if (
+                        this.validateCluster(clusterObj) &&
+                        this.validateClusterDistance(
+                            clusterObj,
+                            distanceThreshold
+                        )
+                    ) {
+                        // ! calculate a score for this cluster: (lower is better)
+                        // score is based on total distance and maximizing cluster size:
+                        const totalDistance = distances
+                            .slice(0, size - 1)
+                            .reduce((sum, d) => sum + d.distance, 0);
+                        const score = totalDistance / size; // lower score for larger clusters with smaller distances
+
+                        if (score < bestScore) {
+                            bestScore = score;
+                            bestCluster = potentialCluster;
+                        }
+                    }
+                }
+            }
+
+            // if we found a valid cluster, add it and remove those users from remaining:
+            if (bestCluster) {
+                const newCluster = {
+                    users: bestCluster,
+                    centroid: this.calculateCentroid(bestCluster),
+                };
+                newClusters.push(newCluster);
+
+                // remove clustered users from remaining:
+                const clusterUserIds = new Set(
+                    bestCluster.map((u) => u.userId)
+                );
+                for (let i = remainingUsers.length - 1; i >= 0; i--) {
+                    if (clusterUserIds.has(remainingUsers[i].userId)) {
+                        remainingUsers.splice(i, 1);
+                    }
+                }
+            } else {
+                // if we couldn't form any valid cluster, break the loop:
+                break;
+            }
+        }
+
+        return newClusters;
     }
 
     // split large cluster helper method:
@@ -409,7 +654,7 @@ export class CarpoolOptimizer {
                         user.coordinates.lng
                     ),
                 }))
-                .sort();
+                .sort((a, b) => a.distance - b.distance);
 
             // cluster the closest TARGET_SIZE - 1 ponts to the best center and make this a new cluster if valid; this will remove the clustered users from the reamining users if valid, otherwise, it will remove the best center from the remaining users and mark it as unclustered:
             const clusterUsers = [

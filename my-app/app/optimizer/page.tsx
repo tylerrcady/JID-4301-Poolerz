@@ -5,7 +5,7 @@ import { runOptimizer } from "../../lib/example-usage"; // get the optimizer
 
 const OptimizerPage: React.FC = () => {
     const [results, setResults] = useState<any>(null);
-    const [td, setTd] = useState<number>(2); // default value
+    const [td, setTd] = useState<number>(4); // default value
 
     const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = Number(event.target.value);
@@ -67,11 +67,11 @@ const OptimizerPage: React.FC = () => {
                 <label style={{ marginLeft: "10px" }}>
                     <input
                         type="radio"
-                        value={2}
-                        checked={td === 2}
+                        value={4}
+                        checked={td === 4}
                         onChange={handleRadioChange}
                     />
-                    2
+                    4
                 </label>
                 {/* <label style={{ marginLeft: "10px" }}>
                     <input

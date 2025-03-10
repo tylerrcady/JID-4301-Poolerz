@@ -20,10 +20,11 @@ export default async function Page() {
     }
 
     return (
-        <div className="flex items-center justify-between h-screen flex-col text-gray bg-w">
+        <div className="flex items-center justify-between h-full min-h-screen flex-col text-gray bg-w">
             <Header
                 userId={session?.user?.id}
                 isFormComplete={isFormComplete}
+                currentPath="/carpools"
             />
             {session?.user?.id ? (
                 <Carpools userId={session?.user?.id} />
