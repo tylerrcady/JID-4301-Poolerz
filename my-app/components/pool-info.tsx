@@ -85,7 +85,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     }, [userId, handleCarpoolsGet, handleUserDataGet]);
 
     return (
-        <div className="flex flex-col w-8/12 mx-auto p-10 gap-6 rounded-md shadow-lg">
+        <div className="justify-center flex flex-col w-8/12 mx-auto p-10 gap-6 rounded-md shadow-lg">
         {/*Title Card*/}
         <div className="flex-col justify-start items-start gap-5 flex">
             <div className="text-black text-2xl font-bold font-['Open Sans']">{foundCarpool?.carpoolName}</div>
@@ -95,9 +95,9 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             </div>
         </div>
         {/*Carpool Info*/}
-        <div className="flex-col justify-start items-start gap-5 flex">
+        <div className="py-10 flex-col justify-start items-start gap-5 flex">
             <div className="w-8/12 justify-between items-start inline-flex">
-                <div className="text-black text-xl font-bold font-['Open Sans']">Carpool Information</div>
+                <div className="text-black text-xl font-bold font-['Open Sans']">Organization Information</div>
                 <div className="text-blue text-xl font-bold font-['Open Sans']">Edit</div>
             </div>
             <div className="flex-col justify-start items-start gap-2.5 flex">
@@ -115,11 +115,11 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         </div>
         {/*Carpools*/}
         <div className=" w-8/12 flex-col justify-start items-start gap-5 flex">
-            <div className="justify-start items-start gap-5 inline-flex">
+            <div className="justify-start items-center gap-5 inline-flex">
                 <div className="text-black text-xl font-bold font-['Open Sans']">Carpools</div>
-            </div>
-            <div className="px-6 py-3 bg-blue rounded-md justify-center items-center inline-flex">
-                <div className="text-center text-white text-base font-normal font-['Open Sans']">Run Optimizer</div>
+                <div className="px-6 py-2 bg-blue rounded-md justify-center items-center inline-flex">
+                    <div className="text-center text-white text-base font-normal font-['Open Sans']">Run Optimizer</div>
+                </div>
             </div>
             <div className="flex-col justify-start items-start gap-2.5 flex">
                 <div className="text-gray text-xl font-normal font-['Open Sans']">No pools yet - run the optimizer to create groupings!</div>
@@ -139,8 +139,8 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 </div>
             </div>
         </div>
-        <div className="flex-col justify-start items-start gap-5 flex">
-            <div className="justify-between items-start inline-flex">
+        <div className="py-10 flex-col justify-start items-start gap-5 flex">
+            <div className="w-8/12 justify-between items-start inline-flex">
                 <div className="text-black text-xl font-bold font-['Open Sans']">My Information</div>
                 <div className="text-blue text-xl font-bold font-['Open Sans']">Edit</div>
             </div>
@@ -164,7 +164,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         {/*My Pool*/}
         <div className="flex-col justify-start items-start gap-5 flex">
             <div className="justify-start items-start gap-5 inline-flex">
-                <div className="text-black text-xl font-bold font-['Open Sans']">My Pool</div>
+                <div className="text-black text-xl font-bold font-['Open Sans']">My Carpool</div>
             </div>
             <div className="flex-col justify-start items-start gap-2.5 flex">
                 <div className="text-gray text-xl font-bold font-['Open Sans']">Members</div>
@@ -180,7 +180,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             </div>
             <div className="flex-col justify-start items-start gap-2.5 flex">
                 <div className="text-gray text-xl font-bold font-['Open Sans']">Notes</div>
-                <div className="text-gray text-xl font-normal font-['Open Sans']">Asha Vora - my child has a peanut allergy!<br/>Tom Papa - Nathan has a big ass backpack</div>
+                <div className="text-gray text-xl font-normal font-['Open Sans']">Asha Vora - my child has a peanut allergy!<br/>Tom Papa - Nathan has an oversized backpack</div>
             </div>
         </div>
     </div>
