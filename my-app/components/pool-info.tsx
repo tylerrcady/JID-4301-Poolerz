@@ -85,7 +85,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     }, [userId, handleCarpoolsGet, handleUserDataGet]);
 
     return (
-        <div className="justify-center flex flex-col w-8/12 mx-auto p-10 gap-6 rounded-md shadow-lg">
+        <div className="justify-center flex flex-col w-6/12 mx-auto p-10 gap-6 rounded-md">
         {/*Title Card*/}
         <div className="flex-col justify-start items-start gap-5 flex">
             <div className="text-black text-2xl font-bold font-['Open Sans']">{foundCarpool?.carpoolName}</div>
@@ -96,7 +96,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         </div>
         {/*Carpool Info*/}
         <div className="py-10 flex-col justify-start items-start gap-5 flex">
-            <div className="w-8/12 justify-between items-start inline-flex">
+            <div className="self-stretch justify-between items-start inline-flex">
                 <div className="text-black text-xl font-bold font-['Open Sans']">Organization Information</div>
                 <div className="text-blue text-xl font-bold font-['Open Sans']">Edit</div>
             </div>
@@ -114,8 +114,8 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             </div>
         </div>
         {/*Carpools*/}
-        <div className=" w-8/12 flex-col justify-start items-start gap-5 flex">
-            <div className="justify-start items-center gap-5 inline-flex">
+        <div className="w-8/12 flex-col justify-start items-start gap-5 flex">
+            <div className="self-stretch justify-start items-center gap-5 inline-flex">
                 <div className="text-black text-xl font-bold font-['Open Sans']">Carpools</div>
                 <div className="px-6 py-2 bg-blue rounded-md justify-center items-center inline-flex">
                     <div className="text-center text-white text-base font-normal font-['Open Sans']">Run Optimizer</div>
@@ -140,7 +140,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             </div>
         </div>
         <div className="py-10 flex-col justify-start items-start gap-5 flex">
-            <div className="w-8/12 justify-between items-start inline-flex">
+            <div className="self-stretch justify-between items-start inline-flex">
                 <div className="text-black text-xl font-bold font-['Open Sans']">My Information</div>
                 <div className="text-blue text-xl font-bold font-['Open Sans']">Edit</div>
             </div>
