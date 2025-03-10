@@ -224,7 +224,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             {/*Family Section*/}
             <div className="flex-1  max-w-[500x] min-w-[300px] h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                 <div className="justify-between items-start flex flex-wrap flex-col gap-2">
-                    <div className="text-blue text-2xl font-bold">Family</div>
+                    <div className="text-blue text-2xl font-bold">Riders</div>
                     {isEditingFamily ? (
                         <div className="flex items-center gap-2 cursor-pointer">
                             <div className="flex gap-2">
@@ -272,7 +272,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                     children: updatedChildren,
                                                 });
                                             }}
-                                            placeholder="Enter child's name"
+                                            placeholder="Enter rider's name"
                                         />
                                     ) : (
                                         <span className="text-2xl font-bold text-black">
@@ -307,7 +307,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     <div className="flex items-center gap-2 cursor-pointer">
                         <Button
                             icon={<AddIcon strokeColor="#FFFFFF" />}
-                            text="Add Child"
+                            text="Add Rider"
                             type="primary"
                             onClick={() => setIsChildModalOpen(true)}
                         />
