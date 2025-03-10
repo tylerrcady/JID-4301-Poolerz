@@ -4,13 +4,12 @@ import Image from "next/image";
 interface Props {
   onClick?: MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
-  darkerColor?: boolean;
 }
 
-export default function BackButton({ onClick, disabled, darkerColor }: Props) {
+export default function BackButton({ onClick, disabled}: Props) {
   return (
     <button //cremove text-base after [2px]
-      className={`group flex items-center gap-[2px] font-normal ${!darkerColor ? "text-blue" : "text-primary-text font-semibold"}`}
+      className={`group flex items-center gap-[2px] font-normal text-blue`}
       onClick={onClick}
       disabled={disabled}
     >
@@ -33,19 +32,15 @@ export default function BackButton({ onClick, disabled, darkerColor }: Props) {
       </svg> */}
 
       <Image 
-        src="/back-arrow.svg"  // This will look in the public folder automatically
+        src="/back-arrow2.svg"  // This will look in the public folder automatically
         alt="Back arrow"
         width={30}
         height={30}
-        className={`mr-1 ${
-          !darkerColor
-            ? "brightness-0 invert-[42%] sepia-[25%] saturate-[510%] hue-rotate-[190deg] brightness-[95%] contrast-[88%]"
-            : ""
-        }`}
+        className={`mr-1`}
       />
 
       <div
-        className={`text-xl md:text-2xl ${disabled ? "text-blue" : "group-hover:text-dark-gray"}`}
+        className={`text-xl md:text-2xl ${disabled ? "text-blue" : "group-hover:text-blue"}`}
       >
         Back
       </div>
