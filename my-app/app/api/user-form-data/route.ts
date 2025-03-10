@@ -3,7 +3,6 @@ import { postUserFormData, getUserFormData } from "@/lib/user-form-data";
 
 // POST
 export async function POST(request: Request) {
-    // check if authenticated
     const session = await auth();
     if (!session) {
         return new Response(JSON.stringify({ error: "Not authenticated" }), {
@@ -12,10 +11,8 @@ export async function POST(request: Request) {
     }
 
     try {
-        // get passed-in data
         const { userId, userFormData } = await request.json();
 
-        // check if data is valid
         if (!userId) {
             return new Response(
                 JSON.stringify({
@@ -55,7 +52,6 @@ export async function POST(request: Request) {
 
 // GET
 export async function GET(request: Request) {
-    // check if authenticated
     const session = await auth();
     if (!session) {
         return new Response(JSON.stringify({ error: "Not authenticated" }), {
@@ -64,11 +60,9 @@ export async function GET(request: Request) {
     }
 
     try {
-        // get parameters
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get("userId");
 
-        // check if parameters are valid
         if (!userId) {
             return new Response(
                 JSON.stringify({ error: "Invalid parameters" }),

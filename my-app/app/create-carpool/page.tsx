@@ -14,7 +14,6 @@ export default async function Page() {
             currentPath="/create-carpool" 
             />
             {session?.user?.id ? (
-                //this part should be tweaked based on the page you created above, and the interface you created
                 <CreateCarpool userId={session?.user?.id} />
             ) : (
                 <Main userName={session?.user?.name} />

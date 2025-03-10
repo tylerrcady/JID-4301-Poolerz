@@ -1,8 +1,6 @@
 import { auth } from "@/auth";
 import { checkFormCompletion } from "@/lib/user-form-data";
 
-// ! dont know if need need user form folder and route might be too much
-
 export async function GET(request: Request) {
     const session = await auth();
     if (!session) {

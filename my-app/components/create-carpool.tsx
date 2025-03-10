@@ -23,7 +23,6 @@ const DAYS_OF_WEEK = [
 const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   const router = useRouter();
 
-  // Form state
   const [poolName, setPoolName] = useState("");
   const [sharedLocation, setSharedLocation] = useState<SharedLocation>({
     name: "",
@@ -34,13 +33,12 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   });
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [startTime, setStartTime] = useState("");
-  // NEW: End time field
   const [endTime, setEndTime] = useState("");
   const [error, setError] = useState("");
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [additionalNotes, setAdditionalNotes] = useState("");
 
-  // Toggle day selection
+  // toggle day selection
   const handleDayToggle = (day: string) => {
     setSelectedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
@@ -61,12 +59,10 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
     setIsBackModalOpen(false);
   };
 
-  // Handle form submission and connect to the database via API
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // Now endTime is also required
     if (
       !poolName.trim() ||
       !sharedLocation.name.trim() ||
@@ -82,14 +78,11 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       return;
     }
 
-    // Build times array with both startTime and endTime
     const times = selectedDays.map((day) => ({
       day,
-      // We keep "timeRange" property but store "startTime-endTime" inside it
       timeRange: `${startTime}-${endTime}`,
     }));
 
-    // Format the times array into a readable string, e.g. "Su: 10:00-14:00, M: 09:00-11:00"
     const formattedTimes = times
       .map(({ day, timeRange }) => `${day}: ${timeRange}`)
       .join(", ");
@@ -118,7 +111,6 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        // API expects the carpool data under the key "createCarpoolData"
         body: JSON.stringify({ createCarpoolData: formData }),
       });
 
@@ -127,7 +119,6 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
         setError(result.error || "Failed to create carpool.");
         return;
       }
-      // This should work if API returns a JSON including { joinCode: "actual_code" }
       router.push(
         `/carpool-created?joinCode=${result.joinCode}&poolName=${encodeURIComponent(
           poolName

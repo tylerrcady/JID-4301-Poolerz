@@ -7,7 +7,6 @@ const CarpoolCreatedPageContent: React.FC = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Retrieve query parameters (with fallbacks)
     const joinCode = searchParams.get("joinCode") || "XXXXXX";
     const poolName = searchParams.get("poolName") || "Your Pool";
 
