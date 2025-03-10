@@ -34,6 +34,8 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   });
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [startTime, setStartTime] = useState("");
+  // NEW: End time field
+  const [endTime, setEndTime] = useState("");
   const [error, setError] = useState("");
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [additionalNotes, setAdditionalNotes] = useState("");
@@ -64,6 +66,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
     e.preventDefault();
     setError("");
 
+    // Now endTime is also required
     if (
       !poolName.trim() ||
       !sharedLocation.name.trim() ||
@@ -72,26 +75,31 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       !sharedLocation.state.trim() ||
       !sharedLocation.zipCode.trim() ||
       selectedDays.length === 0 ||
-      !startTime
+      !startTime ||
+      !endTime
     ) {
       setError("Please fill in all required fields!");
       return;
     }
 
+    // Build times array with both startTime and endTime
     const times = selectedDays.map((day) => ({
       day,
-      timeRange: startTime,
+      // We keep "timeRange" property but store "startTime-endTime" inside it
+      timeRange: `${startTime}-${endTime}`,
     }));
 
-    // Format the times array into a readable string
+    // Format the times array into a readable string, e.g. "Su: 10:00-14:00, M: 09:00-11:00"
     const formattedTimes = times
-    .map(({ day, timeRange }) => `${day}: ${timeRange}`)
-    .join(", ");
+      .map(({ day, timeRange }) => `${day}: ${timeRange}`)
+      .join(", ");
 
     // map days to int
     const selectedDaysAsInt = selectedDays
-    .map(dayAbbr => DAYS_OF_WEEK.find(day => day.value === dayAbbr)?.number)
-    .filter((num): num is number => num !== undefined);
+      .map((dayAbbr) =>
+        DAYS_OF_WEEK.find((day) => day.value === dayAbbr)?.number
+      )
+      .filter((num): num is number => num !== undefined);
 
     const formData = {
       creatorId: userId,
@@ -135,20 +143,14 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
     <>
       {/* Back Button first to align with header*/}
       <div className="w-11/12 mx-auto px-1">
-      {/* <button
-        onClick={handleBackClick}
-        className="text-b text-lg md:text-2xl"
-      >
-        Back
-      </button> */}
-      <BackButton onClick={handleBackClick} />
-    </div>
+        <BackButton onClick={handleBackClick} />
+      </div>
       <div className="flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6">
         {/* Title */}
         <h1 className="text-gray text-2xl font-bold font-['Open Sans']">
           Create Carpool
         </h1>
-        
+
         {/* Form Card */}
         <div className="bg-white rounded-md p-4 flex flex-col gap-4">
           <form onSubmit={handleSubmit} className="flex flex-col gap-10">
@@ -256,6 +258,18 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                 className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
               />
             </div>
+            {/* NEW: End Time Field */}
+            <div className="flex flex-col gap-1">
+              <label className="text-gray text-xl font-bold font-['Open Sans']">
+                End Time <span className="text-red">*</span>
+              </label>
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+              />
+            </div>
             {/* Additional Notes Field */}
             <div className="flex flex-col gap-1">
               <label className="text-gray text-xl font-bold font-['Open Sans']">
@@ -295,9 +309,8 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
           </div>
         </AddModal>
       </div>
-      </>
-    );
-    
+    </>
+  );
 };
 
 export default CreateCarpool;
