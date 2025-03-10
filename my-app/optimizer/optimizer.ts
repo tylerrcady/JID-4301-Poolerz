@@ -57,6 +57,7 @@ interface DrivingSchedule {
     drivingDays: number[];
 }
 
+// ! cluster with schedule (final output)
 interface ClusterWithSchedule extends Cluster {
     drivingSchedule: DrivingSchedule[];
 }
@@ -319,7 +320,7 @@ export class CarpoolOptimizer {
         return true;
     }
 
-    // validate distance within cluster:
+    // ! validate distance within cluster: (new function)
     private validateClusterDistance(
         cluster: Cluster,
         distanceThreshold: number
