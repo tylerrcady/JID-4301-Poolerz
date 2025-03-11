@@ -205,7 +205,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
 
     // get selected riders
     const selectedRiderNames: string[] = riders
-    .filter(rider => rider.selected) // Keep only selected riders
+    .filter(rider => rider.selected)
     .map(rider => rider.name); 
 
     const joinUserData: JoinCarpoolData = {
@@ -215,7 +215,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
           state: stateField,
           zipCode: zip
       },
-      drivingAvailability: selectedDaysAsInt, // Example hours available for driving
+      drivingAvailability: selectedDaysAsInt,
       carCapacity: Number(carCapacity),
       carpools: [{
         carpoolId: carpoolDoc.carpoolID,
@@ -241,7 +241,6 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        // API expects the carpool data under the key "joinCarpoolData"
         body: JSON.stringify({ joinCarpoolData: combine }),
       });
       const result = await response.json();
