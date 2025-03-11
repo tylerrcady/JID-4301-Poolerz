@@ -11,6 +11,7 @@ interface CarpoolsProps {
 interface CarpoolData {
     carpoolID: string | undefined;
     createCarpoolData: CreateCarpoolData | undefined; 
+    //carpoolName: string | undefined;
 }
 
 const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {

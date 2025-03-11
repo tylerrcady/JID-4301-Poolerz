@@ -55,21 +55,16 @@ async function postCreateCarpoolData(carpoolId: string, createCarpoolData: Creat
 // GET (CreateCarpoolData)
 async function getCreateCarpoolData(query: any) {
     try {
-        // make db connection
         const client = await connect();
         const db = client.db(dbName);
         const collection = db.collection(collectionName);
 
         console.log(query);
-
-        // get the createCarpoolData
         const createCarpoolData = await collection.find(query).toArray();
 
-        // return the createCarpoolData or ""
         if (!createCarpoolData || createCarpoolData.length == 0) {
             return null;
         } else {
-            //console.log(createCarpoolData);
             return createCarpoolData;
         }
     } catch (error) {

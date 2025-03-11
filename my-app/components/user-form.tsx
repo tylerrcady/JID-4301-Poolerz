@@ -163,7 +163,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
         try {
             await handleUserFormPost();
             console.log("Redirecting to /user-profile...");
-            router.push("/user-profile"); // Use router.push for client-side navigation
+            router.push("/user-profile");
         } catch (error) {
             if (error instanceof Error) {
                 console.error("Error during submission:", error.message);

@@ -38,7 +38,6 @@ interface CarpoolDoc {
   };
 }
 
-// Parse "Times: ..." from notes
 function parseTimeFromNotes(notes: string): string {
   const prefix = "Times:";
   const prefixIndex = notes.indexOf(prefix);
@@ -61,7 +60,6 @@ function decodeDays(dayNumbers: number[]): string {
 export default function JoinCarpool({ userId }: JoinCarpoolProps) {
   const router = useRouter();
 
-  // Step control: "codeEntry" or "form"
   const [step, setStep] = useState<"codeEntry" | "form">("codeEntry");
 
   // 1) Code Entry state
@@ -84,7 +82,6 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
   const [error, setError] = useState("");
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
-  // --- Fetch the user's children from /api/user-form-data?userId=...
   useEffect(() => {
     if (!userId) return;
     fetch(`/api/user-form-data?userId=${userId}`)
@@ -110,7 +107,6 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
       });
   }, [userId]);
 
-  // If joinCode length is 6, fetch the carpool doc from the DB
   useEffect(() => {
     setFetchError("");
     setCarpoolDoc(null);
@@ -167,21 +163,21 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
     setStep("form");
   };
 
-  // Toggle child's selected state
+  // toggle child's selected state
   const handleRiderToggle = (id: string) => {
     setRiders((prev) =>
       prev.map((r) => (r.id === id ? { ...r, selected: !r.selected } : r))
     );
   };
 
-  // Toggle driving availability
+  // toggle driving availability
   const toggleAvailability = (day: string) => {
     setDrivingAvailability((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
   };
 
-  // Enable/disable submit
+  // enable/disable submit
   useEffect(() => {
     if (
       address.trim() &&
@@ -204,13 +200,8 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
       return;
     }
 
-    // In your existing code, you're building a joinUserData object and calling /api/join-carpool-data
-    // We won't modify that logic; just keep it as is or minimal changes if needed
-
-    // ... rest of your custom join logic ...
     console.log("Join Carpool Data: address, city, state, zip, riders, etc.");
 
-    // For demonstration, just redirect
     router.push(
       `/carpool-joined?joinCode=${joinCode}&poolName=${encodeURIComponent(
         carpoolDoc.createCarpoolData.carpoolName
