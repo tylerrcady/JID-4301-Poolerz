@@ -10,8 +10,7 @@ interface CarpoolsProps {
 
 interface CarpoolData {
     carpoolID: string | undefined;
-    createCarpoolData: CreateCarpoolData | undefined; 
-    //carpoolName: string | undefined;
+    createCarpoolData: CreateCarpoolData | undefined;
 }
 
 const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
@@ -113,11 +112,6 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
         // Filter out null values and update state
         setJoinCarpoolData(fetchedData.flat());
     }, [carpoolIds, handleCarpoolsGetWithCarpoolId]);
-
-    // Fetch user carpools on component mount
-    useEffect(() => {
-        handleUserCarpoolsGet();
-    }, [handleUserCarpoolsGet]);
 
     // Fetch create-carpool data when carpoolIds change
     useEffect(() => {
