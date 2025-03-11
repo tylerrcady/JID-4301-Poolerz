@@ -92,7 +92,8 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       .map((dayAbbr) =>
         DAYS_OF_WEEK.find((day) => day.value === dayAbbr)?.number
       )
-      .filter((num): num is number => num !== undefined);
+      .filter((num): num is number => num !== undefined)
+      .sort((a, b) => a - b);
 
     const formData = {
       creatorId: userId,

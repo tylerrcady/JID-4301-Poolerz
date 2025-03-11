@@ -37,7 +37,7 @@ async function postUserCarpoolData(userId: string, userData : JoinCarpoolData) {
             await collection.insertOne(JSON);
             return { success: true };
         } else {
-            // There is existing data: merge the joinedCarpools arrays.
+            // If existing data, merge the joinedCarpools arrays.
             const existingJoinedCarpools: Carpool[] = existingUser.userData.carpools || [];
             const newJoinedCarpools: Carpool[] = userData.carpools;
 
