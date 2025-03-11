@@ -150,7 +150,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             </div>
             <div className="flex-col justify-start items-start gap-2.5 flex">
                 <div className="text-gray text-xl font-bold font-['Open Sans']">Driving Availability</div>
-                <div className="text-gray text-xl font-normal font-['Open Sans']">{drivingAvailability}</div>
+                <div className="text-gray text-xl font-normal font-['Open Sans']">Monday, Wednesday, Friday</div>
             </div>
             <div className="flex-col justify-start items-start gap-2.5 flex">
                 <div className="text-gray text-xl font-bold font-['Open Sans']">Rider(s)</div>
@@ -158,7 +158,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             </div>
             <div className="flex-col justify-start items-start gap-2.5 flex">
                 <div className="text-gray text-xl font-bold font-['Open Sans']">Car Capacity</div>
-                <div className="text-gray text-xl font-normal font-['Open Sans']">{joinCarpoolData?.carCapacity}</div>
+                <div className="text-gray text-xl font-normal font-['Open Sans']">5</div>
             </div>
         </div>
         {/*My Pool*/}

@@ -201,7 +201,8 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
     }
     const selectedDaysAsInt = drivingAvailability
     .map(dayAbbr => DAYS_OF_WEEK.find(day => day.value === dayAbbr)?.number)
-    .filter((num): num is number => num !== undefined);
+    .filter((num): num is number => num !== undefined)
+    .sort((a, b) => a - b);
 
     // get selected riders
     const selectedRiderNames: string[] = riders
@@ -215,12 +216,12 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
           state: stateField,
           zipCode: zip
       },
-      drivingAvailability: selectedDaysAsInt,
-      carCapacity: Number(carCapacity),
       carpools: [{
         carpoolId: carpoolDoc.carpoolID,
         riders: selectedRiderNames,
-        notes: additionalNotes
+        notes: additionalNotes,
+        drivingAvailability: selectedDaysAsInt,
+        carCapacity: Number(carCapacity),
       }]
     };
     console.log("Join Carpool Data:", joinUserData);

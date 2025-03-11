@@ -26,12 +26,12 @@ interface Carpool {
     carpoolId: string;
     riders: string[];
     notes: string;
+    drivingAvailability: number[];
+    carCapacity: number;
 }
 
 interface JoinCarpoolData {
     userLocation: UserLocation,
-    drivingAvailability: number[],
-    carCapacity: number,
     carpools: Carpool[]
 }
 
