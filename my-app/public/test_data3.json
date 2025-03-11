@@ -14,36 +14,126 @@
         21, 22, 23, 24, 25, 26, 27, 28, 29, 30
     ],
     "availabilities": [
-        { "userId": "1", "availability": [1, 5] },
-        { "userId": "2", "availability": [0, 1, 4, 5, 6] },
-        { "userId": "3", "availability": [1, 2, 3] },
-        { "userId": "4", "availability": [0, 2, 4, 6] },
-        { "userId": "5", "availability": [1, 2, 3, 4, 5, 6] },
-        { "userId": "6", "availability": [1, 4, 6] },
-        { "userId": "7", "availability": [1, 3, 5, 6] },
-        { "userId": "8", "availability": [0, 1, 3, 4] },
-        { "userId": "9", "availability": [2, 3, 5] },
-        { "userId": "10", "availability": [3, 4, 5, 6] },
-        { "userId": "11", "availability": [0, 2] },
-        { "userId": "12", "availability": [2, 4, 5, 6] },
-        { "userId": "13", "availability": [5] },
-        { "userId": "14", "availability": [4, 5, 6] },
-        { "userId": "15", "availability": [2, 3, 5] },
-        { "userId": "16", "availability": [4] },
-        { "userId": "17", "availability": [0, 4] },
-        { "userId": "18", "availability": [3, 5] },
-        { "userId": "19", "availability": [1, 4, 5] },
-        { "userId": "20", "availability": [0, 1, 2, 6] },
-        { "userId": "21", "availability": [3, 4, 5, 6] },
-        { "userId": "22", "availability": [0, 1, 3] },
-        { "userId": "23", "availability": [3, 6] },
-        { "userId": "24", "availability": [4] },
-        { "userId": "25", "availability": [2, 6] },
-        { "userId": "26", "availability": [0, 1, 4] },
-        { "userId": "27", "availability": [0, 2, 5, 6] },
-        { "userId": "28", "availability": [1, 2, 4, 5, 6] },
-        { "userId": "29", "availability": [0, 1, 2, 3, 4, 5, 6] },
-        { "userId": "30", "availability": [4, 6] }
+        {
+            "userId": "1",
+            "availability": [1, 3, 4, 5]
+        },
+        {
+            "userId": "2",
+            "availability": [2, 4, 5]
+        },
+        {
+            "userId": "3",
+            "availability": [1, 2, 3, 4]
+        },
+        {
+            "userId": "4",
+            "availability": [1, 2, 4, 5]
+        },
+        {
+            "userId": "5",
+            "availability": [1, 2, 3, 4, 5]
+        },
+        {
+            "userId": "6",
+            "availability": [1, 4, 5]
+        },
+        {
+            "userId": "7",
+            "availability": [1, 2, 3, 4, 5]
+        },
+        {
+            "userId": "8",
+            "availability": [2, 3, 5]
+        },
+        {
+            "userId": "9",
+            "availability": [1, 2, 3, 5]
+        },
+        {
+            "userId": "10",
+            "availability": [2, 3, 4, 5]
+        },
+        {
+            "userId": "11",
+            "availability": [3, 4, 5]
+        },
+        {
+            "userId": "12",
+            "availability": [1, 2, 3, 4, 5]
+        },
+        {
+            "userId": "13",
+            "availability": [1, 2, 4, 5]
+        },
+        {
+            "userId": "14",
+            "availability": [1, 3, 5]
+        },
+        {
+            "userId": "15",
+            "availability": [1, 3, 4]
+        },
+        {
+            "userId": "16",
+            "availability": [1, 2, 3, 4]
+        },
+        {
+            "userId": "17",
+            "availability": [1, 2, 4, 5]
+        },
+        {
+            "userId": "18",
+            "availability": [1, 2, 3, 4, 5]
+        },
+        {
+            "userId": "19",
+            "availability": [2, 3, 5]
+        },
+        {
+            "userId": "20",
+            "availability": [2, 3, 4]
+        },
+        {
+            "userId": "21",
+            "availability": [1, 2, 3, 4, 5]
+        },
+        {
+            "userId": "22",
+            "availability": [2, 3, 4, 5]
+        },
+        {
+            "userId": "23",
+            "availability": [1, 4, 5]
+        },
+        {
+            "userId": "24",
+            "availability": [1, 2, 3, 4, 5]
+        },
+        {
+            "userId": "25",
+            "availability": [1, 2, 3, 4]
+        },
+        {
+            "userId": "26",
+            "availability": [1, 2, 3, 4, 5]
+        },
+        {
+            "userId": "27",
+            "availability": [1, 4, 5]
+        },
+        {
+            "userId": "28",
+            "availability": [1, 2, 3, 4, 5]
+        },
+        {
+            "userId": "29",
+            "availability": [1, 2, 4, 5]
+        },
+        {
+            "userId": "30",
+            "availability": [1, 3, 5]
+        }
     ],
     "users": [
         {
@@ -51,7 +141,7 @@
             "name": "Max Verstappen",
             "numchildren": 1,
             "children": ["Penelope"],
-            "carCapacity": 6,
+            "carCapacity": 7,
             "location": {
                 "address": "5435 Cole Creek Ln",
                 "city": "Cumming",
@@ -64,7 +154,7 @@
             "name": "Sergio Perez",
             "numchildren": 5,
             "children": ["Smith", "Anders", "Wallace", "Meester", "Leighton"],
-            "carCapacity": 4,
+            "carCapacity": 7,
             "location": {
                 "address": "3520 Davyne Bend",
                 "city": "Cumming",
@@ -77,7 +167,7 @@
             "name": "Charles Leclerc",
             "numchildren": 2,
             "children": ["Leo", "Alexandria"],
-            "carCapacity": 3,
+            "carCapacity": 5,
             "location": {
                 "address": "5005 Deerfield Dr",
                 "city": "Cumming",
@@ -90,7 +180,7 @@
             "name": "Carlos Sainz",
             "numchildren": 2,
             "children": ["Pedro", "Paula"],
-            "carCapacity": 7,
+            "carCapacity": 6,
             "location": {
                 "address": "2105 Golden Ridge Cir",
                 "city": "Cumming",
@@ -103,7 +193,7 @@
             "name": "Lando Norris",
             "numchildren": 1,
             "children": ["Nestor"],
-            "carCapacity": 4,
+            "carCapacity": 5,
             "location": {
                 "address": "106 11th St",
                 "city": "Cumming",
@@ -116,7 +206,7 @@
             "name": "Oscar Piastri",
             "numchildren": 3,
             "children": ["Kiwi", "Elia", "Lawson"],
-            "carCapacity": 3,
+            "carCapacity": 5,
             "location": {
                 "address": "111 Spruce St",
                 "city": "Cumming",
@@ -129,7 +219,7 @@
             "name": "Lewis Hamilton",
             "numchildren": 2,
             "children": ["Wocka", "Roscoe"],
-            "carCapacity": 4,
+            "carCapacity": 7,
             "location": {
                 "address": "950 Mary Alice Park Rd",
                 "city": "Cumming",
@@ -142,7 +232,7 @@
             "name": "George Russell",
             "numchildren": 2,
             "children": ["Rusty", "Rex"],
-            "carCapacity": 6,
+            "carCapacity": 4,
             "location": {
                 "address": "735 Sanders Rd",
                 "city": "Cumming",
@@ -155,7 +245,7 @@
             "name": "Pierre Gasly",
             "numchildren": 1,
             "children": ["Alisha"],
-            "carCapacity": 3,
+            "carCapacity": 6,
             "location": {
                 "address": "1430 Sassafras Ln",
                 "city": "Cumming",
@@ -168,7 +258,7 @@
             "name": "Estban Ocon",
             "numchildren": 3,
             "children": ["Rida", "Ethan", "Lucky"],
-            "carCapacity": 6,
+            "carCapacity": 4,
             "location": {
                 "address": "5160 Tallantworth Crossing",
                 "city": "Cumming",
@@ -194,7 +284,7 @@
             "name": "Lance Stroll",
             "numchildren": 2,
             "children": ["Valerie", "Ronda"],
-            "carCapacity": 3,
+            "carCapacity": 5,
             "location": {
                 "address": "5020 Deerfield Dr",
                 "city": "Cumming",
@@ -220,7 +310,7 @@
             "name": "Nico Hulkenberg",
             "numchildren": 1,
             "children": ["Tejas"],
-            "carCapacity": 4,
+            "carCapacity": 7,
             "location": {
                 "address": "3785 Westhaven Dr",
                 "city": "Cumming",
@@ -233,7 +323,7 @@
             "name": "Zhou Guanyu",
             "numchildren": 3,
             "children": ["Glenn", "Hanson", "Nelson"],
-            "carCapacity": 4,
+            "carCapacity": 5,
             "location": {
                 "address": "5695 Vendelay Ln",
                 "city": "Cumming",
@@ -272,7 +362,7 @@
             "name": "Logan Sargeant",
             "numchildren": 2,
             "children": ["Boonton", "Barbara"],
-            "carCapacity": 3,
+            "carCapacity": 7,
             "location": {
                 "address": "3990 Danbury Farms Dr",
                 "city": "Cumming",
@@ -285,7 +375,7 @@
             "name": "Alexander Albon",
             "numchildren": 3,
             "children": ["Solange", "Beyonce", "Michelle"],
-            "carCapacity": 3,
+            "carCapacity": 7,
             "location": {
                 "address": "4835 Sweetfern Ct",
                 "city": "Cumming",
@@ -298,7 +388,7 @@
             "name": "Valtteri Bottas",
             "numchildren": 4,
             "children": ["Mikka", "Minna", "Mippa", "Milla"],
-            "carCapacity": 3,
+            "carCapacity": 7,
             "location": {
                 "address": "6415 Yellow Birch St",
                 "city": "Cumming",
@@ -324,7 +414,7 @@
             "name": "Liam Lawson",
             "numchildren": 1,
             "children": ["Kyle"],
-            "carCapacity": 4,
+            "carCapacity": 6,
             "location": {
                 "address": "7055 Red Fox Ln",
                 "city": "Cumming",
@@ -337,7 +427,7 @@
             "name": "Oliver Bearman",
             "numchildren": 3,
             "children": ["Dolly", "Dotty", "Denny"],
-            "carCapacity": 4,
+            "carCapacity": 6,
             "location": {
                 "address": "6120 Wellington Ct",
                 "city": "Cumming",
@@ -350,7 +440,7 @@
             "name": "Jack Doohan",
             "numchildren": 2,
             "children": ["James", "Charlotte"],
-            "carCapacity": 4,
+            "carCapacity": 7,
             "location": {
                 "address": "6690 Buckingham Cir",
                 "city": "Cumming",
@@ -363,7 +453,7 @@
             "name": "Kimi Antonelli",
             "numchildren": 1,
             "children": ["Andrea"],
-            "carCapacity": 4,
+            "carCapacity": 6,
             "location": {
                 "address": "4825 Oakmont Bend Dr",
                 "city": "Alpharetta",
@@ -376,7 +466,7 @@
             "name": "Isack Hadjar",
             "numchildren": 2,
             "children": ["Nino", "Nina"],
-            "carCapacity": 4,
+            "carCapacity": 6,
             "location": {
                 "address": "5010 Deerfield Dr",
                 "city": "Cumming",
@@ -389,7 +479,7 @@
             "name": "Gabriel Bortoleto",
             "numchildren": 1,
             "children": ["Gabriella"],
-            "carCapacity": 4,
+            "carCapacity": 5,
             "location": {
                 "address": "6855 Worley Rd",
                 "city": "Cumming",
@@ -402,7 +492,7 @@
             "name": "Sebastian Vettel",
             "numchildren": 2,
             "children": ["Troy", "Chad"],
-            "carCapacity": 3,
+            "carCapacity": 5,
             "location": {
                 "address": "4205 Pheasant Run Trce",
                 "city": "Cumming",
@@ -428,7 +518,7 @@
             "name": "Michael Schumacher",
             "numchildren": 1,
             "children": ["Nichoulas"],
-            "carCapacity": 4,
+            "carCapacity": 7,
             "location": {
                 "address": "4215 Bellehurst Ln",
                 "city": "Cumming",
