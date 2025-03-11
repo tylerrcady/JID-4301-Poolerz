@@ -8,7 +8,6 @@ import TextInput from "@components/atoms/text-input";
 import NumberInput from "@components/atoms/number-input";
 import AddIcon from "./icons/AddIcon";
 
-
 interface UserProfileProps {
     userId: string | undefined;
     name: string | null | undefined;
@@ -141,8 +140,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 },
                 body: JSON.stringify({
                     userId,
-                    userFormData:  { ...userFormData,},
-
+                    userFormData: { ...userFormData },
                 }),
             });
             if (response.ok) {
@@ -253,7 +251,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     {userFormData &&
                         userFormData.children.map((child, index) => (
                             <div
-                                key={index}
+                                key={`${child.name}-${index}`} // ensure unique key by combining name and index to prevent rendering issues
+                                // ! note: we should probably add id's to children to uniquely identify them in the database
                                 className="flex flex-col items-start"
                             >
                                 <div className="text-gray text-xl">
@@ -261,11 +260,16 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                         <TextInput
                                             currentValue={child.name}
                                             onChange={(value) => {
-                                                const updatedChildren = [
-                                                    ...userFormData.children,
-                                                ];
-                                                updatedChildren[index].name =
-                                                    value;
+                                                const updatedChildren =
+                                                    userFormData.children.map(
+                                                        (c, i) =>
+                                                            i === index
+                                                                ? {
+                                                                      ...c,
+                                                                      name: value,
+                                                                  }
+                                                                : c
+                                                    );
                                                 setUserFormData({
                                                     ...userFormData,
                                                     children: updatedChildren,

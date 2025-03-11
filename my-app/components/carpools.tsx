@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from 'next/link';
+import Link from "next/link";
 
 interface CarpoolsProps {
     userId: string | undefined;
@@ -18,6 +18,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     const [createCarpoolData, setCreateCarpoolData] = useState<CarpoolData[]>([]);
     const [carpoolIds, setCarpoolIds] = useState<string[]>([]); // list of carpoolIDs found under user-carpool-data
     const [joinCarpoolData, setJoinCarpoolData] = useState<CarpoolData[]>([]); // data of Carpools found by linking joined carpoolIds with the createCarpool info
+
 
     const handleCreateCarpool = () => {
         router.push("/create-carpool");
@@ -41,9 +42,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
             );
             if (response.ok) {
                 const data = await response.json();
-                setCreateCarpoolData(
-                    data?.createCarpoolData
-                );
+                setCreateCarpoolData(data?.createCarpoolData);
             }
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -131,9 +130,9 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     }, [userId, handleCarpoolsGet, handleUserCarpoolsGet]);
 
     return (
-        <div className="flex flex-col md:flex-row justify-between items-stretch gap-6 m-6 px-20 w-full">
+        <div className="flex flex-col md:flex-row justify-between gap-6 m-6 px-20 w-full items-start">
             {/* Create Carpool */}
-            <div className="flex flex-col w-full max-w-lg bg-white rounded-md shadow-lg p-6 md:p-8 gap-6">
+            <div className="flex flex-col w-full max-w-lg bg-white rounded-md shadow-lg p-6 gap-6 h-auto">
                 <div>
                     <h2 className="text-black text-xl md:text-2xl font-bold font-['Open Sans']">
                         Create Carpool
@@ -151,7 +150,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
             </div>
 
             {/* Join Carpool */}
-            <div className="flex flex-col w-full max-w-lg bg-white rounded-md shadow-lg p-6 md:p-8 gap-6">
+            <div className="flex flex-col w-full max-w-lg bg-white rounded-md shadow-lg p-6 gap-6 h-auto">
                 <div>
                     <h2 className="text-black text-xl md:text-2xl font-bold font-['Open Sans']">
                         Join Carpool
@@ -178,19 +177,28 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                     {createCarpoolData.length > 0 ? (
                         <div className="mt-2 space-y-3">
                             {createCarpoolData.map((carpool, index) => (
-                                <Link href={`/pool-info/${index}`} key={index} className="block">
+                                <Link
+                                    href={`/pool-info/${index}`}
+                                    key={index}
+                                    className="block"
+                                >
                                     <div className="bg-gray-100 p-3 rounded-md shadow-sm hover:bg-gray-200 cursor-pointer flex justify-between items-center">
                                         <p className="text-lg font-semibold text-gray-800">
-                                            {carpool?.createCarpoolData?.carpoolName || "No notes available"}
-                                        </p>  
-                                        <span className="text-blue text-5xl">›</span>
+                                            {carpool?.createCarpoolData
+                                                ?.carpoolName ||
+                                                "No notes available"}
+                                        </p>
+                                        <span className="text-blue text-5xl">
+                                            ›
+                                        </span>
                                     </div>
                                 </Link>
                             ))}
                         </div>
                     ) : (
                         <p className="mt-2 text-gray-600 text-lg md:text-xl font-normal font-['Open Sans']">
-                            You currently have no carpools - create or join one to start!
+                            You currently have no carpools - create or join one
+                            to start!
                         </p>
                     )}
                 </div>
@@ -225,4 +233,3 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     );
 };
 export default Carpools;
-
