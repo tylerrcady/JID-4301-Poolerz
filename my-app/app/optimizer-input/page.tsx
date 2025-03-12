@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 
 
 export default function OptimizerInput() {
   const [carpoolId, setCarpoolId] = useState("");
   const [loading, setLoading] = useState(false);
+  const { data: session } = useSession();
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,12 +103,12 @@ export default function OptimizerInput() {
           
           return {
             userId: formData.userId, 
-            
+            name: session?.user?.name,
             numchildren: formData.userFormData.numChildren || 0,
             children: Array.isArray(formData.userFormData.children)
                 ? formData.userFormData.children.map((child: any) => child.name)
                 : [],
-            carCapacity:  formData.userFormData.carCapacity || 0,
+            carCapacity:  formData.userFormData.carCapacity || 0, //! pulls from form data, not sure if we want from userCarpoolData
             location: {
               address: formData.userFormData.location?.address || "",
               city: formData.userFormData.location?.city || "",
