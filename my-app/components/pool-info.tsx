@@ -1,6 +1,7 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useCallback } from "react";
+import BackButton from "@/components/atoms/back-button";
 
 interface PoolInfoProps {
   userId: string | undefined;
@@ -14,6 +15,11 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [carpoolDays, setCarpoolDays] = useState<string>();
     const [times, setTimes] = useState<string>();
     const [drivingAvailability, setDrivingAvailability] = useState<string>();
+    const router = useRouter();
+
+    const handleConfirmBack = () => {
+        router.back();
+    };
 
     // GET create-carpool data handler
     const handleCarpoolsGet = useCallback(async () => {
@@ -85,6 +91,10 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     }, [userId, handleCarpoolsGet, handleUserDataGet]);
 
     return (
+        <>
+        <div className="w-11/12 mx-auto px-1">
+                <BackButton onClick={handleConfirmBack} />
+        </div>
         <div className="justify-center flex flex-col w-6/12 mx-auto p-10 gap-6 rounded-md">
         {/*Title Card*/}
         <div className="flex-col justify-start items-start gap-5 flex">
@@ -184,6 +194,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             </div>
         </div>
     </div>
+    </>
     );
 };
 
