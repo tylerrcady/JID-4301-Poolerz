@@ -32,7 +32,7 @@ export default function BackButton({ onClick, disabled}: Props) {
       </svg> */}
 
       <Image 
-        src="/back-arrow2.svg"  // This will look in the public folder automatically
+        src="/back-arrow2.svg"
         alt="Back arrow"
         width={30}
         height={30}

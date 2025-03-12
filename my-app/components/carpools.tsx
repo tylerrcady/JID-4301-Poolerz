@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 interface CarpoolsProps {
     userId: string | undefined;
@@ -112,6 +113,11 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
         setJoinCarpoolData(fetchedData.flat());
     }, [carpoolIds, handleCarpoolsGetWithCarpoolId]);
 
+    const allCarpools = [
+        ...createCarpoolData.map((carpool) => ({ ...carpool, isOwner: true })),
+        ...joinCarpoolData.map((carpool) => ({ ...carpool, isOwner: false })),
+    ];
+
     // Fetch create-carpool data when carpoolIds change
     useEffect(() => {
         if (carpoolIds.length > 0) {
@@ -168,29 +174,34 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                 </button>
             </div>
 
-            {/* Created Carpools */}
+            {/* Current Carpools */}
             <div className="flex flex-col w-full max-w-lg bg-white rounded-md shadow-lg p-6 md:p-8 gap-6">
                 <div>
                     <h2 className="text-black text-xl md:text-2xl font-bold font-['Open Sans']">
-                        Created Carpools
+                        Current Carpools
                     </h2>
                     {createCarpoolData.length > 0 ? (
                         <div className="mt-2 space-y-3">
-                            {createCarpoolData.map((carpool, index) => (
-                                <Link
-                                    href={`/pool-info/${index}`}
-                                    key={index}
-                                    className="block"
+                            {allCarpools.map((carpool, index) => (
+                                 <Link
+                                 href={`/pool-info/${index}`}
+                                 key={index}
+                                 className="block"
                                 >
-                                    <div className="bg-gray-100 p-3 rounded-md shadow-sm hover:bg-gray-200 cursor-pointer flex justify-between items-center">
-                                        <p className="text-lg font-semibold text-gray-800">
-                                            {carpool?.createCarpoolData
-                                                ?.carpoolName ||
-                                                "No notes available"}
-                                        </p>
-                                        <span className="text-blue text-5xl">
-                                            ›
-                                        </span>
+                                    <div className = "p-3 rounded-md shadow-sm cursor-pointer flex justify-between items-center">
+                                        <div className = "flex flex-col gap-2">
+                                            <div className="text-2xl font-regular text-gray">
+                                                {carpool.createCarpoolData?.carpoolName}
+                                            </div>
+                                            {carpool.isOwner && <div className="italic">Owner</div>}
+                                        </div>
+                                        <Image 
+                                                src="/back-arrow2.svg"
+                                                alt="Back arrow"
+                                                width={30}
+                                                height={30}
+                                                className={`mr-1 rotate-180`}
+                                        />
                                     </div>
                                 </Link>
                             ))}
@@ -199,32 +210,6 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                         <p className="mt-2 text-gray-600 text-lg md:text-xl font-normal font-['Open Sans']">
                             You currently have no carpools - create or join one
                             to start!
-                        </p>
-                    )}
-                </div>
-            </div>
-            {/* Joined Carpools */}
-            <div className="flex flex-col w-full max-w-lg bg-white rounded-md shadow-lg p-6 md:p-8 gap-6">
-                <div>
-                    <h2 className="text-black text-xl md:text-2xl font-bold font-['Open Sans']">
-                        Joined Carpools
-                    </h2>
-                    {joinCarpoolData.length > 0 ? (
-                        <div className="mt-2 space-y-3">
-                            {joinCarpoolData.map((carpool, index) => (
-                                <Link href={`/pool-info/${index}`} key={index} className="block">
-                                    <div className="bg-gray-100 p-3 rounded-md shadow-sm hover:bg-gray-200 cursor-pointer flex justify-between items-center">
-                                        <p className="text-lg font-semibold text-gray-800">
-                                            {carpool.createCarpoolData?.carpoolName || "No notes available"}
-                                        </p>  
-                                        <span className="text-blue text-5xl">›</span>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="mt-2 text-gray-600 text-lg md:text-xl font-normal font-['Open Sans']">
-                            You currently have no joined carpools - create or join one to start!
                         </p>
                     )}
                 </div>
