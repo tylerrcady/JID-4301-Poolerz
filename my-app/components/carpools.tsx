@@ -16,10 +16,11 @@ interface CarpoolData {
 
 const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     const router = useRouter();
-    const [createCarpoolData, setCreateCarpoolData] = useState<CarpoolData[]>([]);
+    const [createCarpoolData, setCreateCarpoolData] = useState<CarpoolData[]>(
+        []
+    );
     const [carpoolIds, setCarpoolIds] = useState<string[]>([]); // list of carpoolIDs found under user-carpool-data
     const [joinCarpoolData, setJoinCarpoolData] = useState<CarpoolData[]>([]); // data of Carpools found by linking joined carpoolIds with the createCarpool info
-
 
     const handleCreateCarpool = () => {
         router.push("/create-carpool");
@@ -51,26 +52,32 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     }, [userId]);
 
     // GET create-carpool data handler via carpoolID
-    const handleCarpoolsGetWithCarpoolId = useCallback(async (carpoolId: string) => {
-        try {
-            const response = await fetch(
-                `/api/create-carpool-data?carpoolId=${carpoolId}`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+    const handleCarpoolsGetWithCarpoolId = useCallback(
+        async (carpoolId: string) => {
+            try {
+                const response = await fetch(
+                    `/api/create-carpool-data?carpoolId=${carpoolId}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    return data?.createCarpoolData; // Return the fetched data
                 }
-            );
-            if (response.ok) {
-                const data = await response.json();
-                return data?.createCarpoolData; // Return the fetched data
+            } catch (error) {
+                console.error(
+                    `Error fetching data for carpoolId ${carpoolId}:`,
+                    error
+                );
             }
-        } catch (error) {
-            console.error(`Error fetching data for carpoolId ${carpoolId}:`, error);
-        }
-        return null; // Return null if there's an error
-    }, []);
+            return null; // Return null if there's an error
+        },
+        []
+    );
 
     // GET user-carpool-data handler
     const handleUserCarpoolsGet = useCallback(async () => {
@@ -86,12 +93,14 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
             );
             if (response.ok) {
                 const data = await response.json();
-                const joinedCarpoolsData = data?.createCarpoolData.userData.carpools;
-                const carpoolIdsData: string[] = joinedCarpoolsData?.map((carpool: { carpoolId: any; }) => carpool.carpoolId) || [];
-                console.log(carpoolIdsData);
-                setCarpoolIds(
-                    carpoolIdsData
-                );
+                const joinedCarpoolsData =
+                    data?.createCarpoolData.userData.carpools;
+                const carpoolIdsData: string[] =
+                    joinedCarpoolsData?.map(
+                        (carpool: { carpoolId: any }) => carpool.carpoolId
+                    ) || [];
+                // console.log(carpoolIdsData);
+                setCarpoolIds(carpoolIdsData);
                 // console.log(data?.createCarpoolData.userData.carpools);
             }
         } catch (error) {
@@ -103,20 +112,32 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     const fetchAllCarpoolData = useCallback(async () => {
         if (carpoolIds.length === 0) return; // Ensure we have carpool IDs before fetching
 
-        console.log("Fetching create-carpool data for IDs:", carpoolIds);
+        // console.log("Fetching create-carpool data for IDs:", carpoolIds);
 
         const fetchedData = await Promise.all(
-            carpoolIds.map(carpoolId => handleCarpoolsGetWithCarpoolId(carpoolId))
+            carpoolIds.map((carpoolId) =>
+                handleCarpoolsGetWithCarpoolId(carpoolId)
+            )
         );
-        console.log(fetchedData);
+        // console.log(fetchedData);
         // Filter out null values and update state
         setJoinCarpoolData(fetchedData.flat());
     }, [carpoolIds, handleCarpoolsGetWithCarpoolId]);
 
-    const allCarpools = [
-        ...createCarpoolData.map((carpool) => ({ ...carpool, isOwner: true })),
-        ...joinCarpoolData.map((carpool) => ({ ...carpool, isOwner: false })),
-    ];
+    // tyler note: join the data properly to prevent no duplicates
+    const allCarpools = carpoolIds.map((carpoolId) => {
+        const createCarpool = createCarpoolData.find(
+            (carpool) => carpool.carpoolID === carpoolId
+        );
+        const joinCarpool = joinCarpoolData.find(
+            (carpool) => carpool.carpoolID === carpoolId
+        );
+        return {
+            ...createCarpool,
+            ...joinCarpool,
+            isOwner: !!createCarpool,
+        };
+    });
 
     // Fetch create-carpool data when carpoolIds change
     useEffect(() => {
@@ -125,14 +146,12 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
         }
     }, [carpoolIds, fetchAllCarpoolData]);
 
-
     // get createFormData handler/caller effect
     useEffect(() => {
         handleCarpoolsGet();
         handleUserCarpoolsGet();
-        console.log("Updated createCarpoolData:", createCarpoolData);
-        console.log(joinCarpoolData);
-        
+        // console.log("Updated createCarpoolData:", createCarpoolData);
+        // console.log(joinCarpoolData);
     }, [userId, handleCarpoolsGet, handleUserCarpoolsGet]);
 
     return (
@@ -183,24 +202,31 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                     {createCarpoolData.length > 0 ? (
                         <div className="mt-2 space-y-3">
                             {allCarpools.map((carpool, index) => (
-                                 <Link
-                                 href={`/pool-info/${index}`}
-                                 key={index}
-                                 className="block"
+                                <Link
+                                    href={`/pool-info/${index}?carpoolId=${carpoolIds[index]}`} // need to pass the carpoolId in too for the optimizer
+                                    key={index}
+                                    className="block"
                                 >
-                                    <div className = "p-3 rounded-md shadow-sm cursor-pointer flex justify-between items-center">
-                                        <div className = "flex flex-col gap-2">
+                                    <div className="p-3 rounded-md shadow-sm cursor-pointer flex justify-between items-center">
+                                        <div className="flex flex-col gap-2">
                                             <div className="text-2xl font-regular text-gray">
-                                                {carpool.createCarpoolData?.carpoolName}
+                                                {
+                                                    carpool.createCarpoolData
+                                                        ?.carpoolName
+                                                }
                                             </div>
-                                            {carpool.isOwner && <div className="italic">Owner</div>}
+                                            {carpool.isOwner && (
+                                                <div className="italic">
+                                                    Owner
+                                                </div>
+                                            )}
                                         </div>
-                                        <Image 
-                                                src="/back-arrow2.svg"
-                                                alt="Back arrow"
-                                                width={30}
-                                                height={30}
-                                                className={`mr-1 rotate-180`}
+                                        <Image
+                                            src="/back-arrow2.svg"
+                                            alt="Back arrow"
+                                            width={30}
+                                            height={30}
+                                            className={`mr-1 rotate-180`}
                                         />
                                     </div>
                                 </Link>

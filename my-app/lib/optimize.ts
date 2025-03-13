@@ -1,16 +1,8 @@
-"use client";
+// example-usage.ts
+import { optimizeCarpools } from "@/optimizer/optimizer";
 
-import { useState } from "react";
-import { useSession } from "next-auth/react";
-
-export default function OptimizerInput() {
-    const [carpoolId, setCarpoolId] = useState("");
-    const [loading, setLoading] = useState(false);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-
+export async function Optimizer(carpoolId: string) {
+    async function getInput() {
         try {
             const carpoolResponse = await fetch(
                 `/api/create-carpool-data?carpoolId=${carpoolId}`
@@ -20,7 +12,6 @@ export default function OptimizerInput() {
             }
 
             const carpoolData = await carpoolResponse.json();
-            //console.log("Raw carpoolData from API:", carpoolData);
 
             const docArray = carpoolData.createCarpoolData;
             if (!Array.isArray(docArray) || docArray.length === 0) {
@@ -56,7 +47,6 @@ export default function OptimizerInput() {
                 return userCarpoolResponse.json();
             });
             const userCarpoolResults = await Promise.all(userCarpoolPromises);
-            //console.log(userResults)
 
             // acces user-data
             const formPromises = members.map(async (userId: string) => {
@@ -69,7 +59,6 @@ export default function OptimizerInput() {
                 return formResponse.json();
             });
             const formResults = await Promise.all(formPromises);
-            //console.log(formResults)
 
             const optimizerInput = {
                 carpoolId: doc.carpoolID,
@@ -147,56 +136,23 @@ export default function OptimizerInput() {
                 ),
             };
 
-            console.log(
-                "Optimizer Input:",
-                JSON.parse(JSON.stringify(optimizerInput))
-            );
+            return JSON.parse(JSON.stringify(optimizerInput));
         } catch (error) {
             console.error("Error:", error);
-        } finally {
-            setLoading(false);
         }
-    };
+    }
 
-    return (
-        <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md mx-auto">
-                <div className="bg-white p-8 rounded-lg shadow">
-                    <h1 className="text-2xl font-bold mb-6">
-                        Optimizer Input Generator
-                    </h1>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label
-                                htmlFor="carpoolId"
-                                className="block text-sm font-medium text-gray-700"
-                            >
-                                Carpool ID
-                            </label>
-                            <input
-                                type="text"
-                                id="carpoolId"
-                                value={carpoolId}
-                                onChange={(e) => setCarpoolId(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                placeholder="Enter carpool ID"
-                                required
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                                loading ? "opacity-50 cursor-not-allowed" : ""
-                            }`}
-                        >
-                            {loading
-                                ? "Loading..."
-                                : "Generate Optimizer Input"}
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    );
+    async function run(data: any) {
+        const apiKey = "AIzaSyCGFoau74-eJjeaKFqh0CXiqsGPe5Rx5Yc"; // probably change to .env variable later on (@ ignacio)
+        const results = await optimizeCarpools(data, apiKey); // call and return the optimizer & its outputs
+        return {
+            initialClusters: results.initialClusters,
+            validatedClusters: results.validatedClusters,
+            finalClusters: results.finalClusters,
+            unclusteredUsers: results.unclusteredUsers,
+        };
+    }
+
+    const data = await getInput();
+    return await run(data); // run the example and return the results
 }
