@@ -11,6 +11,7 @@ export default async function DynamicInfo({
 }) {
     const session = await auth();
     const { index } = await Promise.resolve(params);
+
     return (
         <div className="h-full flex items-center justify-between flex-col bg-w">
             <Header
