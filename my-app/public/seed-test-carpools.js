@@ -24,10 +24,9 @@ async function processCarpoolTestData(data, client, db) {
 
         const userOps = data.users.map(user => ({
             updateOne: {
-                filter: { email: `${user.name.replace(/\s+/g, '.').toLowerCase()}@example.com` },
+                filter: { _id: testUsersMap[user.userId] },
                 update: {
                     $setOnInsert: {
-                        _id: testUsersMap[user.userId],
                         name: user.name,
                         email: `${user.name.replace(/\s+/g, '.').toLowerCase()}@example.com`,
                         image: "https://example.com/placeholder.jpg",
