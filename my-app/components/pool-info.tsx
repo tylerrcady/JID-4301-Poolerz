@@ -21,7 +21,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         "Friday",
         "Saturday",
     ];
-    const [carpoolID, setCarpoolID] = useState<string>(); // found from URL
     const [carpoolDays, setCarpoolDays] = useState<string>(); // found from create-carpool
     const [times, setTimes] = useState<string>(); // found from create-carpool
     const [drivingAvailability, setDrivingAvailability] = useState<string>(); // found from user-carpool-data
@@ -48,7 +47,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 const optimizerResults = await Optimizer(carpoolId); // run the optimizer with carpoolId from the URL as parameter
                 console.log(optimizerResults);
                 setResults(optimizerResults); // store the results in the state
-                setCarpoolID(carpoolId);
             } else {
                 console.error("Carpool ID is null");
             }
