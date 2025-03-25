@@ -16,6 +16,7 @@ interface UserFormData {
     carCapacity: number;
     availabilities: Availability[];
     location: UserLocation;
+    phoneNumber: string;
 }
 
 interface SharedLocation extends UserLocation {
