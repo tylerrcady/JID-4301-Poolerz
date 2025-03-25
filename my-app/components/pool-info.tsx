@@ -10,8 +10,8 @@ interface PoolInfoProps {
 }
 
 const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
-    const [foundCarpool, setFoundCarpool] = useState<CreateCarpoolData>();
-    const [joinCarpoolData, setJoinCarpoolData] = useState<JoinCarpoolData>();
+    const [foundCarpool, setFoundCarpool] = useState<Carpool>(); // found in user-carpool-data
+    const [carpoolOrgInfo, setCarpoolOrgInfo] = useState<CreateCarpoolData>();
     const daysOfWeek = [
         "Sunday",
         "Monday",
@@ -21,9 +21,13 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         "Friday",
         "Saturday",
     ];
-    const [carpoolDays, setCarpoolDays] = useState<string>();
-    const [times, setTimes] = useState<string>();
-    const [drivingAvailability, setDrivingAvailability] = useState<string>();
+    const [carpoolID, setCarpoolID] = useState<string>(); // found from URL
+    const [carpoolDays, setCarpoolDays] = useState<string>(); // found from create-carpool
+    const [times, setTimes] = useState<string>(); // found from create-carpool
+    const [drivingAvailability, setDrivingAvailability] = useState<string>(); // found from user-carpool-data
+    const [riders, setRiders] = useState<string>(); // found from user-carpool-data
+    const [userLocation, setUserLocation] = useState<UserLocation>();
+
     const router = useRouter();
 
     const handleConfirmBack = () => {
@@ -44,6 +48,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 const optimizerResults = await Optimizer(carpoolId); // run the optimizer with carpoolId from the URL as parameter
                 console.log(optimizerResults);
                 setResults(optimizerResults); // store the results in the state
+                setCarpoolID(carpoolId);
             } else {
                 console.error("Carpool ID is null");
             }
@@ -57,8 +62,11 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     // GET create-carpool data handler
     const handleCarpoolsGet = useCallback(async () => {
         try {
+            const carpoolId = new URLSearchParams(window.location.search).get(
+                "carpoolId"
+            );
             const response = await fetch(
-                `/api/create-carpool-data?creatorId=${userId}`,
+                `/api/create-carpool-data?carpoolId=${carpoolId}`,
                 {
                     method: "GET",
                     headers: {
@@ -68,56 +76,23 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             );
             if (response.ok) {
                 const data = await response.json();
-                // console.log(data?.createCarpoolData);
-                setFoundCarpool(
-                    data.createCarpoolData[Number(index)]?.createCarpoolData
-                );
-                const selectedArray =
-                    data.createCarpoolData[Number(index)]?.createCarpoolData
-                        ?.carpoolDays;
+                const carpoolInfo = data?.createCarpoolData[0].createCarpoolData; 
+                console.log(carpoolInfo);
+                setCarpoolOrgInfo(carpoolInfo);
+                const selectedArray = carpoolInfo?.carpoolDays;
                 const daysString = selectedArray?.length
                     ? selectedArray
                           .map((dayIndex: number) => daysOfWeek[dayIndex])
                           .join(", ")
                     : "";
                 setCarpoolDays(daysString);
-                const notes =
-                    data.createCarpoolData[Number(index)]?.createCarpoolData
-                        ?.notes;
+                const notes = carpoolInfo?.notes;
                 setTimes(notes.substring(10, 15));
             }
         } catch (error) {
             console.error("Error fetching data:", error);
         }
     }, [userId]);
-
-     // GET create-carpool data handler via carpoolID
-     const handleCarpoolsGetWithCarpoolId = useCallback(
-        async (carpoolId: string) => {
-            try {
-                const response = await fetch(
-                    `/api/create-carpool-data?carpoolId=${carpoolId}`,
-                    {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-                if (response.ok) {
-                    const data = await response.json();
-                    return data?.createCarpoolData; // Return the fetched data
-                }
-            } catch (error) {
-                console.error(
-                    `Error fetching data for carpoolId ${carpoolId}:`,
-                    error
-                );
-            }
-            return null; // Return null if there's an error
-        },
-        []
-    );
 
     // GET user-carpool-data handler
     const handleUserDataGet = useCallback(async () => {
@@ -133,16 +108,18 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             );
             if (response.ok) {
                 const data = await response.json();
-                // console.log(data?.createCarpoolData.userData);
-                setJoinCarpoolData(data?.createCarpoolData.userData);
+                setUserLocation(data?.createCarpoolData.userData.userLocation);
+                setFoundCarpool(data?.createCarpoolData.userData.carpools[Number(index)]);
                 const selectedArray =
-                    data?.createCarpoolData.userData.drivingAvailability;
+                    data?.createCarpoolData.userData.carpools[Number(index)].drivingAvailability;
                 const daysString = selectedArray?.length
                     ? selectedArray
                           .map((dayIndex: number) => daysOfWeek[dayIndex])
                           .join(", ")
-                    : "";
+                    : ""; // maps number representation to day representation for weekdays
                 setDrivingAvailability(daysString);
+                const ridersArray = data?.createCarpoolData.userData.carpools[Number(index)].riders;
+                setRiders(ridersArray.join(", "));
             } else {
                 console.error("Failed to fetch data:", response.statusText);
             }
@@ -168,7 +145,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 {/*Title Card*/}
                 <div className="flex-col justify-start items-start gap-5 flex">
                     <div className="text-black text-2xl font-bold font-['Open Sans']">
-                        {foundCarpool?.carpoolName}
+                        {carpoolOrgInfo?.carpoolName}
                     </div>
                     <div className="self-stretch justify-start items-start inline-flex gap-10">
                         <div className="text-gray text-xl font-normal font-['Open Sans']">
@@ -193,7 +170,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         <div className="text-gray text-xl font-bold font-['Open Sans']">
                             Location
                         </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">{`${foundCarpool?.carpoolLocation.name}, ${foundCarpool?.carpoolLocation.address}, ${foundCarpool?.carpoolLocation.city}, ${foundCarpool?.carpoolLocation.state} ${foundCarpool?.carpoolLocation.zipCode}`}</div>
+                        <div className="text-gray text-xl font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation.name}, ${carpoolOrgInfo?.carpoolLocation.address}, ${carpoolOrgInfo?.carpoolLocation.city}, ${carpoolOrgInfo?.carpoolLocation.state} ${carpoolOrgInfo?.carpoolLocation.zipCode}`}</div>
                     </div>
                     <div className="flex-col justify-start items-start gap-2.5 flex">
                         <div className="text-gray text-xl font-bold font-['Open Sans']">
@@ -280,14 +257,14 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         <div className="text-gray text-xl font-bold font-['Open Sans']">
                             Location
                         </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">{`${joinCarpoolData?.userLocation.address}, ${joinCarpoolData?.userLocation.city}, ${joinCarpoolData?.userLocation.state} ${joinCarpoolData?.userLocation.zipCode}`}</div>
+                        <div className="text-gray text-xl font-normal font-['Open Sans']">{`${userLocation?.address}, ${userLocation?.city}, ${userLocation?.state} ${userLocation?.zipCode}`}</div>
                     </div>
                     <div className="flex-col justify-start items-start gap-2.5 flex">
                         <div className="text-gray text-xl font-bold font-['Open Sans']">
                             Driving Availability
                         </div>
                         <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            Monday, Wednesday, Friday
+                            {drivingAvailability}
                         </div>
                     </div>
                     <div className="flex-col justify-start items-start gap-2.5 flex">
@@ -295,7 +272,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             Rider(s)
                         </div>
                         <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            Child 2, 3
+                            {riders}
                         </div>
                     </div>
                     <div className="flex-col justify-start items-start gap-2.5 flex">
@@ -303,7 +280,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             Car Capacity
                         </div>
                         <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            5
+                            {foundCarpool?.carCapacity}
                         </div>
                     </div>
                 </div>
