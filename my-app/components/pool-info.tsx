@@ -97,6 +97,9 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     // GET user-carpool-data handler
     const handleUserDataGet = useCallback(async () => {
         try {
+            const targetId = new URLSearchParams(window.location.search).get(
+                "carpoolId"
+            );
             const response = await fetch(
                 `/api/join-carpool-data?userId=${userId}`,
                 {
@@ -109,16 +112,18 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             if (response.ok) {
                 const data = await response.json();
                 setUserLocation(data?.createCarpoolData.userData.userLocation);
-                setFoundCarpool(data?.createCarpoolData.userData.carpools[Number(index)]);
-                const selectedArray =
-                    data?.createCarpoolData.userData.carpools[Number(index)].drivingAvailability;
+                console.log(data?.createCarpoolData.userData.carpools);
+                const foundCarpool = data?.createCarpoolData.userData.carpools.find((c: { carpoolId: any; }) => c.carpoolId === targetId);
+                setFoundCarpool(foundCarpool);
+                console.log(foundCarpool);
+                const selectedArray = foundCarpool.drivingAvailability;
                 const daysString = selectedArray?.length
                     ? selectedArray
                           .map((dayIndex: number) => daysOfWeek[dayIndex])
                           .join(", ")
                     : ""; // maps number representation to day representation for weekdays
                 setDrivingAvailability(daysString);
-                const ridersArray = data?.createCarpoolData.userData.carpools[Number(index)].riders;
+                const ridersArray = foundCarpool.riders;
                 setRiders(ridersArray.join(", "));
             } else {
                 console.error("Failed to fetch data:", response.statusText);
@@ -132,8 +137,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     useEffect(() => {
         handleCarpoolsGet();
         handleUserDataGet();
-        // console.log(foundCarpool);
-        // console.log(joinCarpoolData);
     }, [userId, handleCarpoolsGet, handleUserDataGet]);
 
     return (

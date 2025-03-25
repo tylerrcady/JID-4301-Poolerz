@@ -198,7 +198,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                         <div className="mt-2 space-y-3">
                             {allCarpools.map((carpool, index) => (
                                 <Link
-                                    href={`/pool-info/${index}?carpoolId=${carpoolIds[index]}`} // need to pass the carpoolId in too for the optimizer
+                                    href={`/pool-info/${index}?carpoolId=${allCarpools[index].carpoolID}`} // need to pass the carpoolId in too for the optimizer
                                     key={index}
                                     className="block"
                                 >
