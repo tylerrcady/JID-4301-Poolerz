@@ -185,6 +185,42 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
           poolName
         )}`
       );
+      // now post to user-carpool data
+      const joinUserData: JoinCarpoolData = {
+        userLocation: {
+            address,
+            city,
+            state: stateField,
+            zipCode: zip
+        },
+        carpools: [{
+          carpoolId: result.joinCode,
+          riders: riders
+          .filter(rider => rider.selected)
+          .map(rider => rider.name),
+          notes: additionalNotes,
+          drivingAvailability: selectedDaysAsInt,
+          carCapacity: Number(carCapacity),
+        }]
+      };
+      console.log("Join Carpool Data:", joinUserData);
+      const combine = {
+        userId: userId,
+        createCarpoolData: formData,
+        joinData: joinUserData
+      }
+      const response2 = await fetch("/api/join-carpool-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ joinCarpoolData: combine}),
+      });
+      const result2 = await response2.json();
+      if (!response2.ok) {
+        setError(result2.error || "Failed to create carpool.");
+        return;
+      }
     } catch (error: unknown) {
       console.error("Error submitting form:", error);
       setError("Internal Server Error. Please try again.");
