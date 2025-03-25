@@ -38,21 +38,21 @@ export async function POST(request: Request) {
         // return success/failure
         if (createCarpoolResult?.success && userCarpoolResult?.success) {
             return new Response(
-                JSON.stringify({ message: "Success with POST create-carpool-data", joinCode: carpoolId }),
+                JSON.stringify({ message: "Success with POST user-carpool-data", joinCode: carpoolId }),
                 {
                     status: 200,
                 }
             );
         } else {
             return new Response(
-                JSON.stringify({ error: "Failure with POST create-carpool-data" }),
+                JSON.stringify({ error: "Failure with POST user-carpool-data" }),
                 {
                     status: 500,
                 }
             );
         }
     } catch(error) {
-        console.error("Error with POST join-carpool-data: ", error);
+        console.error("Error with POST user-carpool-data: ", error);
         return new Response(
             JSON.stringify({ error: "Internal Server Error" }),
             { status: 500 }
@@ -95,12 +95,12 @@ export async function GET(request: Request) {
             });
         } else {
             return new Response(
-                JSON.stringify({ error: "Failure with GET create-carpool-data" }),
+                JSON.stringify({ error: "Failure with GET user-carpool-data" }),
                 { status: 500 }
             );
         }
     } catch (error) {
-        console.error("Error with GET create-carpool-data: ", error);
+        console.error("Error with GET user-carpool-data: ", error);
         return new Response(
             JSON.stringify({ error: "Internal Server Error" }),
             { status: 500 }
