@@ -124,20 +124,15 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
         setJoinCarpoolData(fetchedData.flat());
     }, [carpoolIds, handleCarpoolsGetWithCarpoolId]);
 
-    // tyler note: join the data properly to prevent no duplicates
-    const allCarpools = carpoolIds.map((carpoolId) => {
-        const createCarpool = createCarpoolData.find(
-            (carpool) => carpool.carpoolID === carpoolId
-        );
-        const joinCarpool = joinCarpoolData.find(
-            (carpool) => carpool.carpoolID === carpoolId
-        );
-        return {
-            ...createCarpool,
-            ...joinCarpool,
-            isOwner: !!createCarpool,
-        };
-    });
+    // annie note: previous joining didn't pull created carpools properly,
+    // this uses old logic, but filters for duplicates
+    const allCarpools = [
+        ...createCarpoolData.map((carpool) => ({ ...carpool, isOwner: true })),
+        ...joinCarpoolData.filter(
+            (joined) => !createCarpoolData.some((created) => created.carpoolID === joined.carpoolID)
+        ).map((carpool) => ({ ...carpool, isOwner: false })),
+    ];
+
 
     // Fetch create-carpool data when carpoolIds change
     useEffect(() => {
