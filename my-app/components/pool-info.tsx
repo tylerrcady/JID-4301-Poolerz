@@ -91,6 +91,34 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         }
     }, [userId]);
 
+     // GET create-carpool data handler via carpoolID
+     const handleCarpoolsGetWithCarpoolId = useCallback(
+        async (carpoolId: string) => {
+            try {
+                const response = await fetch(
+                    `/api/create-carpool-data?carpoolId=${carpoolId}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    return data?.createCarpoolData; // Return the fetched data
+                }
+            } catch (error) {
+                console.error(
+                    `Error fetching data for carpoolId ${carpoolId}:`,
+                    error
+                );
+            }
+            return null; // Return null if there's an error
+        },
+        []
+    );
+
     // GET user-carpool-data handler
     const handleUserDataGet = useCallback(async () => {
         try {
