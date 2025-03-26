@@ -56,10 +56,10 @@ const CarpoolCreatedPageContent: React.FC = () => {
 
             {/* Return Button */}
             <button
-                onClick={() => router.push("/carpools")}
+                onClick={() => router.push(`/pool-info/0?carpoolId=${joinCode}&newPool=true`)}
                 className="px-6 py-3 bg-[#4b859f] rounded-md border border-[#4b859f] text-white text-lg md:text-xl font-semibold font-['Open Sans']"
             >
-                Return to Carpools
+                View My Carpool
             </button>
         </div>
     );
