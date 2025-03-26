@@ -35,7 +35,19 @@ const Header: React.FC<HeaderProps> = ({
                 {userId ? (
                     <>
                         {isFormComplete && (
-                            <>
+                            <>  
+                                <span className="text-lg mr-5 font-medium transition-colors duration-200">
+                                    <Link
+                                        href="/dashboard"
+                                        className={
+                                            currentPath === "/dashboard"
+                                                ? "text-blue"
+                                                : "text-gray hover:text-blue"
+                                        }
+                                    >
+                                        Dashboard
+                                    </Link>
+                                </span>
                                 <span className="text-lg mr-5 font-medium transition-colors duration-200">
                                     <Link
                                         href="/carpools"
