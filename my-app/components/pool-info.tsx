@@ -358,7 +358,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             ))}
                             
                             {results.unassignedMembers && results.unassignedMembers.length > 0 && (
-                                <div className="w-full p-4 border border-gray-200 rounded-md mt-4">
+                                <div className="text-black w-full p-4 border border-gray rounded-md mt-4">
                                     <div className="text-red-500 font-semibold text-lg mb-2">
                                         Unassigned Members
                                     </div>
@@ -369,7 +369,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             )}
 
                             {results.metrics && (
-                                <div className="w-full p-4 border border-gray-200 rounded-md mt-4">
+                                <div className="text-black w-full p-4 border border-gray rounded-md mt-4">
                                     <div className="text-black font-semibold text-lg mb-2">
                                         Optimization Metrics
                                     </div>
