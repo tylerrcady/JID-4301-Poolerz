@@ -56,6 +56,7 @@ interface PoolInfoProps {
 const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [foundCarpool, setFoundCarpool] = useState<Carpool>(); // found in user-carpool-data
     const [carpoolOrgInfo, setCarpoolOrgInfo] = useState<CreateCarpoolData>();
+    const [isOwner, setIsOwner] = useState(false);
     const daysOfWeek = [
         "Sunday",
         "Monday",
@@ -79,71 +80,412 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
 
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState<TransformedResults | null>(null);
+    const [optimizerError, setOptimizerError] = useState<string | null>(null);
+
+    // Map optimized day numbers to actual day names (in optimizer: 1=Monday, 2=Tuesday, etc.)
+    const optimizerDayMap: Record<string, string> = {
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday",
+        "7": "Sunday",
+    };
+
+    // Safely process optimization results when they're loaded
+    const processOptimizationResults = (data: any) => {
+        try {
+            if (!data?.results) {
+                return null;
+            }
+            
+            // Create a deep copy to avoid modifying the original data
+            const results = JSON.parse(JSON.stringify(data.results));
+            
+            // Process each carpool's driver schedule to ensure we don't have raw objects
+            if (results.carpools && Array.isArray(results.carpools)) {
+                results.carpools.forEach((carpool: TransformedCarpool) => {
+                    if (carpool.driverSchedule) {
+                        Object.entries(carpool.driverSchedule).forEach(([day, driver]: [string, any]) => {
+                            if (typeof driver === 'object' && driver !== null) {
+                                carpool.driverSchedule[day] = driver.name || driver.userId || JSON.stringify(driver);
+                            }
+                        });
+                    }
+                });
+            }
+            
+            return results;
+        } catch (error) {
+            console.error("Error processing optimization results:", error);
+            return null;
+        }
+    };
+
+    const fetchOptimizationResults = useCallback(async () => {
+        try {
+            const carpoolId = new URLSearchParams(window.location.search).get(
+                "carpoolId"
+            );
+            if (carpoolId) {
+                console.log("Fetching optimization results for carpoolId:", carpoolId);
+                const response = await fetch(
+                    `/api/optimization-results?carpoolId=${carpoolId}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+                
+                console.log("Optimization results response status:", response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Optimization results data:", data);
+                    
+                    // Process the results to ensure they're safe to render
+                    const processedResults = processOptimizationResults(data);
+                    
+                    if (processedResults) {
+                        console.log("Setting processed optimization results:", processedResults);
+                        setResults(processedResults);
+                    } else {
+                        console.log("No optimization results found");
+                    }
+                } else {
+                    console.error("Failed to fetch optimization results:", response.statusText);
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching optimization results:", error);
+        }
+    }, []);
 
     const runOptimizer = async () => {
+        if (!isOwner) {
+            console.error("Only the carpool owner can run the optimizer");
+            return;
+        }
+        
         setLoading(true);
+        
+        // Reset any previous errors
+        setOptimizerError(null);
 
         try {
             const carpoolId = new URLSearchParams(window.location.search).get(
                 "carpoolId"
             );
             if (carpoolId) {
-                const optimizerResults = await Optimizer(carpoolId); // run the optimizer with carpoolId from the URL as parameter
-                console.log("Raw optimizer results:", optimizerResults);
+                console.log("Running optimizer for carpoolId:", carpoolId);
                 
-                // Transform the optimizerResults into a more user-friendly format
-                const transformedResults = {
-                    carpools: optimizerResults.finalClusters.map((cluster, index) => {
-                        // Extract member names from the cluster
-                        const members = cluster.users.map(user => user.name);
-                        
-                        // Extract rider names based on children in the cluster
-                        const riders = cluster.users.flatMap(user => 
-                            user.children || []
-                        );
-                        
-                        // Calculate total distance if available
-                        const totalDistance = 0; // We can't calculate this from the current data structure
-                        
-                        // Transform driver schedule into day-to-driver format
-                        const driverSchedule = cluster.drivingSchedule || {};
-                        
-                        return {
-                            id: index,
-                            members,
-                            riders,
-                            driverSchedule,
-                            totalDistance
-                        };
-                    }),
-                    unassignedMembers: optimizerResults.unclusteredUsers.map(user => user.name),
-                    metrics: {
-                        totalClusters: optimizerResults.finalClusters.length,
-                        totalMembers: optimizerResults.finalClusters.reduce((total, cluster) => 
-                            total + cluster.users.length, 0
-                        ),
-                        unassignedCount: optimizerResults.unclusteredUsers.length
+                try {
+                    const optimizerResults = await Optimizer(carpoolId);
+                    
+                    // Log the full raw result to understand its structure
+                    console.log("Raw optimizer results:", JSON.stringify(optimizerResults, null, 2));
+                    
+                    // Validate the optimizer results before proceeding
+                    if (!optimizerResults) {
+                        throw new Error("Optimizer returned no results");
                     }
-                };
-                
-                console.log("Transformed results:", transformedResults);
-                setResults(transformedResults);
+                    
+                    if (!optimizerResults.finalClusters || !Array.isArray(optimizerResults.finalClusters)) {
+                        throw new Error("Optimizer results missing finalClusters array");
+                    }
+                    
+                    // Check the structure of finalClusters
+                    if (optimizerResults.finalClusters && Array.isArray(optimizerResults.finalClusters)) {
+                        console.log("Number of final clusters:", optimizerResults.finalClusters.length);
+                        
+                        // Log the structure of the first cluster if available
+                        if (optimizerResults.finalClusters.length > 0) {
+                            console.log("First cluster structure:", JSON.stringify(optimizerResults.finalClusters[0], null, 2));
+                            
+                            // Check the drivingSchedule format specifically
+                            const drivingSchedule = optimizerResults.finalClusters[0].drivingSchedule;
+                            console.log("Driving schedule format:", typeof drivingSchedule, drivingSchedule);
+                            
+                            if (drivingSchedule) {
+                                console.log("Driving schedule entries:", Object.entries(drivingSchedule));
+                                
+                                // Check first entry of driving schedule
+                                const firstEntry = Object.entries(drivingSchedule)[0];
+                                if (firstEntry) {
+                                    console.log("First driving schedule entry:", firstEntry);
+                                    console.log("Driver value type:", typeof firstEntry[1]);
+                                    console.log("Driver value structure:", JSON.stringify(firstEntry[1], null, 2));
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Transform the optimizerResults into a more user-friendly format with additional validation
+                    try {
+                        const transformedResults = {
+                            carpools: optimizerResults.finalClusters.map((cluster, index) => {
+                                try {
+                                    // Validate cluster has required fields
+                                    if (!cluster.users || !Array.isArray(cluster.users)) {
+                                        console.error(`Cluster ${index} missing users array`);
+                                        return {
+                                            id: index,
+                                            members: ["Invalid cluster data"],
+                                            riders: [],
+                                            driverSchedule: { "Error": "Invalid data" },
+                                            totalDistance: 0
+                                        };
+                                    }
+                                    
+                                    // Extract member names from the cluster
+                                    const members = cluster.users.map(user => user.name || "Unknown user");
+                                    
+                                    // Extract rider names based on children in the cluster
+                                    const riders = cluster.users.flatMap(user => 
+                                        user.children || []
+                                    );
+                                    
+                                    // Calculate total distance if available
+                                    const totalDistance = 0; // We can't calculate this from the current data structure
+                                    
+                                    // Print more debug info about the drivingSchedule to understand its format
+                                    console.log(`Cluster ${index} drivingSchedule:`, cluster.drivingSchedule);
+                                    
+                                    // Transform driver schedule into day-to-driver format and ensure values are strings
+                                    const driverSchedule: Record<string, string> = {};
+                                    
+                                    if (cluster.drivingSchedule) {
+                                        console.log(`Raw driving schedule for cluster ${index}:`, cluster.drivingSchedule);
+                                        
+                                        // Check if it's an array of driver objects with drivingDays
+                                        if (Array.isArray(cluster.drivingSchedule)) {
+                                            console.log("Driving schedule is an array of driver objects");
+                                            
+                                            // Process each driver in the array
+                                            (cluster.drivingSchedule as any[]).forEach((driverInfo: any) => {
+                                                try {
+                                                    // Check if this is a driver object with drivingDays
+                                                    if (driverInfo && typeof driverInfo === 'object' && 
+                                                        driverInfo.userId && 
+                                                        driverInfo.drivingDays && 
+                                                        Array.isArray(driverInfo.drivingDays)) {
+                                                        
+                                                        // Find the driver's name from the users array
+                                                        const driverUser = cluster.users.find(u => u.userId === driverInfo.userId);
+                                                        const driverName = driverUser?.name || driverInfo.userId;
+                                                        
+                                                        console.log(`Found driver ${driverName} with driving days:`, driverInfo.drivingDays);
+                                                        
+                                                        // Assign this driver to each of their driving days
+                                                        driverInfo.drivingDays.forEach((day: number) => {
+                                                            driverSchedule[day.toString()] = driverName;
+                                                            console.log(`Set driver for day ${day} to ${driverName}`);
+                                                        });
+                                                    }
+                                                } catch (err) {
+                                                    console.error("Error processing driver info:", err);
+                                                }
+                                            });
+                                        } else if (typeof cluster.drivingSchedule === 'object') {
+                                            // Handle object format (day -> driver)
+                                            Object.entries(cluster.drivingSchedule).forEach(([day, driver]: [string, any]) => {
+                                                try {
+                                                    console.log(`Processing day ${day}, driver:`, driver, typeof driver);
+                                                    
+                                                    if (typeof driver === 'object' && driver !== null) {
+                                                        // If driver is an object like {userId: '123', drivingDays: [...]}
+                                                        // Log the driver object structure
+                                                        console.log(`Driver object for day ${day}:`, JSON.stringify(driver, null, 2));
+                                                        
+                                                        // Try to extract a meaningful name or use the userId
+                                                        const driverUser = cluster.users.find(u => u.userId === driver.userId);
+                                                        console.log(`Found driver user:`, driverUser);
+                                                        
+                                                        const driverName = driver.name || 
+                                                            (driverUser?.name) || 
+                                                            driver.userId || 
+                                                            'Unknown driver';
+                                                        
+                                                        // Handle case where day might be an array of day indices
+                                                        if (Array.isArray(day)) {
+                                                            day.forEach(dayIdx => {
+                                                                driverSchedule[dayIdx.toString()] = driverName;
+                                                            });
+                                                        } else {
+                                                            driverSchedule[day] = driverName;
+                                                        }
+                                                        
+                                                        console.log(`Set driver name for ${day} to:`, driverName);
+                                                    } else {
+                                                        // Handle case where driver might be a user ID string
+                                                        if (typeof driver === 'string') {
+                                                            // Try to find the user matching this ID
+                                                            const driverUser = cluster.users.find(u => u.userId === driver);
+                                                            if (driverUser) {
+                                                                driverSchedule[day] = driverUser.name || driver;
+                                                            } else {
+                                                                driverSchedule[day] = String(driver || "Unassigned");
+                                                            }
+                                                        } else {
+                                                            driverSchedule[day] = String(driver || "Unassigned");
+                                                        }
+                                                        console.log(`Set driver name for ${day} to string:`, driverSchedule[day]);
+                                                    }
+                                                } catch (err) {
+                                                    console.error(`Error processing driver for day ${day}:`, err);
+                                                    driverSchedule[day] = "Error processing driver";
+                                                }
+                                            });
+                                        }
+                                    } else {
+                                        console.log(`No driving schedule for cluster ${index}`);
+                                    }
+                                    
+                                    // Log the final transformed schedule for this cluster
+                                    console.log(`Final driverSchedule for cluster ${index}:`, driverSchedule);
+                                    
+                                    // Special case: look for users with drivingDays arrays in their objects
+                                    if (cluster.users) {
+                                        cluster.users.forEach((user: any) => {
+                                            if (user.drivingDays && Array.isArray(user.drivingDays)) {
+                                                console.log(`User ${user.name} has drivingDays:`, user.drivingDays);
+                                                // Assign this user as driver for each of their driving days
+                                                user.drivingDays.forEach((day: number | string) => {
+                                                    const dayKey = day.toString();
+                                                    driverSchedule[dayKey] = user.name || user.userId || "Unknown Driver";
+                                                    console.log(`Set driver for day ${dayKey} to ${driverSchedule[dayKey]} from user.drivingDays`);
+                                                });
+                                            }
+                                            
+                                            // Also check availability array which might indicate driving days
+                                            if (user.availability && Array.isArray(user.availability)) {
+                                                console.log(`User ${user.name} has availability:`, user.availability);
+                                                // These might be potential driving days
+                                                user.availability.forEach((day: number | string) => {
+                                                    // Only set if not already assigned
+                                                    const dayKey = day.toString();
+                                                    if (!driverSchedule[dayKey]) {
+                                                        console.log(`Day ${dayKey} has no driver assigned yet, ${user.name} is available`);
+                                                        // Don't automatically assign, just log the availability
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                    
+                                    return {
+                                        id: index,
+                                        members,
+                                        riders,
+                                        driverSchedule,
+                                        totalDistance
+                                    };
+                                } catch (err) {
+                                    console.error(`Error processing cluster ${index}:`, err);
+                                    return {
+                                        id: index,
+                                        members: ["Error processing cluster"],
+                                        riders: [],
+                                        driverSchedule: {},
+                                        totalDistance: 0
+                                    };
+                                }
+                            }),
+                            unassignedMembers: optimizerResults.unclusteredUsers 
+                                ? optimizerResults.unclusteredUsers.map(user => user.name || "Unknown user")
+                                : [],
+                            metrics: {
+                                totalClusters: optimizerResults.finalClusters.length,
+                                totalMembers: optimizerResults.finalClusters.reduce((total, cluster) => 
+                                    total + (cluster.users ? cluster.users.length : 0), 0
+                                ),
+                                unassignedCount: optimizerResults.unclusteredUsers 
+                                    ? optimizerResults.unclusteredUsers.length 
+                                    : 0
+                            }
+                        };
+                        
+                        console.log("Transformed results:", transformedResults);
+                        setResults(transformedResults);
+                        
+                        // Save the optimization results
+                        try {
+                            const saveResponse = await fetch('/api/save-optimization', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    carpoolId,
+                                    results: transformedResults
+                                }),
+                            });
+                            
+                            if (!saveResponse.ok) {
+                                const errorData = await saveResponse.json();
+                                console.error("Error saving optimization results:", errorData);
+                                setOptimizerError(`Failed to save results: ${errorData.error || 'Unknown error'}`);
+                            }
+                        } catch (error: any) {
+                            console.error("Error saving optimization results:", error);
+                            setOptimizerError(`Failed to save results: ${error.message || 'Unknown error'}`);
+                        }
+                    } catch (error: any) {
+                        console.error("Error transforming optimization results:", error);
+                        setOptimizerError(`Failed to process results: ${error.message || 'Unknown error'}`);
+                    }
+                } catch (error: any) {
+                    console.error("Error running optimizer:", error);
+                    setOptimizerError(`Optimizer error: ${error.message || 'Unknown error'}`);
+                }
             } else {
                 console.error("Carpool ID is null");
+                setOptimizerError("Missing carpool ID");
             }
-        } catch (error) {
-            console.error("Error:", error);
+        } catch (error: any) {
+            console.error("Unexpected error:", error);
+            setOptimizerError(`Unexpected error: ${error.message || 'Unknown error'}`);
         } finally {
             setLoading(false);
         }
     };
 
-    // GET create-carpool data handler
+    // Constructor to set default values and check URL parameters
+    useEffect(() => {
+        // Check if this is a newly created pool (e.g., by checking the URL for a 'newPool=true' parameter)
+        const urlParams = new URLSearchParams(window.location.search);
+        const isNewPool = urlParams.get('newPool') === 'true';
+        const newPoolParam = urlParams.get('newPool');
+        
+        console.log("URL params:", Object.fromEntries(urlParams.entries()));
+        console.log("newPool param:", newPoolParam);
+        
+        // If this is a newly created pool or if newPool is 'true', force isOwner to true
+        if (isNewPool && userId) {
+            console.log("This is a newly created pool. Setting owner to current user:", userId);
+            setIsOwner(true);
+            
+            // Store this in session storage to persist across refreshes
+            sessionStorage.setItem(`isOwner-${urlParams.get('carpoolId')}`, 'true');
+        } else {
+            // Check session storage
+            const storedIsOwner = sessionStorage.getItem(`isOwner-${urlParams.get('carpoolId')}`);
+            if (storedIsOwner === 'true') {
+                console.log("Retrieved isOwner=true from session storage");
+                setIsOwner(true);
+            }
+        }
+    }, [userId]);
+
     const handleCarpoolsGet = useCallback(async () => {
         try {
             const carpoolId = new URLSearchParams(window.location.search).get(
                 "carpoolId"
             );
+            console.log("Fetching carpool data for carpoolId:", carpoolId);
             const response = await fetch(
                 `/api/create-carpool-data?carpoolId=${carpoolId}`,
                 {
@@ -155,9 +497,52 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             );
             if (response.ok) {
                 const data = await response.json();
-                const carpoolInfo = data?.createCarpoolData[0].createCarpoolData; 
-                console.log(carpoolInfo);
+                console.log("Full API response:", JSON.stringify(data, null, 2));
+                
+                let carpoolInfo = data?.createCarpoolData[0]?.createCarpoolData;
+                if (!carpoolInfo) {
+                    carpoolInfo = data?.createCarpoolData?.createCarpoolData;
+                }
+                if (!carpoolInfo) {
+                    carpoolInfo = data?.createCarpoolData[0];
+                }
+                if (!carpoolInfo) {
+                    carpoolInfo = data?.createCarpoolData;
+                }
+                
+                console.log("Carpool info:", carpoolInfo);
                 setCarpoolOrgInfo(carpoolInfo);
+                
+                console.log("User ID:", userId);
+                
+                const ownerId = carpoolInfo?.ownerId;
+                const createdBy = carpoolInfo?.createdBy;
+                const userId_ = carpoolInfo?.userId;
+                const creatorId = carpoolInfo?.creatorId;
+                
+                console.log("Owner detection fields:", {
+                    ownerId,
+                    createdBy,
+                    userId: userId_,
+                    creatorId,
+                    currentUserId: userId
+                });
+                
+                if (
+                    userId === ownerId || 
+                    userId === createdBy || 
+                    userId === userId_ ||
+                    userId === creatorId
+                ) {
+                    console.log("Setting isOwner to true - matched field");
+                    setIsOwner(true);
+                } else if (carpoolInfo && !ownerId && !createdBy && !userId_ && !creatorId) {
+                    console.log("No owner fields found - defaulting current user as owner");
+                    setIsOwner(true);
+                } else {
+                    console.log("User is not the owner");
+                }
+                
                 const selectedArray = carpoolInfo?.carpoolDays;
                 const daysString = selectedArray?.length
                     ? selectedArray
@@ -166,14 +551,13 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                     : "";
                 setCarpoolDays(daysString);
                 const notes = carpoolInfo?.notes;
-                setTimes(notes.substring(10, 15));
+                setTimes(notes?.substring(10, 15) || "");
             }
         } catch (error) {
             console.error("Error fetching data:", error);
         }
     }, [userId]);
 
-    // GET user-carpool-data handler
     const handleUserDataGet = useCallback(async () => {
         try {
             const targetId = new URLSearchParams(window.location.search).get(
@@ -216,7 +600,10 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     useEffect(() => {
         handleCarpoolsGet();
         handleUserDataGet();
-    }, [userId, handleCarpoolsGet, handleUserDataGet]);
+        fetchOptimizationResults();
+        
+        console.log("isOwner state:", isOwner);
+    }, [userId, handleCarpoolsGet, handleUserDataGet, fetchOptimizationResults, isOwner]);
 
     return (
         <>
@@ -277,28 +664,42 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         <div className="text-black text-xl font-bold font-['Open Sans']">
                             Carpools
                         </div>
-                        <div className="px-6 py-2 bg-blue rounded-md justify-center items-center inline-flex">
-                            {!loading && (
-                                <button
-                                    className="text-center text-white text-base font-normal font-['Open Sans']"
-                                    onClick={() => runOptimizer()}
-                                >
-                                    Run Optimizer
-                                </button>
-                            )}
-                            {loading && (
-                                <div className="text-center text-white text-base font-normal font-['Open Sans']">
-                                    Optimizing...
-                                </div>
-                            )}
+                        {/* Debug output for isOwner */}
+                        <div className="text-black">
+                            {isOwner ? "(You are the owner)" : "(You are not the owner)"}
                         </div>
+                        {/* Only will show optimizer button to the owner */}
+                        {isOwner && (
+                            <div className="px-6 py-2 bg-blue rounded-md justify-center items-center inline-flex">
+                                {!loading && (
+                                    <button
+                                        className="text-center text-white text-base font-normal font-['Open Sans']"
+                                        onClick={runOptimizer}
+                                    >
+                                        Run Optimizer
+                                    </button>
+                                )}
+                                {loading && (
+                                    <div className="text-center text-white text-base font-normal font-['Open Sans']">
+                                        Optimizing...
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
+                    
+                    {optimizerError && (
+                        <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+                            <p><strong>Error:</strong> {optimizerError}</p>
+                        </div>
+                    )}
                     
                     {!results && (
                         <div className="flex-col justify-start items-start gap-2.5 flex">
                             <div className="text-gray text-xl font-normal font-['Open Sans']">
-                                No pools yet - run the optimizer to create
-                                groupings!
+                                {isOwner 
+                                    ? "No pools yet - run the optimizer to create groupings!" 
+                                    : "No pools yet - the carpool owner needs to run the optimizer."}
                             </div>
                         </div>
                     )}
@@ -309,53 +710,123 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                 Optimization Results
                             </div>
                             
-                            {results.carpools && results.carpools.map((carpool: any, index: number) => (
-                                <div key={index} className="w-full p-4 border border-gray-200 rounded-md shadow-sm">
-                                    <div className="text-blue font-semibold text-lg mb-2">
-                                        Carpool Group {index + 1}
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <div className="text-gray font-bold text-md">Driver Schedule</div>
-                                            <div className="mt-1">
-                                                {carpool.driverSchedule && Object.entries(carpool.driverSchedule).map(([day, driver]: [string, any]) => (
-                                                    <div key={day} className="flex justify-between items-center py-1">
-                                                        <span className="text-gray-600">{day}:</span>
-                                                        <span className="font-medium">{driver}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
+                            {results.carpools && results.carpools.length > 0 ? (
+                                results.carpools.map((carpool: any, index: number) => (
+                                    <div key={index} className="w-full p-4 border border-gray-200 rounded-md shadow-sm">
+                                        <div className="text-blue font-semibold text-lg mb-2">
+                                            Carpool Group {index + 1}
                                         </div>
                                         
-                                        <div>
-                                            <div className="text-gray font-bold text-md">Members</div>
-                                            <div className="mt-1">
-                                                {carpool.members && carpool.members.map((member: string, idx: number) => (
-                                                    <div key={idx} className="py-1 text-gray-600">
-                                                        {member}
-                                                    </div>
-                                                ))}
+                                        <div className="text-black grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <div className="text-gray font-bold text-md">Driver Schedule</div>
+                                                <div className="mt-1">
+                                                    {carpool.driverSchedule && Object.keys(carpool.driverSchedule).length > 0 ? (
+                                                        Object.entries(carpool.driverSchedule)
+                                                            .map(([day, driver]: [string, any]) => {
+                                                                let dayIndex;
+                                                                
+                                                                // (1=Monday, etc)
+                                                                if (/^\d+$/.test(day)) {
+                                                                    dayIndex = parseInt(day, 10);
+                                                                } else {
+                                                                    const lowerDay = day.toLowerCase();
+                                                                    for (let i = 0; i < daysOfWeek.length; i++) {
+                                                                        if (daysOfWeek[i].toLowerCase() === lowerDay) {
+                                                                            dayIndex = i;
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                    if (dayIndex === undefined) dayIndex = 999;
+                                                                }
+                                                                
+                                                                return { day, driver, dayIndex };
+                                                            })
+                                                            .sort((a, b) => a.dayIndex - b.dayIndex)
+                                                            .map(({ day, driver, dayIndex }, idx) => {
+                                                                try {
+                                                                    let displayDriver;
+                                                                    if (typeof driver === 'object' && driver !== null) {
+                                                                        displayDriver = (driver?.name || driver?.userId || JSON.stringify(driver));
+                                                                    } else {
+                                                                        displayDriver = String(driver || "Unassigned");
+                                                                    }
+                                                                    
+                                                                    let dayName = day;
+                                                                    if (/^\d+$/.test(day)) {
+                                                                        if (optimizerDayMap[day]) {
+                                                                            dayName = optimizerDayMap[day];
+                                                                            console.log(`Mapped day ${day} to ${dayName} using optimizer day map`);
+                                                                        } else {
+                                                                            const dayIdx = parseInt(day, 10);
+                                                                            console.log(`Converting day number ${dayIdx} to day name`, {
+                                                                                dayIdx,
+                                                                                dayName: daysOfWeek[dayIdx],
+                                                                                allDays: daysOfWeek
+                                                                            });
+                                                                            if (dayIdx >= 0 && dayIdx < daysOfWeek.length) {
+                                                                                dayName = daysOfWeek[dayIdx];
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    return (
+                                                                        <div key={idx} className="flex justify-between items-center py-1">
+                                                                            <span className="text-gray-600">{dayName}:</span>
+                                                                            <span className="font-medium">{displayDriver}</span>
+                                                                        </div>
+                                                                    );
+                                                                } catch (error) {
+                                                                    console.error(`Error rendering driver for day ${day}:`, error);
+                                                                    return (
+                                                                        <div key={idx} className="flex justify-between items-center py-1">
+                                                                            <span className="text-gray-600">{day}:</span>
+                                                                            <span className="font-medium text-red-500">Error displaying driver</span>
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                            })
+                                                    ) : (
+                                                        <div className="text-gray-500 italic">No driver schedule available</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            
+                                            <div>
+                                                <div className="text-gray font-bold text-md">Members</div>
+                                                <div className="mt-1">
+                                                    {carpool.members && carpool.members.length > 0 ? (
+                                                        carpool.members.map((member: string, idx: number) => (
+                                                            <div key={idx} className="py-1 text-gray-600">
+                                                                {member}
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <div className="text-gray-500 italic">No members available</div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    {carpool.riders && carpool.riders.length > 0 && (
-                                        <div className="mt-3">
-                                            <div className="text-gray font-bold text-md">Riders</div>
-                                            <div className="mt-1 text-gray-600">
-                                                {carpool.riders.join(", ")}
+                                        {carpool.riders && carpool.riders.length > 0 && (
+                                            <div className="mt-3">
+                                                <div className="text-gray font-bold text-md">Riders</div>
+                                                <div className="mt-1 text-gray-600">
+                                                    {carpool.riders.join(", ")}
+                                                </div>
                                             </div>
-                                        </div>
-                                    )}
-                                    
-                                    {carpool.totalDistance && (
-                                        <div className="mt-3 text-sm text-gray-500">
-                                            Total distance: {carpool.totalDistance.toFixed(2)} miles
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                                        )}
+                                        
+                                        {carpool.totalDistance && (
+                                            <div className="mt-3 text-sm text-gray-500">
+                                                Total distance: {carpool.totalDistance.toFixed(2)} miles
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-gray-500 italic">No carpool groups were created by the optimizer</div>
+                            )}
                             
                             {results.unassignedMembers && results.unassignedMembers.length > 0 && (
                                 <div className="text-black w-full p-4 border border-gray rounded-md mt-4">
