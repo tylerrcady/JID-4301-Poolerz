@@ -4,6 +4,50 @@ import React, { useState, useEffect, useCallback } from "react";
 import BackButton from "@/components/atoms/back-button";
 import { Optimizer } from "@/lib/optimize";
 
+interface UserWithCoords {
+    userId: string;
+    name: string;
+    children?: string[];
+    coordinates: {
+        lat: number;
+        lng: number;
+    };
+}
+
+interface ClusterWithSchedule {
+    users: UserWithCoords[];
+    centroid: {
+        lat: number;
+        lng: number;
+    };
+    drivingSchedule: Record<string, string>; // day -> driver name
+}
+
+interface OptimizerResults {
+    initialClusters: any[];
+    validatedClusters: any[];
+    finalClusters: ClusterWithSchedule[];
+    unclusteredUsers: UserWithCoords[];
+}
+
+interface TransformedCarpool {
+    id: number;
+    members: string[];
+    riders: string[];
+    driverSchedule: Record<string, string> | any; // Use any temporarily to resolve type issue
+    totalDistance: number;
+}
+
+interface TransformedResults {
+    carpools: TransformedCarpool[];
+    unassignedMembers: string[];
+    metrics: {
+        totalClusters: number;
+        totalMembers: number;
+        unassignedCount: number;
+    };
+}
+
 interface PoolInfoProps {
     userId: string | undefined;
     index: string;
@@ -34,7 +78,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     };
 
     const [loading, setLoading] = useState(false);
-    const [results, setResults] = useState<any | null>(null);
+    const [results, setResults] = useState<TransformedResults | null>(null);
 
     const runOptimizer = async () => {
         setLoading(true);
@@ -45,8 +89,45 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             );
             if (carpoolId) {
                 const optimizerResults = await Optimizer(carpoolId); // run the optimizer with carpoolId from the URL as parameter
-                console.log(optimizerResults);
-                setResults(optimizerResults); // store the results in the state
+                console.log("Raw optimizer results:", optimizerResults);
+                
+                // Transform the optimizerResults into a more user-friendly format
+                const transformedResults = {
+                    carpools: optimizerResults.finalClusters.map((cluster, index) => {
+                        // Extract member names from the cluster
+                        const members = cluster.users.map(user => user.name);
+                        
+                        // Extract rider names based on children in the cluster
+                        const riders = cluster.users.flatMap(user => 
+                            user.children || []
+                        );
+                        
+                        // Calculate total distance if available
+                        const totalDistance = 0; // We can't calculate this from the current data structure
+                        
+                        // Transform driver schedule into day-to-driver format
+                        const driverSchedule = cluster.drivingSchedule || {};
+                        
+                        return {
+                            id: index,
+                            members,
+                            riders,
+                            driverSchedule,
+                            totalDistance
+                        };
+                    }),
+                    unassignedMembers: optimizerResults.unclusteredUsers.map(user => user.name),
+                    metrics: {
+                        totalClusters: optimizerResults.finalClusters.length,
+                        totalMembers: optimizerResults.finalClusters.reduce((total, cluster) => 
+                            total + cluster.users.length, 0
+                        ),
+                        unassignedCount: optimizerResults.unclusteredUsers.length
+                    }
+                };
+                
+                console.log("Transformed results:", transformedResults);
+                setResults(transformedResults);
             } else {
                 console.error("Carpool ID is null");
             }
