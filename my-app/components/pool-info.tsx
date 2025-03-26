@@ -212,13 +212,100 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             )}
                         </div>
                     </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            No pools yet - run the optimizer to create
-                            groupings!
+                    
+                    {!results && (
+                        <div className="flex-col justify-start items-start gap-2.5 flex">
+                            <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                No pools yet - run the optimizer to create
+                                groupings!
+                            </div>
                         </div>
-                    </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
+                    )}
+                    
+                    {results && (
+                        <div className="w-full flex-col justify-start items-start gap-6 flex mt-4">
+                            <div className="text-black text-lg font-semibold font-['Open Sans']">
+                                Optimization Results
+                            </div>
+                            
+                            {results.carpools && results.carpools.map((carpool: any, index: number) => (
+                                <div key={index} className="w-full p-4 border border-gray-200 rounded-md shadow-sm">
+                                    <div className="text-blue font-semibold text-lg mb-2">
+                                        Carpool Group {index + 1}
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <div className="text-gray font-bold text-md">Driver Schedule</div>
+                                            <div className="mt-1">
+                                                {carpool.driverSchedule && Object.entries(carpool.driverSchedule).map(([day, driver]: [string, any]) => (
+                                                    <div key={day} className="flex justify-between items-center py-1">
+                                                        <span className="text-gray-600">{day}:</span>
+                                                        <span className="font-medium">{driver}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <div className="text-gray font-bold text-md">Members</div>
+                                            <div className="mt-1">
+                                                {carpool.members && carpool.members.map((member: string, idx: number) => (
+                                                    <div key={idx} className="py-1 text-gray-600">
+                                                        {member}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {carpool.riders && carpool.riders.length > 0 && (
+                                        <div className="mt-3">
+                                            <div className="text-gray font-bold text-md">Riders</div>
+                                            <div className="mt-1 text-gray-600">
+                                                {carpool.riders.join(", ")}
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {carpool.totalDistance && (
+                                        <div className="mt-3 text-sm text-gray-500">
+                                            Total distance: {carpool.totalDistance.toFixed(2)} miles
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                            
+                            {results.unassignedMembers && results.unassignedMembers.length > 0 && (
+                                <div className="w-full p-4 border border-gray-200 rounded-md mt-4">
+                                    <div className="text-red-500 font-semibold text-lg mb-2">
+                                        Unassigned Members
+                                    </div>
+                                    <div className="text-gray-600">
+                                        {results.unassignedMembers.join(", ")}
+                                    </div>
+                                </div>
+                            )}
+
+                            {results.metrics && (
+                                <div className="w-full p-4 border border-gray-200 rounded-md mt-4">
+                                    <div className="text-black font-semibold text-lg mb-2">
+                                        Optimization Metrics
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {Object.entries(results.metrics).map(([key, value]: [string, any]) => (
+                                            <div key={key} className="flex justify-between items-center py-1">
+                                                <span className="text-gray-600">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</span>
+                                                <span className="font-medium">{typeof value === 'number' ? value.toFixed(2) : value}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="flex-col justify-start items-start gap-2.5 flex mt-6">
                         <div className="text-gray text-xl font-bold font-['Open Sans']">
                             All Members
                         </div>
