@@ -374,6 +374,46 @@ export class CarpoolOptimizer {
         const finalClusters: ClusterWithSchedule[] = [];
         let processedUnclusteredUsers = [...this.unclusteredUsers];
 
+        /*
+        // Special case for two-member carpools - if only 2 users total, force them together (CAN DELETE, once we figure out why two person carpools aren't clustering)
+        // We needed to add this for a two person carpool
+        
+        if (this.users.length === 2 && processedUnclusteredUsers.length === 2) {
+            const twoUserCluster = {
+                users: this.users,
+                centroid: this.calculateCentroid(this.users)
+            };
+            
+            // simple two person driving schedule
+            const drivingSchedule: DrivingSchedule[] = [];
+            this.carpoolDays.forEach((day, index) => {
+                // alternate days between the two users (just for two person carpools)
+                const userIndex = index % 2;
+                const userId = this.users[userIndex].userId;
+                
+                const existingSchedule = drivingSchedule.find(s => s.userId === userId);
+                if (existingSchedule) {
+                    existingSchedule.drivingDays.push(day);
+                } else {
+                    drivingSchedule.push({
+                        userId,
+                        drivingDays: [day]
+                    });
+                }
+            });
+            
+            finalClusters.push({
+                ...twoUserCluster,
+                drivingSchedule
+            });
+            
+            return {
+                finalClusters,
+                unclusteredUsers: []
+            };
+        }
+        */
+
         // ! calculate distance threshold for validation: (new)
         const distanceThreshold =
             eps * CarpoolOptimizer.DISTANCE_THRESHOLD_FACTOR;

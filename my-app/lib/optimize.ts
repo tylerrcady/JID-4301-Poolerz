@@ -1,6 +1,28 @@
 // example-usage.ts
 import { optimizeCarpools } from "@/optimizer/optimizer";
 
+export function extractTimeInfo(carpoolDoc: any) {
+    let startTime = "";
+    let endTime = "";
+    
+    if (carpoolDoc?.startTime && carpoolDoc?.endTime) {
+        startTime = carpoolDoc.startTime;
+        endTime = carpoolDoc.endTime;
+    } else if (carpoolDoc?.notes) {
+        try {
+            const timeMatch = carpoolDoc.notes.match(/Times: [A-Za-z]+: (\d+:\d+)-(\d+:\d+)/);
+            if (timeMatch && timeMatch.length >= 3) {
+                startTime = timeMatch[1];
+                endTime = timeMatch[2];
+            }
+        } catch (e) {
+            console.error("Error extracting time from notes:", e);
+        }
+    }
+    
+    return { startTime, endTime };
+}
+
 export async function Optimizer(carpoolId: string) {
     async function getInput() {
         try {
@@ -36,6 +58,9 @@ export async function Optimizer(carpoolId: string) {
             }
             const members = ccd.carpoolMembers;
 
+            // Extract time information using our helper
+            const { startTime, endTime } = extractTimeInfo(ccd);
+
             // access user-carpool-data
             const userCarpoolPromises = members.map(async (userId: string) => {
                 const userCarpoolResponse = await fetch(
@@ -65,6 +90,8 @@ export async function Optimizer(carpoolId: string) {
                 carpoolName: ccd.carpoolName,
                 carpoolLocation: ccd.carpoolLocation || {},
                 carpoolDays: ccd.carpoolDays || [],
+                startTime,
+                endTime,
                 carpoolMembers: members.map(
                     (member: string, i: number) => i + 1
                 ),
@@ -145,11 +172,14 @@ export async function Optimizer(carpoolId: string) {
     async function run(data: any) {
         const apiKey = "AIzaSyCGFoau74-eJjeaKFqh0CXiqsGPe5Rx5Yc"; // probably change to .env variable later on (@ ignacio)
         const results = await optimizeCarpools(data, apiKey); // call and return the optimizer & its outputs
+        
+        // Add time information to the results without changing optimizer logic
         return {
-            initialClusters: results.initialClusters,
-            validatedClusters: results.validatedClusters,
-            finalClusters: results.finalClusters,
-            unclusteredUsers: results.unclusteredUsers,
+            ...results,
+            timeInfo: {
+                startTime: data.startTime || "",
+                endTime: data.endTime || ""
+            }
         };
     }
 
