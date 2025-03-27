@@ -33,28 +33,28 @@ interface OptimizerResults {
         endTime: string;
     };
 }
+// Maya Note: I moved these interfaces to new-types.d.ts so that I can re-use it for my calendar-view
+// interface TransformedCarpool {
+//     id: number;
+//     members: string[];
+//     memberIds: string[];
+//     riders: string[];
+//     driverSchedule: Record<string, string> | any; // Use any temporarily to resolve type issue
+//     totalDistance: number;
+//     startTime?: string;
+//     endTime?: string;
+// }
 
-interface TransformedCarpool {
-    id: number;
-    members: string[];
-    memberIds: string[];
-    riders: string[];
-    driverSchedule: Record<string, string> | any; // Use any temporarily to resolve type issue
-    totalDistance: number;
-    startTime?: string;
-    endTime?: string;
-}
-
-interface TransformedResults {
-    carpools: TransformedCarpool[];
-    unassignedMembers: string[];
-    unassignedMemberIds: string[];
-    metrics: {
-        totalClusters: number;
-        totalMembers: number;
-        unassignedCount: number;
-    };
-}
+// interface TransformedResults {
+//     carpools: TransformedCarpool[];
+//     unassignedMembers: string[];
+//     unassignedMemberIds: string[];
+//     metrics: {
+//         totalClusters: number;
+//         totalMembers: number;
+//         unassignedCount: number;
+//     };
+// }
 
 interface PoolInfoProps {
     userId: string | undefined;
