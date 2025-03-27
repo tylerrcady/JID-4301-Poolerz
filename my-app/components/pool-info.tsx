@@ -112,11 +112,31 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             if (results.carpools && Array.isArray(results.carpools)) {
                 results.carpools.forEach((carpool: TransformedCarpool) => {
                     if (carpool.driverSchedule) {
-                        Object.entries(carpool.driverSchedule).forEach(([day, driver]: [string, any]) => {
-                            if (typeof driver === 'object' && driver !== null) {
-                                carpool.driverSchedule[day] = driver.name || driver.userId || JSON.stringify(driver);
-                            }
-                        });
+                        const hasDriverTuples = Object.values(carpool.driverSchedule).some(driver => 
+                            Array.isArray(driver) && driver.length === 2
+                        );
+                        
+                        if (hasDriverTuples) {
+                            const processedDriverSchedule: Record<string, string> = {};
+                            
+                            Object.entries(carpool.driverSchedule).forEach(([day, driver]: [string, any]) => {
+                                if (Array.isArray(driver) && driver.length === 2) {
+                                    processedDriverSchedule[day] = driver[1];
+                                } else if (typeof driver === 'object' && driver !== null) {
+                                    processedDriverSchedule[day] = driver.name || driver.userId || JSON.stringify(driver);
+                                } else {
+                                    processedDriverSchedule[day] = String(driver || "Unassigned");
+                                }
+                            });
+                            
+                            carpool.driverSchedule = processedDriverSchedule;
+                        } else {
+                            Object.entries(carpool.driverSchedule).forEach(([day, driver]: [string, any]) => {
+                                if (typeof driver === 'object' && driver !== null) {
+                                    carpool.driverSchedule[day] = driver.name || driver.userId || JSON.stringify(driver);
+                                }
+                            });
+                        }
                     }
                     
                     if (!carpool.startTime && startTime) {
@@ -493,9 +513,23 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                     carpool.members[index] || "Unknown"
                                 ]);
                                 
+                                const driverScheduleTuples: Record<string, any> = {};
+                                
+                                Object.entries(carpool.driverSchedule).forEach(([day, driverName]) => {
+                                    const driverIndex = carpool.members.findIndex(name => name === driverName);
+                                    if (driverIndex >= 0 && driverIndex < carpool.memberIds.length) {
+                                        driverScheduleTuples[day] = [carpool.memberIds[driverIndex], driverName];
+                                    } else {
+                                        driverScheduleTuples[day] = ["unknown-id", driverName];
+                                    }
+                                });
+                                
+                                const { memberIds, ...carpoolWithoutMemberIds } = carpool;
+                                
                                 return {
-                                    ...carpool,
-                                    members: memberTuples
+                                    ...carpoolWithoutMemberIds,
+                                    members: memberTuples,
+                                    driverSchedule: driverScheduleTuples
                                 };
                             }),
                             unassignedMembers: transformedResults.unassignedMemberIds.map((id, index) => [
