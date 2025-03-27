@@ -112,8 +112,22 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             if (results.carpools && Array.isArray(results.carpools)) {
                 results.carpools.forEach((carpool: TransformedCarpool) => {
                     if (carpool.driverSchedule) {
+                        const userIdToNameMap: Record<string, string> = {};
+                        
+                        if (carpool.members && Array.isArray(carpool.members) && 
+                            carpool.memberIds && Array.isArray(carpool.memberIds)) {
+                            for (let i = 0; i < Math.min(carpool.memberIds.length, carpool.members.length); i++) {
+                                userIdToNameMap[carpool.memberIds[i]] = carpool.members[i];
+                            }
+                        }
+                        
                         const hasDriverTuples = Object.values(carpool.driverSchedule).some(driver => 
                             Array.isArray(driver) && driver.length === 2
+                        );
+                        
+                        const hasDriverUserIds = Object.values(carpool.driverSchedule).some(driver => 
+                            typeof driver === 'string' && 
+                            (driver.length === 24 || driver.includes('-') || /^[a-zA-Z0-9]{10,}$/.test(driver))
                         );
                         
                         if (hasDriverTuples) {
@@ -126,6 +140,20 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                     processedDriverSchedule[day] = driver.name || driver.userId || JSON.stringify(driver);
                                 } else {
                                     processedDriverSchedule[day] = String(driver || "Unassigned");
+                                }
+                            });
+                            
+                            carpool.driverSchedule = processedDriverSchedule;
+                        } else if (hasDriverUserIds && Object.keys(userIdToNameMap).length > 0) {
+                            const processedDriverSchedule: Record<string, string> = {};
+                            
+                            Object.entries(carpool.driverSchedule).forEach(([day, driverId]: [string, any]) => {
+                                if (typeof driverId === 'string' && userIdToNameMap[driverId]) {
+                                    processedDriverSchedule[day] = userIdToNameMap[driverId];
+                                } else if (typeof driverId === 'object' && driverId !== null) {
+                                    processedDriverSchedule[day] = driverId.name || driverId.userId || JSON.stringify(driverId);
+                                } else {
+                                    processedDriverSchedule[day] = String(driverId || "Unassigned");
                                 }
                             });
                             
@@ -513,14 +541,14 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                     carpool.members[index] || "Unknown"
                                 ]);
                                 
-                                const driverScheduleTuples: Record<string, any> = {};
+                                const driverScheduleWithIds: Record<string, string> = {};
                                 
                                 Object.entries(carpool.driverSchedule).forEach(([day, driverName]) => {
                                     const driverIndex = carpool.members.findIndex(name => name === driverName);
                                     if (driverIndex >= 0 && driverIndex < carpool.memberIds.length) {
-                                        driverScheduleTuples[day] = [carpool.memberIds[driverIndex], driverName];
+                                        driverScheduleWithIds[day] = carpool.memberIds[driverIndex];
                                     } else {
-                                        driverScheduleTuples[day] = ["unknown-id", driverName];
+                                        driverScheduleWithIds[day] = "unknown-id";
                                     }
                                 });
                                 
@@ -529,7 +557,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                 return {
                                     ...carpoolWithoutMemberIds,
                                     members: memberTuples,
-                                    driverSchedule: driverScheduleTuples
+                                    driverSchedule: driverScheduleWithIds
                                 };
                             }),
                             unassignedMembers: transformedResults.unassignedMemberIds.map((id, index) => [
