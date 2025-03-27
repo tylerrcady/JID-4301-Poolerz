@@ -61,6 +61,16 @@ interface PoolInfoProps {
     index: string;
 }
 
+const DAYS_OF_WEEK = [
+    { label: "Su", value: "Su", number: 0 },
+    { label: "M", value: "M", number: 1 },
+    { label: "T", value: "T", number: 2 },
+    { label: "W", value: "W", number: 3 },
+    { label: "Th", value: "Th", number: 4 },
+    { label: "F", value: "F", number: 5 },
+    { label: "S", value: "S", number: 6 },
+];
+
 const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [foundCarpool, setFoundCarpool] = useState<Carpool>(); // found in user-carpool-data
     const [carpoolOrgInfo, setCarpoolOrgInfo] = useState<CreateCarpoolData>();
@@ -80,6 +90,26 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [drivingAvailability, setDrivingAvailability] = useState<string>(); // found from user-carpool-data
     const [riders, setRiders] = useState<string>(); // found from user-carpool-data
     const [userLocation, setUserLocation] = useState<UserLocation>();
+    const [userChildren, setUserChildren] = useState<{id: string; name: string}[]>([]);
+
+    const [isEditingOrgInfo, setIsEditingOrgInfo] = useState(false);
+    const [isEditingMyInfo, setIsEditingMyInfo] = useState(false);
+    
+    const [tempOrgInfo, setTempOrgInfo] = useState<any>(null);
+    const [tempMyInfo, setTempMyInfo] = useState<any>(null);
+    
+    const [selectedDays, setSelectedDays] = useState<number[]>([]);
+    const [tempStartTime, setTempStartTime] = useState<string>("");
+    const [tempEndTime, setTempEndTime] = useState<string>("");
+    
+    const [tempDrivingDays, setTempDrivingDays] = useState<number[]>([]);
+    const [tempDrivingAvailability, setTempDrivingAvailability] = useState<string[]>([]);
+    const [tempRiders, setTempRiders] = useState<{id: string; name: string; selected: boolean}[]>([]);
+    const [tempCarCapacity, setTempCarCapacity] = useState<number>(0);
+    const [tempAddress, setTempAddress] = useState<string>("");
+    const [tempCity, setTempCity] = useState<string>("");
+    const [tempState, setTempState] = useState<string>("");
+    const [tempZipCode, setTempZipCode] = useState<string>("");
 
     const router = useRouter();
 
@@ -770,6 +800,269 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         console.log("isOwner state:", isOwner);
     }, [userId, handleCarpoolsGet, handleUserDataGet, fetchOptimizationResults, isOwner]);
 
+    const handleEditOrgInfo = () => {
+        if (!isOwner) {
+            alert("Only the carpool owner can edit organization information.");
+            return;
+        }
+        
+        setTempOrgInfo(carpoolOrgInfo);
+        
+        if (carpoolOrgInfo?.carpoolDays && Array.isArray(carpoolOrgInfo.carpoolDays)) {
+            setSelectedDays(carpoolOrgInfo.carpoolDays);
+        }
+        
+        setTempStartTime(startTime || "");
+        setTempEndTime(endTime || "");
+        
+        setIsEditingOrgInfo(true);
+    };
+    
+    const handleCancelOrgEdit = () => {
+        setIsEditingOrgInfo(false);
+    };
+    
+    const handleSaveOrgInfo = async () => {
+        try {
+            const carpoolId = new URLSearchParams(window.location.search).get("carpoolId");
+            
+            console.log("Starting organization info update");
+            console.log("CarpoolId:", carpoolId);
+            
+            if (!carpoolOrgInfo) {
+                console.error("Missing carpoolOrgInfo");
+                alert("Cannot update: Missing carpool organization information");
+                return;
+            }
+            
+            console.log("Current org info:", JSON.stringify(carpoolOrgInfo));
+            console.log("Selected days:", selectedDays);
+            console.log("Time values:", { start: tempStartTime, end: tempEndTime });
+            
+            const updatedOrgInfo = {
+                ...carpoolOrgInfo,
+                carpoolDays: selectedDays,
+                startTime: tempStartTime,
+                endTime: tempEndTime
+            };
+            
+            console.log("Sending updated org info:", JSON.stringify(updatedOrgInfo));
+            
+            const response = await fetch('/api/update-carpool', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    carpoolId,
+                    carpoolData: updatedOrgInfo
+                }),
+            });
+            
+            console.log("Update response status:", response.status);
+            
+            if (response.ok) {
+                setCarpoolOrgInfo(updatedOrgInfo);
+                
+                const sortedDays = selectedDays.sort((a, b) => a - b);
+                const daysString = sortedDays.length
+                    ? sortedDays.map((dayIndex) => daysOfWeek[dayIndex]).join(", ")
+                    : "";
+                setCarpoolDays(daysString);
+                
+                setStartTime(tempStartTime);
+                setEndTime(tempEndTime);
+                
+                setIsEditingOrgInfo(false);
+                
+                alert("Organization information updated successfully!");
+            } else {
+                const errorText = await response.text();
+                console.error("Failed to update organization information:", errorText);
+                alert(`Failed to update organization information: ${errorText}`);
+            }
+        } catch (error) {
+            console.error("Error updating organization information:", error);
+            alert("An error occurred while updating organization information");
+        }
+    };
+    
+    const toggleDay = (dayIndex: number) => {
+        setSelectedDays(prev => {
+            if (prev.includes(dayIndex)) {
+                return prev.filter(d => d !== dayIndex);
+            } else {
+                return [...prev, dayIndex];
+            }
+        });
+    };
+    
+    const loadUserChildren = useCallback(async () => {
+        if (!userId) return;
+        try {
+            const response = await fetch(`/api/user-form-data?userId=${userId}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch user form data");
+            }
+            const data = await response.json();
+            const doc = data.userFormData;
+            if (doc && doc.userFormData && doc.userFormData.children) {
+                const children = doc.userFormData.children || [];
+                const mappedChildren = children.map((child: any, idx: number) => ({
+                    id: child.id || `child-${idx}`,
+                    name: child.name,
+                }));
+                setUserChildren(mappedChildren);
+            }
+        } catch (error) {
+            console.error("Error loading user children:", error);
+        }
+    }, [userId]);
+
+    useEffect(() => {
+        loadUserChildren();
+    }, [loadUserChildren]);
+
+    const handleEditMyInfo = () => {
+        if (foundCarpool) {
+            if (foundCarpool.drivingAvailability) {
+                setTempDrivingDays(foundCarpool.drivingAvailability);
+                
+                const dayValues = foundCarpool.drivingAvailability.map(dayNum => {
+                    const day = DAYS_OF_WEEK.find(d => d.number === dayNum);
+                    return day ? day.value : "";
+                }).filter(value => value !== "");
+                
+                setTempDrivingAvailability(dayValues);
+            }
+            
+            const selectedRiders = foundCarpool.riders || [];
+            
+            const riderSelections = userChildren.map(child => ({
+                id: child.id,
+                name: child.name,
+                selected: selectedRiders.includes(child.name)
+            }));
+            
+            setTempRiders(riderSelections);
+            setTempCarCapacity(foundCarpool.carCapacity || 0);
+        }
+        
+        if (userLocation) {
+            setTempAddress(userLocation.address || "");
+            setTempCity(userLocation.city || "");
+            setTempState(userLocation.state || "");
+            setTempZipCode(userLocation.zipCode || "");
+        }
+        
+        setIsEditingMyInfo(true);
+    };
+    
+    const handleCancelMyInfoEdit = () => {
+        setIsEditingMyInfo(false);
+    };
+    
+    const handleSaveMyInfo = async () => {
+        try {
+            const carpoolId = new URLSearchParams(window.location.search).get("carpoolId");
+            
+            if (!foundCarpool || !carpoolId) {
+                alert("Cannot update: Missing carpool information");
+                return;
+            }
+            
+            const selectedRiderNames = tempRiders
+                .filter(rider => rider.selected)
+                .map(rider => rider.name);
+            
+            const drivingDaysAsNumbers = tempDrivingAvailability
+                .map(dayValue => {
+                    const day = DAYS_OF_WEEK.find(d => d.value === dayValue);
+                    return day ? day.number : -1;
+                })
+                .filter(num => num !== -1)
+                .sort((a, b) => a - b);
+            
+            const updatedUserInfo: Carpool = {
+                ...foundCarpool,
+                carpoolId: carpoolId,
+                drivingAvailability: drivingDaysAsNumbers,
+                riders: selectedRiderNames,
+                carCapacity: tempCarCapacity,
+                notes: foundCarpool.notes || ""
+            };
+            
+            const updatedUserLocation: UserLocation = {
+                address: tempAddress,
+                city: tempCity,
+                state: tempState,
+                zipCode: tempZipCode
+            };
+            
+            const response = await fetch('/api/update-user-carpool', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId,
+                    carpoolId,
+                    carpoolData: updatedUserInfo,
+                    userLocation: updatedUserLocation
+                }),
+            });
+            
+            if (response.ok) {
+                setFoundCarpool(updatedUserInfo);
+                setUserLocation(updatedUserLocation);
+                
+                const daysString = drivingDaysAsNumbers?.length
+                    ? drivingDaysAsNumbers
+                          .map((dayIndex) => daysOfWeek[dayIndex])
+                          .join(", ")
+                    : "";
+                setDrivingAvailability(daysString);
+                
+                setRiders(selectedRiderNames.join(", "));
+                
+                setIsEditingMyInfo(false);
+                
+                alert("Your information updated successfully!");
+            } else {
+                alert("Failed to update your information");
+            }
+        } catch (error) {
+            console.error("Error updating your information:", error);
+            alert("An error occurred while updating your information");
+        }
+    };
+    
+    const toggleAvailability = (dayValue: string) => {
+        setTempDrivingAvailability(prev => 
+            prev.includes(dayValue) 
+                ? prev.filter(d => d !== dayValue) 
+                : [...prev, dayValue]
+        );
+    };
+    
+    const handleRiderToggle = (id: string) => {
+        setTempRiders(prev => 
+            prev.map(rider => 
+                rider.id === id ? { ...rider, selected: !rider.selected } : rider
+            )
+        );
+    };
+    
+    const toggleMyAvailabilityDay = (dayIndex: number) => {
+        setTempDrivingDays(prev => {
+            if (prev.includes(dayIndex)) {
+                return prev.filter(d => d !== dayIndex);
+            } else {
+                return [...prev, dayIndex];
+            }
+        });
+    };
+
     return (
         <>
             <div className="w-11/12 mx-auto px-1">
@@ -794,32 +1087,96 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         <div className="text-black text-xl font-bold font-['Open Sans']">
                             Organization Information
                         </div>
-                        <div className="text-blue text-xl font-bold font-['Open Sans']">
+                        <div 
+                            className="text-blue text-xl font-bold font-['Open Sans'] cursor-pointer" 
+                            onClick={handleEditOrgInfo}
+                        >
                             Edit
                         </div>
                     </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Location
+                    
+                    {isEditingOrgInfo ? (
+                        <div className="w-full p-4 border rounded-md bg-gray-50">
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">Select Days</div>
+                                <div className="flex flex-wrap gap-2">
+                                    {DAYS_OF_WEEK.map(day => (
+                                        <button
+                                            key={day.number}
+                                            className={`px-3 py-1 rounded ${
+                                                selectedDays.includes(day.number)
+                                                    ? "bg-blue text-white"
+                                                    : "bg-gray-200 text-gray-700"
+                                            }`}
+                                            onClick={() => toggleDay(day.number)}
+                                        >
+                                            {day.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">Start Time</div>
+                                <input
+                                    type="time"
+                                    className="border p-2 rounded w-full"
+                                    value={tempStartTime}
+                                    onChange={(e) => setTempStartTime(e.target.value)}
+                                />
+                            </div>
+                            
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">End Time</div>
+                                <input
+                                    type="time"
+                                    className="border p-2 rounded w-full"
+                                    value={tempEndTime}
+                                    onChange={(e) => setTempEndTime(e.target.value)}
+                                />
+                            </div>
+                            
+                            <div className="flex justify-end gap-3 mt-4">
+                                <button
+                                    className="px-4 py-2 border rounded text-gray-700"
+                                    onClick={handleCancelOrgEdit}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className="px-4 py-2 bg-blue rounded text-white"
+                                    onClick={handleSaveOrgInfo}
+                                >
+                                    Save
+                                </button>
+                            </div>
                         </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation.name}, ${carpoolOrgInfo?.carpoolLocation.address}, ${carpoolOrgInfo?.carpoolLocation.city}, ${carpoolOrgInfo?.carpoolLocation.state} ${carpoolOrgInfo?.carpoolLocation.zipCode}`}</div>
-                    </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Occurs Every
-                        </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            {carpoolDays}
-                        </div>
-                    </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Time
-                        </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            {startTime && endTime ? `${startTime} - ${endTime}` : "Time not available"}
-                        </div>
-                    </div>
+                    ) : (
+                        <>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Location
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation.name}, ${carpoolOrgInfo?.carpoolLocation.address}, ${carpoolOrgInfo?.carpoolLocation.city}, ${carpoolOrgInfo?.carpoolLocation.state} ${carpoolOrgInfo?.carpoolLocation.zipCode}`}</div>
+                            </div>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Occurs Every
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    {carpoolDays}
+                                </div>
+                            </div>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Time
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    {startTime && endTime ? `${startTime} - ${endTime}` : "Time not available"}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
                 <div className="w-8/12 flex-col justify-start items-start gap-5 flex">
                     <div className="self-stretch justify-start items-center gap-5 inline-flex">
@@ -1054,40 +1411,152 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         <div className="text-black text-xl font-bold font-['Open Sans']">
                             My Information
                         </div>
-                        <div className="text-blue text-xl font-bold font-['Open Sans']">
+                        <div 
+                            className="text-blue text-xl font-bold font-['Open Sans'] cursor-pointer"
+                            onClick={handleEditMyInfo}
+                        >
                             Edit
                         </div>
                     </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Location
+                    
+                    {isEditingMyInfo ? (
+                        <div className="w-full p-4 border rounded-md bg-gray-50">
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">Address</div>
+                                <input
+                                    type="text"
+                                    className="border p-2 rounded w-full mb-2"
+                                    value={tempAddress}
+                                    onChange={(e) => setTempAddress(e.target.value)}
+                                    placeholder="Street Address"
+                                />
+                                <div className="grid grid-cols-3 gap-2">
+                                    <input
+                                        type="text"
+                                        className="border p-2 rounded"
+                                        value={tempCity}
+                                        onChange={(e) => setTempCity(e.target.value)}
+                                        placeholder="City"
+                                    />
+                                    <input
+                                        type="text"
+                                        className="border p-2 rounded"
+                                        value={tempState}
+                                        onChange={(e) => setTempState(e.target.value)}
+                                        placeholder="State"
+                                    />
+                                    <input
+                                        type="text"
+                                        className="border p-2 rounded"
+                                        value={tempZipCode}
+                                        onChange={(e) => setTempZipCode(e.target.value)}
+                                        placeholder="Zip Code"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">Driving Availability</div>
+                                <div className="flex flex-wrap gap-2">
+                                    {DAYS_OF_WEEK.map(day => (
+                                        <button
+                                            key={day.value}
+                                            className={`px-3 py-1 rounded ${
+                                                tempDrivingAvailability.includes(day.value)
+                                                    ? "bg-blue text-white"
+                                                    : "bg-gray-200 text-gray-700"
+                                            }`}
+                                            onClick={() => toggleAvailability(day.value)}
+                                        >
+                                            {day.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">Riders</div>
+                                {tempRiders.length > 0 ? (
+                                    <div className="space-y-2">
+                                        {tempRiders.map(rider => (
+                                            <div key={rider.id} className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id={`rider-${rider.id}`}
+                                                    checked={rider.selected}
+                                                    onChange={() => handleRiderToggle(rider.id)}
+                                                    className="mr-2"
+                                                />
+                                                <label htmlFor={`rider-${rider.id}`}>{rider.name}</label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-gray-500 italic">No children added to your profile</div>
+                                )}
+                            </div>
+                            
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">Car Capacity</div>
+                                <input
+                                    type="number"
+                                    className="border p-2 rounded w-full"
+                                    value={tempCarCapacity}
+                                    onChange={(e) => setTempCarCapacity(parseInt(e.target.value) || 0)}
+                                    min="0"
+                                    max="10"
+                                />
+                            </div>
+                            
+                            <div className="flex justify-end gap-3 mt-4">
+                                <button
+                                    className="px-4 py-2 border rounded text-gray-700"
+                                    onClick={handleCancelMyInfoEdit}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className="px-4 py-2 bg-blue rounded text-white"
+                                    onClick={handleSaveMyInfo}
+                                >
+                                    Save
+                                </button>
+                            </div>
                         </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">{`${userLocation?.address}, ${userLocation?.city}, ${userLocation?.state} ${userLocation?.zipCode}`}</div>
-                    </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Driving Availability
-                        </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            {drivingAvailability}
-                        </div>
-                    </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Rider(s)
-                        </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            {riders}
-                        </div>
-                    </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Car Capacity
-                        </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            {foundCarpool?.carCapacity}
-                        </div>
-                    </div>
+                    ) : (
+                        <>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Location
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">{`${userLocation?.address}, ${userLocation?.city}, ${userLocation?.state} ${userLocation?.zipCode}`}</div>
+                            </div>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Driving Availability
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    {drivingAvailability}
+                                </div>
+                            </div>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Rider(s)
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    {riders}
+                                </div>
+                            </div>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Car Capacity
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    {foundCarpool?.carCapacity}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
                 <div className="flex-col justify-start items-start gap-5 flex">
                     <div className="justify-start items-start gap-5 inline-flex">
