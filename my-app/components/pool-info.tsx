@@ -61,6 +61,16 @@ interface PoolInfoProps {
     index: string;
 }
 
+const DAYS_OF_WEEK = [
+    { label: "Su", value: "Su", number: 0 },
+    { label: "M", value: "M", number: 1 },
+    { label: "T", value: "T", number: 2 },
+    { label: "W", value: "W", number: 3 },
+    { label: "Th", value: "Th", number: 4 },
+    { label: "F", value: "F", number: 5 },
+    { label: "S", value: "S", number: 6 },
+];
+
 const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [foundCarpool, setFoundCarpool] = useState<Carpool>(); // found in user-carpool-data
     const [carpoolOrgInfo, setCarpoolOrgInfo] = useState<CreateCarpoolData>();
@@ -80,6 +90,26 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [drivingAvailability, setDrivingAvailability] = useState<string>(); // found from user-carpool-data
     const [riders, setRiders] = useState<string>(); // found from user-carpool-data
     const [userLocation, setUserLocation] = useState<UserLocation>();
+    const [userChildren, setUserChildren] = useState<{id: string; name: string}[]>([]);
+
+    const [isEditingOrgInfo, setIsEditingOrgInfo] = useState(false);
+    const [isEditingMyInfo, setIsEditingMyInfo] = useState(false);
+    
+    const [tempOrgInfo, setTempOrgInfo] = useState<any>(null);
+    const [tempMyInfo, setTempMyInfo] = useState<any>(null);
+    
+    const [selectedDays, setSelectedDays] = useState<number[]>([]);
+    const [tempStartTime, setTempStartTime] = useState<string>("");
+    const [tempEndTime, setTempEndTime] = useState<string>("");
+    
+    const [tempDrivingDays, setTempDrivingDays] = useState<number[]>([]);
+    const [tempDrivingAvailability, setTempDrivingAvailability] = useState<string[]>([]);
+    const [tempRiders, setTempRiders] = useState<{id: string; name: string; selected: boolean}[]>([]);
+    const [tempCarCapacity, setTempCarCapacity] = useState<number>(0);
+    const [tempAddress, setTempAddress] = useState<string>("");
+    const [tempCity, setTempCity] = useState<string>("");
+    const [tempState, setTempState] = useState<string>("");
+    const [tempZipCode, setTempZipCode] = useState<string>("");
 
     const router = useRouter();
 
@@ -769,6 +799,269 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         
         console.log("isOwner state:", isOwner);
     }, [userId, handleCarpoolsGet, handleUserDataGet, fetchOptimizationResults, isOwner]);
+
+    const handleEditOrgInfo = () => {
+        if (!isOwner) {
+            alert("Only the carpool owner can edit organization information.");
+            return;
+        }
+        
+        setTempOrgInfo(carpoolOrgInfo);
+        
+        if (carpoolOrgInfo?.carpoolDays && Array.isArray(carpoolOrgInfo.carpoolDays)) {
+            setSelectedDays(carpoolOrgInfo.carpoolDays);
+        }
+        
+        setTempStartTime(startTime || "");
+        setTempEndTime(endTime || "");
+        
+        setIsEditingOrgInfo(true);
+    };
+    
+    const handleCancelOrgEdit = () => {
+        setIsEditingOrgInfo(false);
+    };
+    
+    const handleSaveOrgInfo = async () => {
+        try {
+            const carpoolId = new URLSearchParams(window.location.search).get("carpoolId");
+            
+            console.log("Starting organization info update");
+            console.log("CarpoolId:", carpoolId);
+            
+            if (!carpoolOrgInfo) {
+                console.error("Missing carpoolOrgInfo");
+                alert("Cannot update: Missing carpool organization information");
+                return;
+            }
+            
+            console.log("Current org info:", JSON.stringify(carpoolOrgInfo));
+            console.log("Selected days:", selectedDays);
+            console.log("Time values:", { start: tempStartTime, end: tempEndTime });
+            
+            const updatedOrgInfo = {
+                ...carpoolOrgInfo,
+                carpoolDays: selectedDays,
+                startTime: tempStartTime,
+                endTime: tempEndTime
+            };
+            
+            console.log("Sending updated org info:", JSON.stringify(updatedOrgInfo));
+            
+            const response = await fetch('/api/update-carpool', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    carpoolId,
+                    carpoolData: updatedOrgInfo
+                }),
+            });
+            
+            console.log("Update response status:", response.status);
+            
+            if (response.ok) {
+                setCarpoolOrgInfo(updatedOrgInfo);
+                
+                const sortedDays = selectedDays.sort((a, b) => a - b);
+                const daysString = sortedDays.length
+                    ? sortedDays.map((dayIndex) => daysOfWeek[dayIndex]).join(", ")
+                    : "";
+                setCarpoolDays(daysString);
+                
+                setStartTime(tempStartTime);
+                setEndTime(tempEndTime);
+                
+                setIsEditingOrgInfo(false);
+                
+                alert("Organization information updated successfully!");
+            } else {
+                const errorText = await response.text();
+                console.error("Failed to update organization information:", errorText);
+                alert(`Failed to update organization information: ${errorText}`);
+            }
+        } catch (error) {
+            console.error("Error updating organization information:", error);
+            alert("An error occurred while updating organization information");
+        }
+    };
+    
+    const toggleDay = (dayIndex: number) => {
+        setSelectedDays(prev => {
+            if (prev.includes(dayIndex)) {
+                return prev.filter(d => d !== dayIndex);
+            } else {
+                return [...prev, dayIndex];
+            }
+        });
+    };
+    
+    const loadUserChildren = useCallback(async () => {
+        if (!userId) return;
+        try {
+            const response = await fetch(`/api/user-form-data?userId=${userId}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch user form data");
+            }
+            const data = await response.json();
+            const doc = data.userFormData;
+            if (doc && doc.userFormData && doc.userFormData.children) {
+                const children = doc.userFormData.children || [];
+                const mappedChildren = children.map((child: any, idx: number) => ({
+                    id: child.id || `child-${idx}`,
+                    name: child.name,
+                }));
+                setUserChildren(mappedChildren);
+            }
+        } catch (error) {
+            console.error("Error loading user children:", error);
+        }
+    }, [userId]);
+
+    useEffect(() => {
+        loadUserChildren();
+    }, [loadUserChildren]);
+
+    const handleEditMyInfo = () => {
+        if (foundCarpool) {
+            if (foundCarpool.drivingAvailability) {
+                setTempDrivingDays(foundCarpool.drivingAvailability);
+                
+                const dayValues = foundCarpool.drivingAvailability.map(dayNum => {
+                    const day = DAYS_OF_WEEK.find(d => d.number === dayNum);
+                    return day ? day.value : "";
+                }).filter(value => value !== "");
+                
+                setTempDrivingAvailability(dayValues);
+            }
+            
+            const selectedRiders = foundCarpool.riders || [];
+            
+            const riderSelections = userChildren.map(child => ({
+                id: child.id,
+                name: child.name,
+                selected: selectedRiders.includes(child.name)
+            }));
+            
+            setTempRiders(riderSelections);
+            setTempCarCapacity(foundCarpool.carCapacity || 0);
+        }
+        
+        if (userLocation) {
+            setTempAddress(userLocation.address || "");
+            setTempCity(userLocation.city || "");
+            setTempState(userLocation.state || "");
+            setTempZipCode(userLocation.zipCode || "");
+        }
+        
+        setIsEditingMyInfo(true);
+    };
+    
+    const handleCancelMyInfoEdit = () => {
+        setIsEditingMyInfo(false);
+    };
+    
+    const handleSaveMyInfo = async () => {
+        try {
+            const carpoolId = new URLSearchParams(window.location.search).get("carpoolId");
+            
+            if (!foundCarpool || !carpoolId) {
+                alert("Cannot update: Missing carpool information");
+                return;
+            }
+            
+            const selectedRiderNames = tempRiders
+                .filter(rider => rider.selected)
+                .map(rider => rider.name);
+            
+            const drivingDaysAsNumbers = tempDrivingAvailability
+                .map(dayValue => {
+                    const day = DAYS_OF_WEEK.find(d => d.value === dayValue);
+                    return day ? day.number : -1;
+                })
+                .filter(num => num !== -1)
+                .sort((a, b) => a - b);
+            
+            const updatedUserInfo: Carpool = {
+                ...foundCarpool,
+                carpoolId: carpoolId,
+                drivingAvailability: drivingDaysAsNumbers,
+                riders: selectedRiderNames,
+                carCapacity: tempCarCapacity,
+                notes: foundCarpool.notes || ""
+            };
+            
+            const updatedUserLocation: UserLocation = {
+                address: tempAddress,
+                city: tempCity,
+                state: tempState,
+                zipCode: tempZipCode
+            };
+            
+            const response = await fetch('/api/update-user-carpool', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId,
+                    carpoolId,
+                    carpoolData: updatedUserInfo,
+                    userLocation: updatedUserLocation
+                }),
+            });
+            
+            if (response.ok) {
+                setFoundCarpool(updatedUserInfo);
+                setUserLocation(updatedUserLocation);
+                
+                const daysString = drivingDaysAsNumbers?.length
+                    ? drivingDaysAsNumbers
+                          .map((dayIndex) => daysOfWeek[dayIndex])
+                          .join(", ")
+                    : "";
+                setDrivingAvailability(daysString);
+                
+                setRiders(selectedRiderNames.join(", "));
+                
+                setIsEditingMyInfo(false);
+                
+                alert("Your information updated successfully!");
+            } else {
+                alert("Failed to update your information");
+            }
+        } catch (error) {
+            console.error("Error updating your information:", error);
+            alert("An error occurred while updating your information");
+        }
+    };
+    
+    const toggleAvailability = (dayValue: string) => {
+        setTempDrivingAvailability(prev => 
+            prev.includes(dayValue) 
+                ? prev.filter(d => d !== dayValue) 
+                : [...prev, dayValue]
+        );
+    };
+    
+    const handleRiderToggle = (id: string) => {
+        setTempRiders(prev => 
+            prev.map(rider => 
+                rider.id === id ? { ...rider, selected: !rider.selected } : rider
+            )
+        );
+    };
+    
+    const toggleMyAvailabilityDay = (dayIndex: number) => {
+        setTempDrivingDays(prev => {
+            if (prev.includes(dayIndex)) {
+                return prev.filter(d => d !== dayIndex);
+            } else {
+                return [...prev, dayIndex];
+            }
+        });
+    };
 
     return (
         <>
