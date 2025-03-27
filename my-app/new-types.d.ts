@@ -41,6 +41,8 @@ interface CreateCarpoolData {
     carpoolName: string;
     carpoolLocation: SharedLocation;
     carpoolDays: number[];
+    startTime: string;
+    endTime: string;
     notes: string;
     carpoolMembers: string[];
 }

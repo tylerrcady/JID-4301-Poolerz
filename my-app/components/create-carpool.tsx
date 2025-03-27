@@ -155,14 +155,19 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       .filter((num): num is number => num !== undefined)
       .sort((a, b) => a - b);
 
+    // LOOK INTO: why this is needed for app to run
+    const notesWithTime = additionalNotes
+      ? `Times: ${formattedTimes}. Additional Notes: ${additionalNotes}`
+      : `Times: ${formattedTimes}`;
+
     const formData = {
       creatorId: userId,
       carpoolName: poolName,
       carpoolLocation: sharedLocation,
       carpoolDays: selectedDaysAsInt,
-      notes: additionalNotes
-        ? `Times: ${formattedTimes}. Additional Notes: ${additionalNotes}`
-        : `Times: ${formattedTimes}`,
+      startTime: startTime,
+      endTime: endTime,
+      notes: notesWithTime,
       carpoolMembers: [userId],
     };
 
