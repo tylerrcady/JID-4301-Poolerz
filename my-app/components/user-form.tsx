@@ -47,6 +47,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                         carCapacity: userFormData.carCapacity,
                         availabilities: userFormData.availabilities,
                         location: userFormData.location,
+                        phoneNumber: userFormData.phoneNumber,
                     },
                 }),
             });
@@ -127,6 +128,11 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 alert(
                     "Please ensure all children have names before continuing."
                 );
+                return false;
+            }
+            
+            if (!userFormData.phoneNumber.trim()) {
+                alert("Please enter a phone number before continuing.");
                 return false;
             }
         } else if (currentPage === 2) {
