@@ -1087,32 +1087,96 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         <div className="text-black text-xl font-bold font-['Open Sans']">
                             Organization Information
                         </div>
-                        <div className="text-blue text-xl font-bold font-['Open Sans']">
+                        <div 
+                            className="text-blue text-xl font-bold font-['Open Sans'] cursor-pointer" 
+                            onClick={handleEditOrgInfo}
+                        >
                             Edit
                         </div>
                     </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Location
+                    
+                    {isEditingOrgInfo ? (
+                        <div className="w-full p-4 border rounded-md bg-gray-50">
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">Select Days</div>
+                                <div className="flex flex-wrap gap-2">
+                                    {DAYS_OF_WEEK.map(day => (
+                                        <button
+                                            key={day.number}
+                                            className={`px-3 py-1 rounded ${
+                                                selectedDays.includes(day.number)
+                                                    ? "bg-blue text-white"
+                                                    : "bg-gray-200 text-gray-700"
+                                            }`}
+                                            onClick={() => toggleDay(day.number)}
+                                        >
+                                            {day.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">Start Time</div>
+                                <input
+                                    type="time"
+                                    className="border p-2 rounded w-full"
+                                    value={tempStartTime}
+                                    onChange={(e) => setTempStartTime(e.target.value)}
+                                />
+                            </div>
+                            
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">End Time</div>
+                                <input
+                                    type="time"
+                                    className="border p-2 rounded w-full"
+                                    value={tempEndTime}
+                                    onChange={(e) => setTempEndTime(e.target.value)}
+                                />
+                            </div>
+                            
+                            <div className="flex justify-end gap-3 mt-4">
+                                <button
+                                    className="px-4 py-2 border rounded text-gray-700"
+                                    onClick={handleCancelOrgEdit}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className="px-4 py-2 bg-blue rounded text-white"
+                                    onClick={handleSaveOrgInfo}
+                                >
+                                    Save
+                                </button>
+                            </div>
                         </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation.name}, ${carpoolOrgInfo?.carpoolLocation.address}, ${carpoolOrgInfo?.carpoolLocation.city}, ${carpoolOrgInfo?.carpoolLocation.state} ${carpoolOrgInfo?.carpoolLocation.zipCode}`}</div>
-                    </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Occurs Every
-                        </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            {carpoolDays}
-                        </div>
-                    </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Time
-                        </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            {startTime && endTime ? `${startTime} - ${endTime}` : "Time not available"}
-                        </div>
-                    </div>
+                    ) : (
+                        <>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Location
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation.name}, ${carpoolOrgInfo?.carpoolLocation.address}, ${carpoolOrgInfo?.carpoolLocation.city}, ${carpoolOrgInfo?.carpoolLocation.state} ${carpoolOrgInfo?.carpoolLocation.zipCode}`}</div>
+                            </div>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Occurs Every
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    {carpoolDays}
+                                </div>
+                            </div>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Time
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    {startTime && endTime ? `${startTime} - ${endTime}` : "Time not available"}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
                 <div className="w-8/12 flex-col justify-start items-start gap-5 flex">
                     <div className="self-stretch justify-start items-center gap-5 inline-flex">
@@ -1347,40 +1411,152 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         <div className="text-black text-xl font-bold font-['Open Sans']">
                             My Information
                         </div>
-                        <div className="text-blue text-xl font-bold font-['Open Sans']">
+                        <div 
+                            className="text-blue text-xl font-bold font-['Open Sans'] cursor-pointer"
+                            onClick={handleEditMyInfo}
+                        >
                             Edit
                         </div>
                     </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Location
+                    
+                    {isEditingMyInfo ? (
+                        <div className="w-full p-4 border rounded-md bg-gray-50">
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">Address</div>
+                                <input
+                                    type="text"
+                                    className="border p-2 rounded w-full mb-2"
+                                    value={tempAddress}
+                                    onChange={(e) => setTempAddress(e.target.value)}
+                                    placeholder="Street Address"
+                                />
+                                <div className="grid grid-cols-3 gap-2">
+                                    <input
+                                        type="text"
+                                        className="border p-2 rounded"
+                                        value={tempCity}
+                                        onChange={(e) => setTempCity(e.target.value)}
+                                        placeholder="City"
+                                    />
+                                    <input
+                                        type="text"
+                                        className="border p-2 rounded"
+                                        value={tempState}
+                                        onChange={(e) => setTempState(e.target.value)}
+                                        placeholder="State"
+                                    />
+                                    <input
+                                        type="text"
+                                        className="border p-2 rounded"
+                                        value={tempZipCode}
+                                        onChange={(e) => setTempZipCode(e.target.value)}
+                                        placeholder="Zip Code"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">Driving Availability</div>
+                                <div className="flex flex-wrap gap-2">
+                                    {DAYS_OF_WEEK.map(day => (
+                                        <button
+                                            key={day.value}
+                                            className={`px-3 py-1 rounded ${
+                                                tempDrivingAvailability.includes(day.value)
+                                                    ? "bg-blue text-white"
+                                                    : "bg-gray-200 text-gray-700"
+                                            }`}
+                                            onClick={() => toggleAvailability(day.value)}
+                                        >
+                                            {day.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">Riders</div>
+                                {tempRiders.length > 0 ? (
+                                    <div className="space-y-2">
+                                        {tempRiders.map(rider => (
+                                            <div key={rider.id} className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id={`rider-${rider.id}`}
+                                                    checked={rider.selected}
+                                                    onChange={() => handleRiderToggle(rider.id)}
+                                                    className="mr-2"
+                                                />
+                                                <label htmlFor={`rider-${rider.id}`}>{rider.name}</label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-gray-500 italic">No children added to your profile</div>
+                                )}
+                            </div>
+                            
+                            <div className="mb-4">
+                                <div className="text-gray font-bold mb-2">Car Capacity</div>
+                                <input
+                                    type="number"
+                                    className="border p-2 rounded w-full"
+                                    value={tempCarCapacity}
+                                    onChange={(e) => setTempCarCapacity(parseInt(e.target.value) || 0)}
+                                    min="0"
+                                    max="10"
+                                />
+                            </div>
+                            
+                            <div className="flex justify-end gap-3 mt-4">
+                                <button
+                                    className="px-4 py-2 border rounded text-gray-700"
+                                    onClick={handleCancelMyInfoEdit}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className="px-4 py-2 bg-blue rounded text-white"
+                                    onClick={handleSaveMyInfo}
+                                >
+                                    Save
+                                </button>
+                            </div>
                         </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">{`${userLocation?.address}, ${userLocation?.city}, ${userLocation?.state} ${userLocation?.zipCode}`}</div>
-                    </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Driving Availability
-                        </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            {drivingAvailability}
-                        </div>
-                    </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Rider(s)
-                        </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            {riders}
-                        </div>
-                    </div>
-                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            Car Capacity
-                        </div>
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            {foundCarpool?.carCapacity}
-                        </div>
-                    </div>
+                    ) : (
+                        <>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Location
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">{`${userLocation?.address}, ${userLocation?.city}, ${userLocation?.state} ${userLocation?.zipCode}`}</div>
+                            </div>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Driving Availability
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    {drivingAvailability}
+                                </div>
+                            </div>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Rider(s)
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    {riders}
+                                </div>
+                            </div>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Car Capacity
+                                </div>
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    {foundCarpool?.carCapacity}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
                 <div className="flex-col justify-start items-start gap-5 flex">
                     <div className="justify-start items-start gap-5 inline-flex">
