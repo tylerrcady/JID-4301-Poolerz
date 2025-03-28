@@ -29,17 +29,11 @@ interface CarpoolCalendarEvent {
   color?: string;
 }
 
-// Helper function to add days to a date
-const addDays = (date: Date, days: number): Date => {
-  const result = new Date(date);
-  result.setDate(result.getDate() + days);
-  return result;
-};
-
 const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
   // Set default date to the current date
   userId = "67d3358e45ee3c027f8e59d6"; // DELETE line later, will use for testing rn
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const WEEKS_TO_GENERATE = 16; // we can change this to represent how long a season is
 
   // Get Handler for receiving all the carpools from user-carpool-data
   const handleUserDataGet = useCallback(async () => {
@@ -144,6 +138,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
 
   // Method takes in the schedule and transforms it into a calendar event
   const createCarpoolCalendarEvents = (schedules: Record<string, string>[] | undefined) => {
+    
     if (schedules) {
       const newEvents: CarpoolCalendarEvent[] = [];
       for (const schedule of schedules || []) {
@@ -176,29 +171,32 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
 
   // Helper method to create calendar event
   const helperCreateEvent = (schedule: Record<string, string>): CarpoolCalendarEvent[] => {
-    // Generate events for next week based on schedule
-    return Object.keys(schedule).map((dayKey) => {
+    const resultEvents: CarpoolCalendarEvent[] = [];
+    
+    Object.keys(schedule).forEach(dayKey => {
       const dayOfWeek = optimizerDayMap[dayKey];
-  
-      let eventDate = moment().day(dayOfWeek);
-  
-      // if today is the same day, move to next week's same day
-      if (eventDate.isSame(moment(), "day")) {
-        eventDate = eventDate.add(7, "days");
-      } else if (eventDate.isBefore(moment())) {
-        eventDate = eventDate.add(7, "days");
+
+      for (let i = 1; i < WEEKS_TO_GENERATE; i++) {
+        let base = moment().startOf("day");
+        let eventDate = base.clone().day(dayOfWeek).add(i, "weeks");
+
+        // If first generated date is before today, shift it forward 1 week
+        if (eventDate.isBefore(base)) {
+          eventDate = eventDate.add(1, "week");
+        }
+        const start = eventDate.clone().hour(10).minute(0).toDate();
+        const end = eventDate.clone().hour(11).minute(0).toDate();
+
+        resultEvents.push({
+          title: "Scheduled Activity",
+          start,
+          end,
+          color: "pink",
+        });
       }
-  
-      const start = eventDate.clone().hour(10).minute(0).toDate();
-      const end = eventDate.clone().hour(11).minute(0).toDate();
-  
-      return {
-        title: "Scheduled Activity",
-        start,
-        end,
-        color: 'pink'
-      };
     });
+
+    return resultEvents;
   }
 
   // Handler receives the driving schedules
