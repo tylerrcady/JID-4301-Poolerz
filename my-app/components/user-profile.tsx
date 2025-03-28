@@ -166,14 +166,37 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     <div className="text-gray font-normal">{email}</div>
                 </div>
                 {userFormData && (
-                    <div className="break-all">
-                        <div className="text-black text-xl font-bold">
-                            Number of Children
+                    <>
+                        <div className="break-all">
+                            <div className="text-black text-xl font-bold">
+                                Number of Children
+                            </div>
+                            <div className="text-gray text-base font-normal">
+                                {userFormData.numChildren}
+                            </div>
                         </div>
-                        <div className="text-gray text-base font-normal">
-                            {userFormData.numChildren}
+                        <div className="break-all">
+                            <div className="text-black text-xl font-bold">
+                                Phone Number
+                            </div>
+                            <div className="text-gray text-base font-normal">
+                                {isEditingProfile ? (
+                                    <TextInput
+                                        currentValue={userFormData.phoneNumber || ""}
+                                        onChange={(value) => {
+                                            setUserFormData({
+                                                ...userFormData,
+                                                phoneNumber: value,
+                                            });
+                                        }}
+                                        placeholder="Enter phone number"
+                                    />
+                                ) : (
+                                    userFormData.phoneNumber || "Not provided"
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    </>
                 )}
             </div>
             {/*Family Section*/}
