@@ -812,7 +812,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 // Fetch names for userIds
                 const userIdToNameMap = await fetchNamesForUserIds(carpoolInfo?.carpoolMembers);
                 console.log("Fetched userIdToNameMap:", userIdToNameMap);
-                fetchOptimizationResults(userIdToNameMap);
+                //fetchOptimizationResults(userIdToNameMap);
                 //console.log("User ID:", userId);
                 
                 const ownerId = carpoolInfo?.ownerId;
@@ -921,24 +921,24 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             console.error("Error fetching data:", error);
         }
     }, [userId]);
-
+    
     useEffect(() => {
-        const fetchData = async () => {
-            await handleCarpoolsGet();
-            if (!results) {
-                console.log("Results not found, fetching optimization results...");
+        const fetchOptimizationData = async () => {
+            if (!results && Object.keys(userIdToNameMap).length > 0) {
+                console.log("Fetching optimization results...");
                 await fetchOptimizationResults(userIdToNameMap);
             } else {
-                console.log("Results already exist, skipping fetchOptimizationResults.");
+                console.log("Skipping fetchOptimizationResults. Results already exist or userIdToNameMap is empty.");
             }
-    
-            await handleUserDataGet();
         };
     
-        fetchData();
-        
-        //console.log("isOwner state:", isOwner);
-    }, [userId, handleCarpoolsGet, handleUserDataGet, fetchOptimizationResults, isOwner]);
+        fetchOptimizationData();
+    }, [results, userIdToNameMap, fetchOptimizationResults]);
+
+    useEffect(() => {
+            handleCarpoolsGet();
+            handleUserDataGet();
+        }, [userId, handleCarpoolsGet, handleUserDataGet, isOwner]);
 
     const handleEditOrgInfo = () => {
         if (!isOwner) {
@@ -1492,11 +1492,23 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             
                             {results.unassignedMembers && results.unassignedMembers.length > 0 && (
                                 <div className="text-black w-full p-4 border border-lightgray bg-w shadow-sm rounded-md mt-4">
-                                    <div className="text-red-500 font-semibold text-lg mb-2">
+                                    <div className="text-gray font-semibold text-lg mb-2">
                                         Unassigned Members
                                     </div>
-                                    <div className="text-gray">
+                                    {/* <div className="text-gray">
                                         {results.unassignedMembers.join(", ")}
+                                    </div> */}
+                                    <div className="text-gray">
+                                        {results.unassignedMembers
+                                            .map((member) => {
+                                                // If `member` is an array, extract the name (second element)
+                                                if (Array.isArray(member)) {
+                                                    return member[1]; // Assuming the second element is the name
+                                                }
+                                                // Otherwise, return the member as-is
+                                                return member;
+                                            })
+                                            .join(", ")}
                                     </div>
                                 </div>
                             )}
@@ -1719,4 +1731,3 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
 };
 
 export default CarpoolPage;
-
