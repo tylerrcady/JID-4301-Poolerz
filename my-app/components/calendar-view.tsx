@@ -24,7 +24,9 @@ interface CalendarEvent {
 // carpool calendar event
 interface CarpoolCalendarEvent {
   title: string;
-  day: Number;
+  start: Date;
+  end: Date;
+  color?: string;
 }
 
 // Helper function to add days to a date
@@ -36,7 +38,7 @@ const addDays = (date: Date, days: number): Date => {
 
 const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
   // Set default date to the current date
-  userId = "67d3358e45ee3c027f8e59ce"; // DELETE line later, will use for testing rn
+  userId = "67d3358e45ee3c027f8e59d6"; // DELETE line later, will use for testing rn
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
 
   // Get Handler for receiving all the carpools from user-carpool-data
@@ -81,7 +83,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
             );
             if (response.ok) {
                 const data = await response.json();
-                //console.log(data?.results); // Return the fetched data
                 if (!data?.results) {
                   return null;
                 }  
@@ -106,7 +107,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
       return;
     }
 
-    // Filter so that only carpoolIds with opt results remain
+    // Filter so that only carpoolIds with optimization results remain
     const carpoolPromises = carpoolIds.map(async (carpoolId) => {
       const result = await checkCarpoolWithOptResults(carpoolId);
       return result || null;
@@ -122,7 +123,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
   }, []);
 
   // Helper method that fetches driving schedules from user's carpool groups
-  const receiveDrivingSchedules = (results: TransformedResults[] | undefined): Record<string, string>[] | null => {
+  const receiveDrivingSchedules = (results: TransformedResults[] | undefined): Record<string, string>[] | undefined => {
     const schedules: Record<string, string>[] = [];
     console.log("Carpools we are extracting from: ", results);
     for (const result of results || []) {
@@ -141,35 +142,87 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     return schedules;
   }
 
+  // Method takes in the schedule and transforms it into a calendar event
+  const createCarpoolCalendarEvents = (schedules: Record<string, string>[] | undefined) => {
+    if (schedules) {
+      const newEvents: CarpoolCalendarEvent[] = [];
+      for (const schedule of schedules || []) {
+        const filteredSchedule: Record<string, string> = {};
+
+        // filter each schedule to only include the target userId
+        for (const [key, value] of Object.entries(schedule)) {
+          if (value === userId) {
+            filteredSchedule[key] = value;
+          }
+        }
+        // creates event based on filtered schedule
+        const event = helperCreateEvent(filteredSchedule);
+        newEvents.push(...event);
+        console.log(events);
+      }
+      setEvents(prev => [...prev, ...newEvents]);
+    }
+  }
+
+  const optimizerDayMap: Record<string, number> = {
+    "1": 1, // Monday
+    "2": 2, // Tuesday
+    "3": 3, // Wednesday
+    "4": 4, // Thursday
+    "5": 5, // Friday
+    "6": 6, // Saturday
+    "7": 0, // Sunday (0 in moment)
+  };
+
+  // Helper method to create calendar event
+  const helperCreateEvent = (schedule: Record<string, string>): CarpoolCalendarEvent[] => {
+    // Generate events for next week based on schedule
+    return Object.keys(schedule).map((dayKey) => {
+      const dayOfWeek = optimizerDayMap[dayKey];
+  
+      let eventDate = moment().day(dayOfWeek);
+  
+      // if today is the same day, move to next week's same day
+      if (eventDate.isSame(moment(), "day")) {
+        eventDate = eventDate.add(7, "days");
+      } else if (eventDate.isBefore(moment())) {
+        eventDate = eventDate.add(7, "days");
+      }
+  
+      const start = eventDate.clone().hour(10).minute(0).toDate();
+      const end = eventDate.clone().hour(11).minute(0).toDate();
+  
+      return {
+        title: "Scheduled Activity",
+        start,
+        end,
+        color: 'pink'
+      };
+    });
+  }
+
   // Handler receives the driving schedules
   useEffect(() => {
     const receiveEvents = async () => {
       const finalCarpools = await fetchCarpoolsWithOpt();
-      const schedules = receiveDrivingSchedules(finalCarpools); // consider making results a local non-State variable
+      const schedules = receiveDrivingSchedules(finalCarpools);
+      createCarpoolCalendarEvents(schedules);
     };
-
+    
     receiveEvents();
+    console.log(events);
   }, []);
 
 
   // Hardcoded events with an optional color property
-  const events: CalendarEvent[] = [
+  const [events, setEvents] = useState<CarpoolCalendarEvent[]>([
     {
       title: "SkyZone",
       start: new Date(2025, 2, 28, 20, 0),
       end: new Date(2025, 2, 28, 22, 0),
       color: "orange",
-      rRule: 'RRULE:FREQ=WEEKLY;BYDAY=FR',
     },
-    {
-      title: "Lunch",
-      start: new Date(2025, 2, 26, 12, 0),
-      end: new Date(2025, 2, 26, 13, 0),
-      color: "skyblue",
-      rRule: 'RRULE:FREQ=WEEKLY;BYDAY=WE',
-    },
-    // Add more events here...
-  ];
+  ]);
 
   // Custom event styling using eventPropGetter
   const eventStyleGetter = (
