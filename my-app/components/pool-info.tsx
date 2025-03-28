@@ -1102,7 +1102,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 throw new Error(error.message || "Failed to leave carpool");
             }
 
-            // Redirect back to carpools page after successful leave
+            // redirect back to carpools page after successful leave
             router.push("/carpools");
         } catch (error: any) {
             console.error("Error leaving carpool:", error);
@@ -1666,7 +1666,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 </div>
             )}
 
-            {/* Leave Confirmation Modal */}
+            {/*leave cofnirmation */}
             {isLeaveModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4">

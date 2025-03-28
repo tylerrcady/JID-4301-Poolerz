@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         const client = await connect();
         const db = client.db(dbName);
 
-        // 1. First get the user's current carpool data
+        //  get the user's current carpool data
         const userCarpoolDb = db.collection(USER_CARPOOL_COLLECTION);
         const existingUser = await userCarpoolDb.findOne({ userId: userId });
 
@@ -44,12 +44,12 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Filter out the carpool to leave
+        // filter out the carpool to leave
         const updatedCarpools = existingUser.userData.carpools.filter(
             (carpool: any) => carpool.carpoolId !== carpoolId
         );
 
-        // Update user-carpool-data
+        // update user-carpool-data
         const userCarpoolResult = await userCarpoolDb.updateOne(
             { userId: userId },
             { 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
 
         console.log("User carpool update result:", userCarpoolResult);
 
-        // 2. Update the carpool's members list
+        // update the carpool's members list
         const carpoolDb = db.collection(CARPOOLS_COLLECTION);
         const existingCarpool = await carpoolDb.findOne({ carpoolID: carpoolId });
 
@@ -72,12 +72,12 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Filter out the leaving user
+        // filter out the leaving user
         const updatedMembers = existingCarpool.createCarpoolData.carpoolMembers.filter(
             (memberId: string) => memberId !== userId
         );
 
-        // Update carpool members
+        // update carpool members
         const carpoolResult = await carpoolDb.updateOne(
             { carpoolID: carpoolId },
             { 
