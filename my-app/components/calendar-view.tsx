@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Calendar, momentLocalizer, Views } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { RRule } from "rrule";
 
 const localizer = momentLocalizer(moment);
 
@@ -17,7 +18,7 @@ interface CalendarEvent {
   start: Date;
   end: Date;
   color?: string;
-  rRule: string,
+  rRule?: string,
 }
 
 // carpool calendar event
