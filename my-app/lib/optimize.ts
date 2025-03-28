@@ -175,10 +175,7 @@ export async function Optimizer(carpoolId: string) {
     }
 
     async function run(data: any) {
-        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY; // update to utilize env var instead of raw string
-        if (!apiKey) {
-            throw new Error('Google Maps API key is not configured');
-        }
+        const apiKey = "AIzaSyCGFoau74-eJjeaKFqh0CXiqsGPe5Rx5Yc"; // probably change to .env variable later on (@ ignacio)
         const results = await optimizeCarpools(data, apiKey); // call and return the optimizer & its outputs
         
         // Add time information to the results without changing optimizer logic
