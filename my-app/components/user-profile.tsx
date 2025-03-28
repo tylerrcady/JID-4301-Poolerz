@@ -19,15 +19,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [isEditingFamily, setIsEditingFamily] = useState(false);
     const [isChildModalOpen, setIsChildModalOpen] = useState(false);
-    const [isAvailabilityModalOpen, setIsAvailabilityModalOpen] =
-        useState(false);
-    const [newDay, setNewDay] = useState("");
-    const [newTimeRange, setNewTimeRange] = useState("");
     const [newChildName, setNewChildName] = useState("");
-    const [isEditingAvailability, setIsEditingAvailability] = useState(false);
     const [userFormData, setUserFormData] = useState<UserFormData | null>(null);
-    const [userFormDataBackup, setUserFormDataBackup] =
-        useState<UserFormData | null>(null);
+    const [userFormDataBackup, setUserFormDataBackup] = useState<UserFormData | null>(null);
 
     // GET user-form-data handler
     const handleUserFormGet = useCallback(async () => {
@@ -92,42 +86,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
         setIsChildModalOpen(false);
     };
 
-    const handleEditAvailability = () => {
-        if (!isEditingAvailability) {
-            setUserFormDataBackup(userFormData);
-        }
-        setIsEditingAvailability(!isEditingAvailability);
-    };
-
-    const handleAddAvailability = () => {
-        if (!newDay.trim() || !newTimeRange.trim()) {
-            alert("Please provide valid day and time range.");
-            return;
-        }
-        if (!userFormData) return;
-
-        const updatedAvailabilities = [
-            ...userFormData.availabilities,
-            { day: newDay.trim(), timeRange: newTimeRange.trim() },
-        ];
-
-        setUserFormData({
-            ...userFormData,
-            availabilities: updatedAvailabilities,
-        });
-
-        setNewDay("");
-        setNewTimeRange("");
-        setIsAvailabilityModalOpen(false);
-    };
-
     const handleCancel = () => {
         if (userFormDataBackup) {
             setUserFormData(userFormDataBackup); // Restore the backup
         }
         setIsEditingProfile(false);
         setIsEditingFamily(false);
-        setIsEditingAvailability(false);
     };
 
     const handleSave = async () => {
@@ -151,14 +115,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 if (isEditingProfile) {
                     setIsEditingProfile(false);
                 }
-                if (isEditingAvailability) {
-                    setIsEditingAvailability(false);
-                }
                 if (isChildModalOpen) {
                     setIsChildModalOpen(false);
-                }
-                if (isAvailabilityModalOpen) {
-                    setIsAvailabilityModalOpen(false);
                 }
                 handleUserFormGet();
             } else {

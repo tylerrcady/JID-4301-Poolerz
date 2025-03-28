@@ -204,7 +204,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                                 >
                                     <div className="p-3 rounded-md shadow-sm cursor-pointer flex justify-between items-center">
                                         <div className="flex flex-col gap-2">
-                                            <div className="text-2xl font-regular text-gray">
+                                            <div className="text-2xl md:text-reg font-regular text-gray">
                                                 {
                                                     carpool.createCarpoolData
                                                         ?.carpoolName
@@ -228,7 +228,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                             ))}
                         </div>
                     ) : (
-                        <p className="mt-2 text-gray-600 text-lg md:text-xl font-normal font-['Open Sans']">
+                        <p className="mt-2 text-gray text-lg md:text-xl font-normal font-['Open Sans']">
                             You currently have no carpools - create or join one
                             to start!
                         </p>
