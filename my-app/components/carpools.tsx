@@ -133,7 +133,6 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
         ).map((carpool) => ({ ...carpool, isOwner: false })),
     ];
 
-
     // Fetch create-carpool data when carpoolIds change
     useEffect(() => {
         if (carpoolIds.length > 0) {

@@ -54,3 +54,25 @@ interface UserDocument {
     isFormComplete: boolean;
 }
 
+interface TransformedCarpool {
+    id: number;
+    members: string[];
+    memberIds: string[];
+    riders: string[];
+    driverSchedule: Record<string, string> | any; // Use any temporarily to resolve type issue
+    totalDistance: number;
+    startTime?: string;
+    endTime?: string;
+}
+
+interface TransformedResults {
+    carpools: TransformedCarpool[];
+    unassignedMembers: string[];
+    unassignedMemberIds: string[];
+    metrics: {
+        totalClusters: number;
+        totalMembers: number;
+        unassignedCount: number;
+    };
+}
+
