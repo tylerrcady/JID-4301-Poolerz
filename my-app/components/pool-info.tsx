@@ -141,8 +141,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
 
     const fetchNamesForUserIds = async (userIds: string[]): Promise<Record<string, string>> => {
         try {
-            // Construct the query string with multiple userId parameters
-            console.log("Fetching names for userIds:", userIds); // Debugging log
+            console.log("Fetching names for userIds:", userIds);
             const query = userIds.map((id) => `userId=${encodeURIComponent(id)}`).join('&');
             const url = `/api/name?${query}`;
     
@@ -158,7 +157,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 const data = await response.json();
                 //console.log("Fetched names:", data);
                 setUserIdToNameMap(data);
-                return data; // Assuming the API returns { "id1": "Name1", "id2": "Name2" }
+                return data;
             } else {
                 console.error('Failed to fetch names:', response.statusText);
                 return {};
@@ -1380,7 +1379,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
 
                         {isEditingMyInfo ? (
                             <div className="w-full p-5 rounded-md bg-w">
-                                {/* My Information Edit Form */}
                                 <div className="mb-4">
                                     <div className="text-gray font-bold mb-2">Address</div>
                                     <input
@@ -1696,11 +1694,9 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                         <div className="text-gray">
                                             {results.unassignedMembers
                                                 .map((member) => {
-                                                    // If `member` is an array, extract the name (second element)
                                                     if (Array.isArray(member)) {
-                                                        return member[1]; // Assuming the second element is the name
+                                                        return member[1];
                                                     }
-                                                    // Otherwise, return the member as-is
                                                     return member;
                                                 })
                                                 .join(", ")}
@@ -1734,8 +1730,8 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                 <div className="text-gray text-xl font-normal font-['Open Sans']">
                                     {Object.entries(myCarpool.driverSchedule)
                                         .map(([day, driver]) => {
-                                            const dayIndex = parseInt(day, 10); // Convert day to a number
-                                            const dayName = daysOfWeek[dayIndex] || "Unknown Day"; // Map to weekday name
+                                            const dayIndex = parseInt(day, 10); // day to a number
+                                            const dayName = daysOfWeek[dayIndex] || "Unknown Day"; // map to weekday name
                                             return `${dayName}: ${driver}`;
                                         })
                                         .join(", ")}
