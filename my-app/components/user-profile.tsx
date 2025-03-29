@@ -26,8 +26,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     const [newChildName, setNewChildName] = useState("");
     const [isEditingAvailability, setIsEditingAvailability] = useState(false);
     const [userFormData, setUserFormData] = useState<UserFormData | null>(null);
-    const [userFormDataBackup, setUserFormDataBackup] =
-        useState<UserFormData | null>(null);
+    const [userFormDataBackup, setUserFormDataBackup] = useState<UserFormData | null>(null);
 
     // GET user-form-data handler
     const handleUserFormGet = useCallback(async () => {
@@ -208,39 +207,39 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     <div className="text-gray font-normal">{email}</div>
                 </div>
                 {userFormData && (
-                    <>
-                        <div className="break-all">
-                            <div className="text-black text-xl font-bold">
-                                Number of Children
-                            </div>
-                            <div className="text-gray text-base font-normal">
-                                {userFormData.numChildren}
-                            </div>
-                        </div>
-                        <div className="break-all">
-                            <div className="text-black text-xl font-bold">
-                                Phone Number
-                            </div>
-                            <div className="text-gray text-base font-normal">
-                                {isEditingProfile ? (
-                                    <TextInput
-                                        currentValue={userFormData.phoneNumber || ""}
-                                        onChange={(value) => {
-                                            setUserFormData({
-                                                ...userFormData,
-                                                phoneNumber: value,
-                                            });
-                                        }}
-                                        placeholder="Enter phone number"
-                                    />
-                                ) : (
-                                    userFormData.phoneNumber || "Not provided"
-                                )}
-                            </div>
-                        </div>
-                    </>
-                )}
-            </div>
+                   <>
+                   <div className="break-all">
+                       <div className="text-black text-xl font-bold">
+                           Number of Children
+                       </div>
+                       <div className="text-gray text-base font-normal">
+                           {userFormData.numChildren}
+                       </div>
+                   </div>
+                   <div className="break-all">
+                       <div className="text-black text-xl font-bold">
+                           Phone Number
+                       </div>
+                       <div className="text-gray text-base font-normal">
+                           {isEditingProfile ? (
+                               <TextInput
+                                   currentValue={userFormData.phoneNumber || ""}
+                                   onChange={(value) => {
+                                       setUserFormData({
+                                           ...userFormData,
+                                           phoneNumber: value,
+                                       });
+                                   }}
+                                   placeholder="Enter phone number"
+                               />
+                           ) : (
+                               userFormData.phoneNumber || "Not provided"
+                           )}
+                       </div>
+                   </div>
+               </>
+           )}
+       </div>
             {/*Family Section*/}
             <div className="flex-1  max-w-[500x] min-w-[300px] h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                 <div className="justify-between items-start flex flex-wrap flex-col gap-2">

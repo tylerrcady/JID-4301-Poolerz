@@ -240,13 +240,14 @@ async function seedDatabase() {
             throw err;
         }
         
-        testData4.carpoolId = "004";
+        testData4.carpoolId = "000005";
         console.log(`Updated testData4 carpoolId to ${testData4.carpoolId}`);
         
-        await processCarpoolTestData(testData1, client, db);
-        await processCarpoolTestData(testData2, client, db);
-        await processCarpoolTestData(testData3, client, db);
-        await processCarpoolTestData(testData4, client, db);
+     //   await processCarpoolTestData(testData1, client, db);
+     //   await processCarpoolTestData(testData2, client, db);
+     //   await processCarpoolTestData(testData3, client, db);
+     //   await processCarpoolTestData(testData4, client, db);
+        await processCarpoolTestData(testData4, client, db); // annie test
         
         console.log('Database seeding completed successfully!');
     } catch (error) {
