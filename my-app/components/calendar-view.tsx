@@ -141,7 +141,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
         newEvents.push(...event);
         console.log(events);
       }
-      setEvents(prev => [...prev, ...newEvents]);
+      setEvents(newEvents); // test if this works for a user in multiple carpooling schedules
     }
   }
 
@@ -174,7 +174,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
         const end = eventDate.clone().hour(11).minute(0).toDate();
 
         resultEvents.push({
-          title: "Scheduled Activity",
+          title: "Scheduled Carpool",
           start,
           end,
           color: "pink",
