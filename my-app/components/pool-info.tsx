@@ -98,6 +98,10 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [tempOrgInfo, setTempOrgInfo] = useState<any>(null);
     const [tempMyInfo, setTempMyInfo] = useState<any>(null);
     
+    const [tempOrgAddress, setTempOrgAddress] = useState<string>("");
+    const [tempOrgCity, setTempOrgCity] = useState<string>("");
+    const [tempOrgState, setTempOrgState] = useState<string>("");
+    const [tempOrgZipCode, setTempOrgZipCode] = useState<string>("");
     const [selectedDays, setSelectedDays] = useState<number[]>([]);
     const [tempStartTime, setTempStartTime] = useState<string>("");
     const [tempEndTime, setTempEndTime] = useState<string>("");
@@ -351,7 +355,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         carpool.members = carpool.members.map((member: string[]) => {
                             //const userId = Array.isArray(member) ? member[0] : member;
                             const [userId, placeholder] = member;
-                            const name = userIdToNameMap[userId] || "Unknown user";
+                            const name = userIdToNameMap[userId] || "Empty";
                             return [userId, name];
                         });
                     }
@@ -493,11 +497,11 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                     }
                                     
                                     const members = cluster.users
-                                        ? cluster.users.map(user => [user.userId, userIdToNameMap[user.userId] || "Unknown user"])
+                                        ? cluster.users.map(user => [user.userId, userIdToNameMap[user.userId] || "Empty"])
                                         : [["unknown-id", "Invalid cluster data"]];
-                                    //console.log(`Cluster ${index} users:`, cluster.users);
+                                    console.log(`Cluster ${index} users:`, cluster.users);
                                     const memberIds = cluster.users.map(user => user.userId || "unknown-id");
-                                    
+                                
                                     const riders = cluster.users.flatMap(user => 
                                         user.children || []
                                     );
@@ -550,7 +554,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                                             userIdToNameMap[driver.userId] ||
                                                             driver.name ||
                                                             driver.userId ||
-                                                            'Unknown driver';
+                                                            'Empty';
                                                         
                                                         if (Array.isArray(day)) {
                                                             day.forEach(dayIdx => {
@@ -592,7 +596,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                                 //console.log(`User ${user.name} has drivingDays:`, user.drivingDays);
                                                 user.drivingDays.forEach((day: number | string) => {
                                                     const dayKey = day.toString();
-                                                    driverSchedule[dayKey] = user.name || user.userId || "Unknown Driver";
+                                                    driverSchedule[dayKey] = user.name || user.userId || "Empty";
                                                     console.log(`Set driver for day ${dayKey} to ${driverSchedule[dayKey]} from user.drivingDays`);
                                                 });
                                             }
@@ -947,6 +951,13 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         }
         
         setTempOrgInfo(carpoolOrgInfo);
+
+        if (carpoolOrgInfo?.carpoolLocation) {
+            setTempOrgAddress(carpoolOrgInfo.carpoolLocation.address || "");
+            setTempOrgCity(carpoolOrgInfo.carpoolLocation.city || "");
+            setTempOrgState(carpoolOrgInfo.carpoolLocation.state || "");
+            setTempOrgZipCode(carpoolOrgInfo.carpoolLocation.zipCode || "");
+        }
         
         if (carpoolOrgInfo?.carpoolDays && Array.isArray(carpoolOrgInfo.carpoolDays)) {
             setSelectedDays(carpoolOrgInfo.carpoolDays);
@@ -1009,13 +1020,13 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                     ? sortedDays.map((dayIndex) => daysOfWeek[dayIndex]).join(", ")
                     : "";
                 setCarpoolDays(daysString);
-                
+
                 setStartTime(tempStartTime);
                 setEndTime(tempEndTime);
                 
                 setIsEditingOrgInfo(false);
                 
-                alert("Organization information updated successfully!");
+                //alert("Organization information updated successfully!");
             } else {
                 const errorText = await response.text();
                 console.error("Failed to update organization information:", errorText);
@@ -1167,7 +1178,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 
                 setIsEditingMyInfo(false);
                 
-                alert("Your information updated successfully!");
+                //alert("Your information updated successfully!");
             } else {
                 alert("Failed to update your information");
             }
@@ -1208,129 +1219,319 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             <div className="w-11/12 mx-auto px-1">
                 <BackButton onClick={handleConfirmBack} />
             </div>
-            <div className="justify-center flex flex-col w-6/12 mx-auto p-10 gap-6 rounded-md">
+            <div className="justify-center flex flex-col w-10/12 mx-auto p-10 gap-6 rounded-md">
                 <div className="flex-col justify-start items-start gap-5 flex">
                     <div className="text-black text-2xl font-bold font-['Open Sans']">
                         {carpoolOrgInfo?.carpoolName}
                     </div>
                     <div className="self-stretch justify-start items-start inline-flex gap-10">
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            Closes on March 4
-                        </div>
                         <div className="text-blue text-xl font-bold font-['Open Sans']">
                             Close Now
                         </div>
                     </div>
                 </div>
-                <div className="py-10 flex-col justify-start items-start gap-5 flex">
-                    <div className="self-stretch justify-between items-start inline-flex">
-                        <div className="text-black text-xl font-bold font-['Open Sans']">
-                            Organization Information
+                <div className="flex flex-col md:flex-row md:justify-between gap-6">
+                    {/* Organization Information */}
+                    <div className="flex-1 p-5 border border-lightgray bg-w shadow-sm rounded-md">
+                        <div className="flex justify-between items-center">
+                            <div className="text-black text-xl font-bold font-['Open Sans']">
+                                Organization Information
+                            </div>
+                            {isOwner && (
+                                <div
+                                    className="text-blue text-xl font-bold font-['Open Sans'] cursor-pointer"
+                                    onClick={handleEditOrgInfo}
+                                >
+                                    Edit
+                                </div>
+                            )}
                         </div>
-                        <div 
-                            className="text-blue text-xl font-bold font-['Open Sans'] cursor-pointer" 
-                            onClick={handleEditOrgInfo}
-                        >
-                            Edit
-                        </div>
+
+                        {isEditingOrgInfo ? (
+                            <div className="w-full p-5 rounded-md bg-w">
+                                <div className="mb-4">
+                                    <div className="text-gray font-bold mb-2">Address</div>
+                                    <input
+                                        type="text"
+                                        className="border border-gray text-gray p-2 rounded w-full mb-2"
+                                        value={tempAddress}
+                                        onChange={(e) => setTempAddress(e.target.value)}
+                                        placeholder="Street Address"
+                                    />
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <input
+                                            type="text"
+                                            className="border border-gray text-gray p-2 rounded"
+                                            value={tempCity}
+                                            onChange={(e) => setTempCity(e.target.value)}
+                                            placeholder="City"
+                                        />
+                                        <input
+                                            type="text"
+                                            className="border border-gray text-gray p-2 rounded"
+                                            value={tempState}
+                                            onChange={(e) => setTempState(e.target.value)}
+                                            placeholder="State"
+                                        />
+                                        <input
+                                            type="text"
+                                            className="border border-gray text-gray p-2 rounded"
+                                            value={tempZipCode}
+                                            onChange={(e) => setTempZipCode(e.target.value)}
+                                            placeholder="Zip Code"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="mb-4">
+                                    <div className="text-gray font-bold mb-2">Select Days</div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {DAYS_OF_WEEK.map((day) => (
+                                            <button
+                                                key={day.number}
+                                                className={`px-3 py-1 rounded-full ${
+                                                    selectedDays.includes(day.number)
+                                                        ? "bg-blue text-white"
+                                                        : "bg-w text-gray"
+                                                }`}
+                                                onClick={() => toggleDay(day.number)}
+                                            >
+                                                {day.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="mb-4">
+                                    <div className="text-gray font-bold mb-2">Start Time</div>
+                                    <input
+                                        type="time"
+                                        className="border text-gray p-2 rounded w-full"
+                                        value={tempStartTime}
+                                        onChange={(e) => setTempStartTime(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="mb-4">
+                                    <div className="text-gray font-bold mb-2">End Time</div>
+                                    <input
+                                        type="time"
+                                        className="border text-gray p-2 rounded w-full"
+                                        value={tempEndTime}
+                                        onChange={(e) => setTempEndTime(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="flex justify-end gap-3 mt-4">
+                                    <button
+                                        className="px-4 py-2 rounded text-gray"
+                                        onClick={handleCancelOrgEdit}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className="px-4 py-2 bg-blue rounded text-white"
+                                        onClick={handleSaveOrgInfo}
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="flex-col justify-start items-start mt-5 flex">
+                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                        Location
+                                    </div>
+                                    <div className="text-gray text-xl font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation.name}, ${carpoolOrgInfo?.carpoolLocation.address}, ${carpoolOrgInfo?.carpoolLocation.city}, ${carpoolOrgInfo?.carpoolLocation.state} ${carpoolOrgInfo?.carpoolLocation.zipCode}`}</div>
+                                </div>
+                                <div className="flex-col justify-start items-start mt-5 flex">
+                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                        Occurs Every
+                                    </div>
+                                    <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                        {carpoolDays}
+                                    </div>
+                                </div>
+                                <div className="flex-col justify-start items-start mt-5 flex">
+                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                        Time
+                                    </div>
+                                    <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                        {startTime && endTime ? `${startTime} - ${endTime}` : "Time not available"}
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
-                    
-                    {isEditingOrgInfo ? (
-                        <div className="w-full p-4 border rounded-md bg-gray-50">
-                            <div className="mb-4">
-                                <div className="text-gray font-bold mb-2">Select Days</div>
-                                <div className="flex flex-wrap gap-2">
-                                    {DAYS_OF_WEEK.map(day => (
-                                        <button
-                                            key={day.number}
-                                            className={`px-3 py-1 rounded ${
-                                                selectedDays.includes(day.number)
-                                                    ? "bg-blue text-white"
-                                                    : "bg-gray-200 text-gray-700"
-                                            }`}
-                                            onClick={() => toggleDay(day.number)}
-                                        >
-                                            {day.label}
-                                        </button>
-                                    ))}
-                                </div>
+
+                    {/* My Information */}
+                    <div className="flex-1 p-5 border border-lightgray bg-w shadow-sm rounded-md">
+                        <div className="flex justify-between items-center">
+                            <div className="text-black text-xl font-bold font-['Open Sans']">
+                                My Information
                             </div>
-                            
-                            <div className="mb-4">
-                                <div className="text-gray font-bold mb-2">Start Time</div>
-                                <input
-                                    type="time"
-                                    className="border p-2 rounded w-full"
-                                    value={tempStartTime}
-                                    onChange={(e) => setTempStartTime(e.target.value)}
-                                />
-                            </div>
-                            
-                            <div className="mb-4">
-                                <div className="text-gray font-bold mb-2">End Time</div>
-                                <input
-                                    type="time"
-                                    className="border p-2 rounded w-full"
-                                    value={tempEndTime}
-                                    onChange={(e) => setTempEndTime(e.target.value)}
-                                />
-                            </div>
-                            
-                            <div className="flex justify-end gap-3 mt-4">
-                                <button
-                                    className="px-4 py-2 border rounded text-gray-700"
-                                    onClick={handleCancelOrgEdit}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    className="px-4 py-2 bg-blue rounded text-white"
-                                    onClick={handleSaveOrgInfo}
-                                >
-                                    Save
-                                </button>
+                            <div
+                                className="text-blue text-xl font-bold font-['Open Sans'] cursor-pointer"
+                                onClick={handleEditMyInfo}
+                            >
+                                Edit
                             </div>
                         </div>
-                    ) : (
-                        <>
-                            <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl font-bold font-['Open Sans']">
-                                    Location
+
+                        {isEditingMyInfo ? (
+                            <div className="w-full p-5 rounded-md bg-w">
+                                {/* My Information Edit Form */}
+                                <div className="mb-4">
+                                    <div className="text-gray font-bold mb-2">Address</div>
+                                    <input
+                                        type="text"
+                                        className="border border-gray text-gray p-2 rounded w-full mb-2"
+                                        value={tempAddress}
+                                        onChange={(e) => setTempAddress(e.target.value)}
+                                        placeholder="Street Address"
+                                    />
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <input
+                                            type="text"
+                                            className="border border-gray text-gray p-2 rounded"
+                                            value={tempCity}
+                                            onChange={(e) => setTempCity(e.target.value)}
+                                            placeholder="City"
+                                        />
+                                        <input
+                                            type="text"
+                                            className="border border-gray text-gray p-2 rounded"
+                                            value={tempState}
+                                            onChange={(e) => setTempState(e.target.value)}
+                                            placeholder="State"
+                                        />
+                                        <input
+                                            type="text"
+                                            className="border border-gray text-gray p-2 rounded"
+                                            value={tempZipCode}
+                                            onChange={(e) => setTempZipCode(e.target.value)}
+                                            placeholder="Zip Code"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="text-gray text-xl font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation.name}, ${carpoolOrgInfo?.carpoolLocation.address}, ${carpoolOrgInfo?.carpoolLocation.city}, ${carpoolOrgInfo?.carpoolLocation.state} ${carpoolOrgInfo?.carpoolLocation.zipCode}`}</div>
+
+                                <div className="mb-4">
+                                    <div className="text-gray font-bold mb-2">Driving Availability</div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {DAYS_OF_WEEK.map((day) => (
+                                            <button
+                                                key={day.value}
+                                                className={`px-3 py-1 rounded-full ${
+                                                    tempDrivingAvailability.includes(day.value)
+                                                        ? "bg-blue text-white"
+                                                        : "bg-w text-gray"
+                                                }`}
+                                                onClick={() => toggleAvailability(day.value)}
+                                            >
+                                                {day.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="mb-4">
+                                    <div className="text-gray font-bold mb-2">Riders</div>
+                                    {tempRiders.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {tempRiders.map((rider) => (
+                                                <div key={rider.id} className="rounded-full text-gray text-lg flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        id={`rider-${rider.id}`}
+                                                        checked={rider.selected}
+                                                        onChange={() => handleRiderToggle(rider.id)}
+                                                        className="mr-2"
+                                                    />
+                                                    <label htmlFor={`rider-${rider.id}`}>{rider.name}</label>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-gray italic">No children added to your profile</div>
+                                    )}
+                                </div>
+
+                                <div className="mb-4">
+                                    <div className="text-gray font-bold mb-2">Car Capacity</div>
+                                    <input
+                                        type="number"
+                                        className="border border-gray text-gray p-2 rounded w-full"
+                                        value={tempCarCapacity}
+                                        onChange={(e) => setTempCarCapacity(parseInt(e.target.value) || 0)}
+                                        min="0"
+                                        max="8"
+                                    />
+                                </div>
+
+                                <div className="flex justify-end gap-3 mt-4">
+                                    <button
+                                        className="px-4 py-2 rounded text-gray"
+                                        onClick={handleCancelMyInfoEdit}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className="px-4 py-2 bg-blue rounded text-white"
+                                        onClick={handleSaveMyInfo}
+                                    >
+                                        Save
+                                    </button>
+                                </div>
                             </div>
-                            <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl font-bold font-['Open Sans']">
-                                    Occurs Every
+                        ) : (
+                            <>
+                                <div className="flex-col justify-start items-start mt-5 flex">
+                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                        Location
+                                    </div>
+                                    <div className="text-gray text-xl font-normal font-['Open Sans']">{`${userLocation?.address}, ${userLocation?.city}, ${userLocation?.state} ${userLocation?.zipCode}`}</div>
                                 </div>
-                                <div className="text-gray text-xl font-normal font-['Open Sans']">
-                                    {carpoolDays}
+                                <div className="flex-col justify-start items-start mt-5 flex">
+                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                        Driving Availability
+                                    </div>
+                                    <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                        {drivingAvailability}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl font-bold font-['Open Sans']">
-                                    Time
+                                <div className="flex-col justify-start items-start mt-5 flex">
+                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                        Rider(s)
+                                    </div>
+                                    <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                        {riders}
+                                    </div>
                                 </div>
-                                <div className="text-gray text-xl font-normal font-['Open Sans']">
-                                    {startTime && endTime ? `${startTime} - ${endTime}` : "Time not available"}
+                                <div className="flex-col justify-start items-start mt-5 flex">
+                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                        Car Capacity
+                                    </div>
+                                    <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                        {foundCarpool?.carCapacity}
+                                    </div>
                                 </div>
-                            </div>
-                        </>
-                    )}
+                            </>
+                        )}
+                    </div>
                 </div>
-                <div className="w-8/12 flex-col justify-start items-start gap-5 flex">
-                    <div className="self-stretch justify-start items-center gap-5 inline-flex">
-                        <div className="text-black text-xl font-bold font-['Open Sans']">
-                            Carpools
-                        </div>
-                        <div className="text-black">
-                            {isOwner ? "(You are the owner)" : "(You are not the owner)"}
-                        </div>
-                        {isOwner && (
-                            <div className="px-6 py-2 bg-blue rounded-md justify-center items-center inline-flex">
+                {isOwner && (
+                    <div className="w-full flex-col justify-start items-start gap-5 flex">
+                        <div className="self-stretch flex flex-col md:flex-row md:items-center md:justify-start mt-10 gap-4">
+                            <div className="text-black text-xl font-bold font-['Open Sans']">
+                                Carpools
+                            </div>
+                            <div className="text-black">
+                                (You are the owner)
+                            </div>
+                            <div className="px-6 py-2 bg-blue rounded-md flex justify-center items-center">
                                 {!loading && (
                                     <button
-                                        className=" text-center text-white text-base font-normal font-['Open Sans']"
+                                        className="text-center text-white text-base font-normal font-['Open Sans']"
                                         onClick={runOptimizer}
                                     >
                                         Run Optimizer
@@ -1342,345 +1543,175 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                     </div>
                                 )}
                             </div>
+                        </div>
+
+                        {optimizerError && (
+                            <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+                                <p><strong>Error:</strong> {optimizerError}</p>
+                            </div>
                         )}
-                    </div>
-                    
-                    {optimizerError && (
-                        <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
-                            <p><strong>Error:</strong> {optimizerError}</p>
-                        </div>
-                    )}
-                    
-                    {!results && (
-                        <div className="flex-col justify-start items-start gap-2.5 flex">
-                            <div className="text-gray text-xl font-normal font-['Open Sans']">
-                                {isOwner 
-                                    ? "No pools yet - run the optimizer to create groupings!" 
-                                    : "No pools yet - the carpool owner needs to run the optimizer."}
+
+                        {!results && (
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    No pools yet - run the optimizer to create groupings!
+                                </div>
+                            </div>
+                        )}
+                        <div className="flex-col justify-start items-start gap-2.5 flex w-full p-4 border border-lightgray shadow-sm bg-w rounded-md shadow-sm">
+                            <div className="text-black text-xl font-bold font-['Open Sans']">
+                                All Members
+                            </div>
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
+                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    {carpoolOrgInfo?.carpoolMembers
+                                        ?.map((memberId: string) => userIdToNameMap[memberId] || `Member ${memberId.substring(0, 5)}...`)
+                                        .join(", ")}
+                                </div>
                             </div>
                         </div>
-                    )}
-                    
-                    {results && (
-                        <div className="w-full flex-col justify-start items-start gap-6 flex mt-4">
-                            <div className="text-black text-lg font-semibold font-['Open Sans']">
-                                Optimization Results
-                            </div>
-                            
-                            {results.carpools && results.carpools.length > 0 ? (
-                                results.carpools.map((carpool: any, index: number) => (
-                                    <div key={index} className="w-full p-4 border border-lightgray shadow-sm bg-w rounded-md shadow-sm">
-                                        <div className="text-blue font-semibold text-lg mb-2">
-                                            Carpool Group {index + 1}
-                                        </div>
-                                        
-                                        <div className="text-black grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <div className="text-gray font-bold text-md">Driver Schedule</div>
-                                                <div className="mt-1">
-                                                    {carpool.driverSchedule && Object.keys(carpool.driverSchedule).length > 0 ? (
-                                                        Object.entries(carpool.driverSchedule)
-                                                            .map(([day, driver]: [string, any]) => {
-                                                                let dayIndex;
-                                                                
-                                                                if (/^\d+$/.test(day)) {
-                                                                    dayIndex = parseInt(day, 10);
-                                                                } else {
-                                                                    const lowerDay = day.toLowerCase();
-                                                                    for (let i = 0; i < daysOfWeek.length; i++) {
-                                                                        if (daysOfWeek[i].toLowerCase() === lowerDay) {
-                                                                            dayIndex = i;
-                                                                            break;
-                                                                        }
-                                                                    }
-                                                                    if (dayIndex === undefined) dayIndex = 999;
-                                                                }
-                                                                
-                                                                return { day, driver, dayIndex };
-                                                            })
-                                                            .sort((a, b) => a.dayIndex - b.dayIndex)
-                                                            .map(({ day, driver, dayIndex }, idx) => {
-                                                                try {
-                                                                    let displayDriver;
-                                                                    if (typeof driver === 'object' && driver !== null) {
-                                                                        displayDriver = (driver?.name || driver?.userId || JSON.stringify(driver));
-                                                                    } else {
-                                                                        displayDriver = String(driver || "Unassigned");
-                                                                    }
-                                                                    
-                                                                    let dayName = day;
-                                                                    if (/^\d+$/.test(day)) {
-                                                                        if (optimizerDayMap[day]) {
-                                                                            dayName = optimizerDayMap[day];
+                        {results && (
+                            <div className="w-full flex-col justify-start items-start gap-6 flex mt-4">
+                                <div className="text-black text-lg font-semibold font-['Open Sans']">
+                                    Optimization Results
+                                </div>
+                                {results.carpools && results.carpools.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                                        {results.carpools.map((carpool: any, index: number) => (
+                                            <div
+                                                key={index}
+                                                className="flex flex-col p-4 border border-lightgray shadow-sm bg-w rounded-md"
+                                            >
+                                                <div className="text-blue font-semibold text-lg mb-2">
+                                                    Carpool Group {index + 1}
+                                                </div>
+
+                                                <div className="text-black grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <div className="text-gray font-bold text-md">Driver Schedule</div>
+                                                        <div className="mt-1">
+                                                            {carpool.driverSchedule && Object.keys(carpool.driverSchedule).length > 0 ? (
+                                                                Object.entries(carpool.driverSchedule)
+                                                                    .map(([day, driver]: [string, any]) => {
+                                                                        let dayIndex;
+
+                                                                        if (/^\d+$/.test(day)) {
+                                                                            dayIndex = parseInt(day, 10);
                                                                         } else {
-                                                                            const dayIdx = parseInt(day, 10);
-                                                                            if (dayIdx >= 0 && dayIdx < daysOfWeek.length) {
-                                                                                dayName = daysOfWeek[dayIdx];
+                                                                            const lowerDay = day.toLowerCase();
+                                                                            for (let i = 0; i < daysOfWeek.length; i++) {
+                                                                                if (daysOfWeek[i].toLowerCase() === lowerDay) {
+                                                                                    dayIndex = i;
+                                                                                    break;
+                                                                                }
                                                                             }
+                                                                            if (dayIndex === undefined) dayIndex = 999;
                                                                         }
-                                                                    }
-                                                                    
-                                                                    return (
-                                                                        <div key={idx} className="flex justify-between items-center py-1">
-                                                                            <span className="text-gray-600">{dayName}:</span>
-                                                                            <span className="font-medium">{displayDriver}</span>
-                                                                        </div>
-                                                                    );
-                                                                } catch (error) {
-                                                                    console.error(`Error rendering driver for day ${day}:`, error);
-                                                                    return (
-                                                                        <div key={idx} className="flex justify-between items-center py-1">
-                                                                            <span className="text-gray-600">{day}:</span>
-                                                                            <span className="font-medium text-red-500">Error displaying driver</span>
-                                                                        </div>
-                                                                    );
-                                                                }
-                                                            })
-                                                    ) : (
-                                                        <div className="text-gray-500 italic">No driver schedule available</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            
-                                            <div>
-                                                <div className="text-gray font-bold text-md">Members</div>
-                                                <div className="mt-1">
-                                                    {carpool.members && carpool.members.length > 0 ? (
-                                                        carpool.members.map((member: string, idx: number) => (
-                                                            <div key={idx} className="py-1 text-gray">
-                                                                {member[1]}
-                                                            </div>
-                                                        ))
-                                                    ) : (
-                                                        <div className="text-gray italic">No members available</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        {carpool.riders && carpool.riders.length > 0 && (
-                                            <div className="mt-3">
-                                                <div className="text-gray font-bold text-md">Riders</div>
-                                                <div className="mt-1 text-gray-600">
-                                                    {carpool.riders.join(", ")}
-                                                </div>
-                                            </div>
-                                        )}
-                                        
-                                        {carpool.totalDistance && (
-                                            <div className="mt-3 text-sm text-gray-500">
-                                                Total distance: {carpool.totalDistance.toFixed(2)} miles
-                                            </div>
-                                        )}
-                                        
-                                        {(carpool.startTime && carpool.endTime) ? (
-                                            <div className="mt-3 text-sm text-gray-700">
-                                                Time: {carpool.startTime} - {carpool.endTime}
-                                            </div>
-                                        ) : (
-                                            startTime && endTime && (
-                                                <div className="mt-3 text-sm text-gray-700">
-                                                    Time: {startTime} - {endTime}
-                                                </div>
-                                            )
-                                        )}
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="text-gray-500 italic">No carpool groups were created by the optimizer</div>
-                            )}
-                            
-                            {results.unassignedMembers && results.unassignedMembers.length > 0 && (
-                                <div className="text-black w-full p-4 border border-lightgray bg-w shadow-sm rounded-md mt-4">
-                                    <div className="text-gray font-semibold text-lg mb-2">
-                                        Unassigned Members
-                                    </div>
-                                    {/* <div className="text-gray">
-                                        {results.unassignedMembers.join(", ")}
-                                    </div> */}
-                                    <div className="text-gray">
-                                        {results.unassignedMembers
-                                            .map((member) => {
-                                                // If `member` is an array, extract the name (second element)
-                                                if (Array.isArray(member)) {
-                                                    return member[1]; // Assuming the second element is the name
-                                                }
-                                                // Otherwise, return the member as-is
-                                                return member;
-                                            })
-                                            .join(", ")}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                                                                        return { day, driver, dayIndex };
+                                                                    })
+                                                                    .sort((a, b) => a.dayIndex - b.dayIndex)
+                                                                    .map(({ day, driver, dayIndex }, idx) => {
+                                                                        try {
+                                                                            let displayDriver;
+                                                                            if (typeof driver === 'object' && driver !== null) {
+                                                                                displayDriver = (driver?.name || driver?.userId || JSON.stringify(driver));
+                                                                            } else {
+                                                                                displayDriver = String(driver || "Unassigned");
+                                                                            }
 
-                    <div className="flex-col justify-start items-start gap-2.5 flex mt-6">
-                        <div className="text-gray text-xl font-bold font-['Open Sans']">
-                            All Members
-                        </div>
-                        <div className="flex-col justify-start items-start gap-2.5 flex">
-                            <div className="text-gray text-xl font-normal font-['Open Sans']">
-                            {carpoolOrgInfo?.carpoolMembers
-                                ?.map((memberId: string) => userIdToNameMap[memberId] || `Member ${memberId.substring(0, 5)}...`)
-                                .join(", ")}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex-col justify-start items-start gap-5 flex text-black w-full p-4 border border-lightgray bg-w shadow-sm rounded-md mt-4">
-                    <div className="self-stretch justify-between items-start inline-flex">
-                        <div className="text-black text-xl font-bold font-['Open Sans']">
-                            My Information
-                        </div>
-                        <div 
-                            className="text-blue text-xl font-bold font-['Open Sans'] cursor-pointer"
-                            onClick={handleEditMyInfo}
-                        >
-                            Edit
-                        </div>
-                    </div>
-                    
-                    {isEditingMyInfo ? (
-                        <div className="w-full p-4 border rounded-md bg-gray-50">
-                            <div className="mb-4">
-                                <div className="text-gray font-bold mb-2">Address</div>
-                                <input
-                                    type="text"
-                                    className="border p-2 rounded w-full mb-2"
-                                    value={tempAddress}
-                                    onChange={(e) => setTempAddress(e.target.value)}
-                                    placeholder="Street Address"
-                                />
-                                <div className="grid grid-cols-3 gap-2">
-                                    <input
-                                        type="text"
-                                        className="border p-2 rounded"
-                                        value={tempCity}
-                                        onChange={(e) => setTempCity(e.target.value)}
-                                        placeholder="City"
-                                    />
-                                    <input
-                                        type="text"
-                                        className="border p-2 rounded"
-                                        value={tempState}
-                                        onChange={(e) => setTempState(e.target.value)}
-                                        placeholder="State"
-                                    />
-                                    <input
-                                        type="text"
-                                        className="border p-2 rounded"
-                                        value={tempZipCode}
-                                        onChange={(e) => setTempZipCode(e.target.value)}
-                                        placeholder="Zip Code"
-                                    />
-                                </div>
-                            </div>
-                            
-                            <div className="mb-4">
-                                <div className="text-gray font-bold mb-2">Driving Availability</div>
-                                <div className="flex flex-wrap gap-2">
-                                    {DAYS_OF_WEEK.map(day => (
-                                        <button
-                                            key={day.value}
-                                            className={`px-3 py-1 rounded ${
-                                                tempDrivingAvailability.includes(day.value)
-                                                    ? "bg-blue text-white"
-                                                    : "bg-gray-200 text-gray-700"
-                                            }`}
-                                            onClick={() => toggleAvailability(day.value)}
-                                        >
-                                            {day.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                            
-                            <div className="mb-4">
-                                <div className="text-gray font-bold mb-2">Riders</div>
-                                {tempRiders.length > 0 ? (
-                                    <div className="space-y-2">
-                                        {tempRiders.map(rider => (
-                                            <div key={rider.id} className="flex items-center">
-                                                <input
-                                                    type="checkbox"
-                                                    id={`rider-${rider.id}`}
-                                                    checked={rider.selected}
-                                                    onChange={() => handleRiderToggle(rider.id)}
-                                                    className="mr-2"
-                                                />
-                                                <label htmlFor={`rider-${rider.id}`}>{rider.name}</label>
+                                                                            let dayName = day;
+                                                                            if (/^\d+$/.test(day)) {
+                                                                                if (optimizerDayMap[day]) {
+                                                                                    dayName = optimizerDayMap[day];
+                                                                                } else {
+                                                                                    const dayIdx = parseInt(day, 10);
+                                                                                    if (dayIdx >= 0 && dayIdx < daysOfWeek.length) {
+                                                                                        dayName = daysOfWeek[dayIdx];
+                                                                                    }
+                                                                                }
+                                                                            }
+
+                                                                            return (
+                                                                                <div key={idx} className="flex justify-between items-center py-1">
+                                                                                    <span className="text-gray-600">{dayName}:</span>
+                                                                                    <span className="font-medium">{displayDriver}</span>
+                                                                                </div>
+                                                                            );
+                                                                        } catch (error) {
+                                                                            console.error(`Error rendering driver for day ${day}:`, error);
+                                                                            return (
+                                                                                <div key={idx} className="flex justify-between items-center py-1">
+                                                                                    <span className="text-gray-600">{day}:</span>
+                                                                                    <span className="font-medium text-red-500">Error displaying driver</span>
+                                                                                </div>
+                                                                            );
+                                                                        }
+                                                                    })
+                                                            ) : (
+                                                                <div className="text-gray-500 italic">No driver schedule available</div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <div className="text-gray font-bold text-md">Members</div>
+                                                        <div className="mt-1">
+                                                            {carpool.members && carpool.members.length > 0 ? (
+                                                                carpool.members.map((member: string, idx: number) => (
+                                                                    <div key={idx} className="py-1 text-gray">
+                                                                        {member[1]}
+                                                                    </div>
+                                                                ))
+                                                            ) : (
+                                                                <div className="text-gray italic">No members available</div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {carpool.riders && carpool.riders.length > 0 && (
+                                                    <div className="mt-3">
+                                                        <div className="text-gray font-bold text-lg">Riders</div>
+                                                        <div className="mt-1 text-gray text-lg">
+                                                            {carpool.riders.join(", ")}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="text-gray-500 italic">No children added to your profile</div>
+                                    <div className="text-gray-500 italic">No carpool groups were created by the optimizer</div>
+                                )}
+                                
+                                {results.unassignedMembers && results.unassignedMembers.length > 0 && (
+                                    <div className="text-black w-full p-4 border border-lightgray bg-w shadow-sm rounded-md mt-4">
+                                        <div className="text-black font-semibold text-lg mb-2">
+                                            Unassigned Members
+                                        </div>
+                                        {/* <div className="text-gray">
+                                            {results.unassignedMembers.join(", ")}
+                                        </div> */}
+                                        <div className="text-gray">
+                                            {results.unassignedMembers
+                                                .map((member) => {
+                                                    // If `member` is an array, extract the name (second element)
+                                                    if (Array.isArray(member)) {
+                                                        return member[1]; // Assuming the second element is the name
+                                                    }
+                                                    // Otherwise, return the member as-is
+                                                    return member;
+                                                })
+                                                .join(", ")}
+                                        </div>
+                                    </div>
                                 )}
                             </div>
-                            
-                            <div className="mb-4">
-                                <div className="text-gray font-bold mb-2">Car Capacity</div>
-                                <input
-                                    type="number"
-                                    className="border p-2 rounded w-full"
-                                    value={tempCarCapacity}
-                                    onChange={(e) => setTempCarCapacity(parseInt(e.target.value) || 0)}
-                                    min="0"
-                                    max="10"
-                                />
-                            </div>
-                            
-                            <div className="flex justify-end gap-3 mt-4">
-                                <button
-                                    className="px-4 py-2 border rounded text-gray-700"
-                                    onClick={handleCancelMyInfoEdit}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    className="px-4 py-2 bg-blue rounded text-white"
-                                    onClick={handleSaveMyInfo}
-                                >
-                                    Save
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl font-bold font-['Open Sans']">
-                                    Location
-                                </div>
-                                <div className="text-gray text-xl font-normal font-['Open Sans']">{`${userLocation?.address}, ${userLocation?.city}, ${userLocation?.state} ${userLocation?.zipCode}`}</div>
-                            </div>
-                            <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl font-bold font-['Open Sans']">
-                                    Driving Availability
-                                </div>
-                                <div className="text-gray text-xl font-normal font-['Open Sans']">
-                                    {drivingAvailability}
-                                </div>
-                            </div>
-                            <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl font-bold font-['Open Sans']">
-                                    Rider(s)
-                                </div>
-                                <div className="text-gray text-xl font-normal font-['Open Sans']">
-                                    {riders}
-                                </div>
-                            </div>
-                            <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl font-bold font-['Open Sans']">
-                                    Car Capacity
-                                </div>
-                                <div className="text-gray text-xl font-normal font-['Open Sans']">
-                                    {foundCarpool?.carCapacity}
-                                </div>
-                            </div>
-                        </>
-                    )}
-                </div>
-                <div className="flex-col justify-start items-start gap-5 flex text-black w-full p-4 border border-lightgray bg-w shadow-sm rounded-md mt-4">
+                        )}
+                    </div>
+                )}
+                <div className="flex-col justify-start items-start gap-5 flex text-black w-full p-5 border border-lightgray bg-w shadow-sm rounded-md mt-10">
                     <div className="justify-start items-start gap-5 inline-flex">
                         <div className="text-black text-xl font-bold font-['Open Sans']">
                             My Carpool
@@ -1710,7 +1741,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                         .join(", ")}
                                 </div>
                             </div>
-                            <div className="flex-col justify-start items-start gap-2.5 flex  mb-20">
+                            <div className="flex-col justify-start items-start gap-2.5 flex">
                                 <div className="text-gray text-xl font-bold font-['Open Sans']">
                                     Riders
                                 </div>
@@ -1720,7 +1751,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             </div>
                         </>
                     ) : (
-                        <div className="text-gray text-xl font-normal font-['Open Sans'] mb-10">
+                        <div className="text-gray text-xl font-normal font-['Open Sans']">
                             You are not currently assigned to a carpool.
                         </div>
                     )}
