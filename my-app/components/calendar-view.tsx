@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { Calendar, momentLocalizer, Views } from "react-big-calendar";
+import { Calendar, momentLocalizer, View, Views } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { RRule } from "rrule";
 
 const localizer = momentLocalizer(moment);
 
@@ -12,16 +11,6 @@ interface CalendarViewProps {
   userId: string | undefined;
 }
 
-// created to match hardcoded event
-interface CalendarEvent {
-  title: string;
-  start: Date;
-  end: Date;
-  color?: string;
-  rRule?: string,
-}
-
-// carpool calendar event
 interface CarpoolCalendarEvent {
   title: string;
   start: Date;
@@ -30,12 +19,13 @@ interface CarpoolCalendarEvent {
 }
 
 const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
-  // Set default date to the current date
   userId = "67d3358e45ee3c027f8e59d6"; // DELETE line later, will use for testing rn
+  const [events, setEvents] = useState<CarpoolCalendarEvent[]>([]);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const WEEKS_TO_GENERATE = 16; // we can change this to represent how long a season is
+  const [view, setView] = useState<View>(Views.WEEK);
+  const WEEKS_TO_GENERATE = 16; // hardcoded but represents how many weeks this carpool will take place
 
-  // Get Handler for receiving all the carpools from user-carpool-data
+  // Get Handler for receiving all the carpoolIDs from user-carpool-data
   const handleUserDataGet = useCallback(async () => {
     try {
         const response = await fetch(
@@ -50,7 +40,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
         if (response.ok) {
             const data = await response.json();
             const foundCarpools = data?.createCarpoolData.userData.carpools || [];
-            // extract the carpoolIds
             const filterCarpoolIds: string[] = foundCarpools.map((cp: any) => cp.carpoolId);
             console.log(filterCarpoolIds);
             return filterCarpoolIds;
@@ -96,7 +85,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
   // Method coordinates receiving the carpools with optimization results
   const fetchCarpoolsWithOpt = useCallback(async () => {
     const carpoolIds = await handleUserDataGet();
-
     if (!carpoolIds || carpoolIds.length === 0) {
       return;
     }
@@ -106,9 +94,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
       const result = await checkCarpoolWithOptResults(carpoolId);
       return result || null;
     });
-
+    
     const resolved = await Promise.all(carpoolPromises);
-
     const finalCarpools = resolved.filter(
       (res): res is TransformedResults => res !== null
     );
@@ -138,7 +125,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
 
   // Method takes in the schedule and transforms it into a calendar event
   const createCarpoolCalendarEvents = (schedules: Record<string, string>[] | undefined) => {
-    
     if (schedules) {
       const newEvents: CarpoolCalendarEvent[] = [];
       for (const schedule of schedules || []) {
@@ -212,19 +198,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
   }, []);
 
 
-  // Hardcoded events with an optional color property
-  const [events, setEvents] = useState<CarpoolCalendarEvent[]>([
-    {
-      title: "SkyZone",
-      start: new Date(2025, 2, 28, 20, 0),
-      end: new Date(2025, 2, 28, 22, 0),
-      color: "orange",
-    },
-  ]);
+ 
+  
 
-  // Custom event styling using eventPropGetter
+  // Custom event styling using eventPropGetter -- helps us add color
   const eventStyleGetter = (
-    event: CalendarEvent,
+    event: CarpoolCalendarEvent,
   ) => {
     const backgroundColor = event.color || "#3174ad";
     const style = {
@@ -238,12 +217,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     return { style };
   };
 
-  // Callback when an event is clicked
-  const onSelectEvent = (event: CalendarEvent) => {
+  // Callback when an event is clickedn -- will later handle this more elegantly
+  const onSelectEvent = (event: CarpoolCalendarEvent) => {
     alert(`Selected event: ${event.title}`);
   };
 
-  // Keep calendar navigation in sync with our state
+  // Keep calendar navigation in sync with our state -- Responsible for Back and Next Events working
   const handleNavigate = (newDate: Date) => {
     setCurrentDate(newDate);
   };
@@ -256,7 +235,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
         events={events}
         startAccessor="start"
         endAccessor="end"
-        defaultView={Views.WEEK}
+        views={[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
+        defaultView={view}
+        view={view}
+        onView={(view) => setView(view)}
         date={currentDate}
         onNavigate={handleNavigate}
         eventPropGetter={eventStyleGetter}
