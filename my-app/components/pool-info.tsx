@@ -115,8 +115,14 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [tempState, setTempState] = useState<string>("");
     const [tempZipCode, setTempZipCode] = useState<string>("");
 
+
     const [myCarpool, setMyCarpool] = useState<TransformedCarpool | null>(null);
     const [userIdToNameMap, setUserIdToNameMap] = useState<Record<string, string>>({});
+
+    const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+    const [leaveError, setLeaveError] = useState<string | null>(null);
+    const [isLeaving, setIsLeaving] = useState(false);
+
 
     const router = useRouter();
 
@@ -1213,6 +1219,52 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         });
     };
 
+    // leaving carppol handlers
+    const handleLeaveClick = () => {
+        setIsLeaveModalOpen(true);
+    };
+
+    const handleCancelLeave = () => {
+        setIsLeaveModalOpen(false);
+    };
+
+    const handleConfirmLeave = async () => {
+        setIsLeaving(true);
+        setLeaveError(null);
+        
+        try {
+            const carpoolId = new URLSearchParams(window.location.search).get("carpoolId");
+            if (!carpoolId || !userId) {
+                throw new Error("Missing required information");
+            }
+
+            const response = await fetch("/api/leave-carpool", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    carpoolId,
+                    userId,
+                }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || "Failed to leave carpool");
+            }
+
+            // redirect back to carpools page after successful leave
+            router.push("/carpools");
+        } catch (error: any) {
+            console.error("Error leaving carpool:", error);
+            setLeaveError(error.message || "Failed to leave carpool");
+        } finally {
+            setIsLeaving(false);
+            setIsLeaveModalOpen(false);
+        }
+    };
+
     return (
         <>
             <div className="w-11/12 mx-auto px-1">
@@ -1753,6 +1805,49 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                     )}
                 </div>
             </div>
+
+
+            {!isOwner && (
+                <div className="py-2 mt-0 flex justify-center">
+                    <button
+                        onClick={handleLeaveClick}
+                        className="px-8 py-4 bg-red-600 text-red text-2xl font-bold rounded-lg hover:bg-red-700 transition-colors"
+                    >
+                        Leave Carpool
+                    </button>
+                    {leaveError && (
+                        <div className="mt-2 text-red-600">{leaveError}</div>
+                    )}
+                </div>
+            )}
+
+            {/*leave cofnirmation */}
+            {isLeaveModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4">
+                        <h2 className="text-2xl font-bold mb-4 text-black">Leave Carpool</h2>
+                        <p className="text-black text-lg mb-6">
+                            Are you sure you want to leave this carpool? This action cannot be undone.
+                        </p>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={handleCancelLeave}
+                                className="px-6 py-3 text-black text-lg hover:bg-gray-100 rounded-lg"
+                                disabled={isLeaving}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmLeave}
+                                className="px-6 py-3 bg-red-600 text-black text-lg font-semibold rounded-lg hover:bg-red-700 disabled:bg-red-400"
+                                disabled={isLeaving}
+                            >
+                                {isLeaving ? "Leaving..." : "Leave"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
