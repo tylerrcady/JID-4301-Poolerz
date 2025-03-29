@@ -19,7 +19,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [isEditingFamily, setIsEditingFamily] = useState(false);
     const [isChildModalOpen, setIsChildModalOpen] = useState(false);
+    const [isAvailabilityModalOpen, setIsAvailabilityModalOpen] =
+        useState(false);
+    const [newDay, setNewDay] = useState("");
+    const [newTimeRange, setNewTimeRange] = useState("");
     const [newChildName, setNewChildName] = useState("");
+    const [isEditingAvailability, setIsEditingAvailability] = useState(false);
     const [userFormData, setUserFormData] = useState<UserFormData | null>(null);
     const [userFormDataBackup, setUserFormDataBackup] = useState<UserFormData | null>(null);
 
@@ -86,12 +91,42 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
         setIsChildModalOpen(false);
     };
 
+    const handleEditAvailability = () => {
+        if (!isEditingAvailability) {
+            setUserFormDataBackup(userFormData);
+        }
+        setIsEditingAvailability(!isEditingAvailability);
+    };
+
+    const handleAddAvailability = () => {
+        if (!newDay.trim() || !newTimeRange.trim()) {
+            alert("Please provide valid day and time range.");
+            return;
+        }
+        if (!userFormData) return;
+
+        const updatedAvailabilities = [
+            ...userFormData.availabilities,
+            { day: newDay.trim(), timeRange: newTimeRange.trim() },
+        ];
+
+        setUserFormData({
+            ...userFormData,
+            availabilities: updatedAvailabilities,
+        });
+
+        setNewDay("");
+        setNewTimeRange("");
+        setIsAvailabilityModalOpen(false);
+    };
+
     const handleCancel = () => {
         if (userFormDataBackup) {
             setUserFormData(userFormDataBackup); // Restore the backup
         }
         setIsEditingProfile(false);
         setIsEditingFamily(false);
+        setIsEditingAvailability(false);
     };
 
     const handleSave = async () => {
@@ -115,8 +150,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 if (isEditingProfile) {
                     setIsEditingProfile(false);
                 }
+                if (isEditingAvailability) {
+                    setIsEditingAvailability(false);
+                }
                 if (isChildModalOpen) {
                     setIsChildModalOpen(false);
+                }
+                if (isAvailabilityModalOpen) {
+                    setIsAvailabilityModalOpen(false);
                 }
                 handleUserFormGet();
             } else {
@@ -166,16 +207,39 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     <div className="text-gray font-normal">{email}</div>
                 </div>
                 {userFormData && (
-                    <div className="break-all">
-                        <div className="text-black text-xl font-bold">
-                            Number of Children
-                        </div>
-                        <div className="text-gray text-base font-normal">
-                            {userFormData.numChildren}
-                        </div>
-                    </div>
-                )}
-            </div>
+                   <>
+                   <div className="break-all">
+                       <div className="text-black text-xl font-bold">
+                           Number of Children
+                       </div>
+                       <div className="text-gray text-base font-normal">
+                           {userFormData.numChildren}
+                       </div>
+                   </div>
+                   <div className="break-all">
+                       <div className="text-black text-xl font-bold">
+                           Phone Number
+                       </div>
+                       <div className="text-gray text-base font-normal">
+                           {isEditingProfile ? (
+                               <TextInput
+                                   currentValue={userFormData.phoneNumber || ""}
+                                   onChange={(value) => {
+                                       setUserFormData({
+                                           ...userFormData,
+                                           phoneNumber: value,
+                                       });
+                                   }}
+                                   placeholder="Enter phone number"
+                               />
+                           ) : (
+                               userFormData.phoneNumber || "Not provided"
+                           )}
+                       </div>
+                   </div>
+               </>
+           )}
+       </div>
             {/*Family Section*/}
             <div className="flex-1  max-w-[500x] min-w-[300px] h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                 <div className="justify-between items-start flex flex-wrap flex-col gap-2">
