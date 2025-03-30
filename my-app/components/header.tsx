@@ -35,7 +35,7 @@ const Header: React.FC<HeaderProps> = ({
                 {userId ? (
                     <>
                         {isFormComplete && (
-                            <>  
+                            <>
                                 <span className="text-lg mr-5 font-medium transition-colors duration-200">
                                     <Link
                                         href="/dashboard"
@@ -45,14 +45,15 @@ const Header: React.FC<HeaderProps> = ({
                                                 : "text-gray hover:text-blue"
                                         }
                                     >
-                                        Dashboard
+                                        Info
                                     </Link>
                                 </span>
                                 <span className="text-lg mr-5 font-medium transition-colors duration-200">
                                     <Link
                                         href="/carpools"
                                         className={
-                                            currentPath === "/carpools" || currentPath.startsWith("/pool-info")
+                                            currentPath === "/carpools" ||
+                                            currentPath.startsWith("/pool-info")
                                                 ? "text-blue"
                                                 : "text-gray hover:text-blue"
                                         }
