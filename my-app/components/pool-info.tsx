@@ -1273,26 +1273,29 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 <BackButton onClick={handleConfirmBack} />
             </div>
             <div className="justify-center flex flex-col w-10/12 mx-auto p-10 gap-6 rounded-md">
-                <div className="flex-col justify-start items-start gap-5 flex">
+                <div className="flex justify-between items-start gap-5 flex">
                     <div className="text-black text-4xl font-bold font-['Open Sans']">
                         {carpoolOrgInfo?.carpoolName}
                     </div>
                     <div className="self-stretch justify-start items-start inline-flex gap-10">
-                        <div className="text-blue text-2xl font-bold font-['Open Sans']">
+                        <button
+                            className="px-4 py-2 bg-blue rounded text-white"
+                            //onClick={}
+                        >
                             Close Now
-                        </div>
+                        </button>
                     </div>
                 </div>
-                <div className="flex flex-col md:flex-row md:justify-between gap-6">
+                <div className="flex flex-col bg-w p-6 border border-lightgray rounded-2xl md:flex-row md:justify-between shadow-md gap-6 mt-6">
                     {/* Organization Information */}
                     <div className="flex-1 p-5 border border-lightgray bg-w shadow-sm rounded-md">
                         <div className="flex justify-between items-center">
-                            <div className="text-black text-2xl font-bold font-['Open Sans']">
+                            <div className="text-black text-2xl md:text-xl sm:text-lg font-bold font-['Open Sans']">
                                 Organization Information
                             </div>
                             {isOwner && (
                                 <div
-                                    className="text-blue text-xl font-bold font-['Open Sans'] cursor-pointer"
+                                    className="text-blue text-xl md:text-lg sm:text-md font-bold font-['Open Sans'] cursor-pointer"
                                     onClick={handleEditOrgInfo}
                                 >
                                     Edit
@@ -1392,24 +1395,24 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         ) : (
                             <>
                                 <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
                                         Location
                                     </div>
-                                    <div className="text-gray text-xl font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation.name}, ${carpoolOrgInfo?.carpoolLocation.address}, ${carpoolOrgInfo?.carpoolLocation.city}, ${carpoolOrgInfo?.carpoolLocation.state} ${carpoolOrgInfo?.carpoolLocation.zipCode}`}</div>
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation.name}, ${carpoolOrgInfo?.carpoolLocation.address}, ${carpoolOrgInfo?.carpoolLocation.city}, ${carpoolOrgInfo?.carpoolLocation.state} ${carpoolOrgInfo?.carpoolLocation.zipCode}`}</div>
                                 </div>
                                 <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
                                         Occurs Every
                                     </div>
-                                    <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
                                         {carpoolDays}
                                     </div>
                                 </div>
                                 <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
                                         Time
                                     </div>
-                                    <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
                                         {startTime && endTime ? `${startTime} - ${endTime}` : "Time not available"}
                                     </div>
                                 </div>
@@ -1420,11 +1423,11 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                     {/* My Information */}
                     <div className="flex-1 p-5 border border-lightgray bg-w shadow-sm rounded-md">
                         <div className="flex justify-between items-center">
-                            <div className="text-black text-2xl font-bold font-['Open Sans']">
+                            <div className="text-black text-2xl md:text-xl sm:text-lg font-bold font-['Open Sans']">
                                 My Information
                             </div>
                             <div
-                                className="text-blue text-xl font-bold font-['Open Sans'] cursor-pointer"
+                                className="text-blue text-xl md:text-lg sm:text-md font-bold font-['Open Sans'] cursor-pointer"
                                 onClick={handleEditMyInfo}
                             >
                                 Edit
@@ -1538,32 +1541,32 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         ) : (
                             <>
                                 <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
                                         Location
                                     </div>
-                                    <div className="text-gray text-xl font-normal font-['Open Sans']">{`${userLocation?.address}, ${userLocation?.city}, ${userLocation?.state} ${userLocation?.zipCode}`}</div>
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">{`${userLocation?.address}, ${userLocation?.city}, ${userLocation?.state} ${userLocation?.zipCode}`}</div>
                                 </div>
                                 <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
                                         Driving Availability
                                     </div>
-                                    <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
                                         {drivingAvailability}
                                     </div>
                                 </div>
                                 <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
                                         Rider(s)
                                     </div>
-                                    <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
                                         {riders}
                                     </div>
                                 </div>
                                 <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
                                         Car Capacity
                                     </div>
-                                    <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
                                         {foundCarpool?.carCapacity}
                                     </div>
                                 </div>
@@ -1572,9 +1575,9 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                     </div>
                 </div>
                 {isOwner && (
-                    <div className="w-full flex-col justify-start items-start gap-5 flex">
-                        <div className="self-stretch flex flex-col md:flex-row md:items-center md:justify-start mt-10 gap-4">
-                            <div className="text-black text-2xl font-bold font-['Open Sans']">
+                    <div className="w-full flex-col bg-w border border-lightgray shadow-md p-6 rounded-2xl justify-start items-start gap-5 flex">
+                        <div className="self-stretch flex flex-col md:flex-row md:items-center md:justify-start gap-4">
+                            <div className="text-black text-2xl md:text-xl sm:text-lg font-bold font-['Open Sans']">
                                 Carpools
                             </div>
                             <div className="text-black">
@@ -1605,17 +1608,17 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
 
                         {!results && (
                             <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
                                     No pools yet - run the optimizer to create groupings!
                                 </div>
                             </div>
                         )}
                         <div className="flex-col justify-start items-start gap-2.5 flex w-full p-4 border border-lightgray shadow-sm bg-w rounded-md shadow-sm">
-                            <div className="text-black text-xl font-bold font-['Open Sans']">
+                            <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
                                 All Members
                             </div>
                             <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
                                     {carpoolOrgInfo?.carpoolMembers
                                         ?.map((memberId: string) => userIdToNameMap[memberId] || `Member ${memberId.substring(0, 5)}...`)
                                         .join(", ")}
@@ -1625,13 +1628,13 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         {results && (
                             <div className="w-full flex-col justify-start items-start gap-6 flex mt-4">
                                 {results.carpools && results.carpools.length > 0 ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                                    <div className={`w-full ${results.carpools.length === 1 ? "flex flex-col gap-6 mt-4" : "grid grid-cols-1 md:grid-cols-2"} gap-6 mt-4`}>
                                         {results.carpools.map((carpool: any, index: number) => (
                                             <div
                                                 key={index}
                                                 className="flex flex-col p-4 border border-lightgray shadow-sm bg-w rounded-md"
                                             >
-                                                <div className="text-blue font-semibold text-xl mb-2">
+                                                <div className="text-blue font-semibold text-xl md:text-lg sm:text-md mb-2">
                                                     Carpool Group {index + 1}
                                                 </div>
 
@@ -1735,13 +1738,10 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                 
                                 {results.unassignedMembers && results.unassignedMembers.length > 0 && (
                                     <div className="text-black w-full p-4 border border-lightgray bg-w shadow-sm rounded-md mt-4">
-                                        <div className="text-gray font-semibold text-lg mb-2">
+                                        <div className="text-gray font-semibold text-xl md:text-lg sm:text-md mb-2">
                                             Unassigned Members
                                         </div>
-                                        {/* <div className="text-gray">
-                                            {results.unassignedMembers.join(", ")}
-                                        </div> */}
-                                        <div className="text-gray">
+                                        <div className="text-gray text-xl md:text-lg sm:text-md ">
                                             {results.unassignedMembers
                                                 .map((member) => {
                                                     if (Array.isArray(member)) {
@@ -1757,27 +1757,28 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         )}
                     </div>
                 )}
-                <div className="flex-col justify-start items-start gap-5 flex text-black w-full p-5 border border-lightgray bg-w shadow-sm rounded-md mt-10">
-                    <div className="justify-start items-start gap-5 inline-flex">
-                        <div className="text-black text-2xl font-bold font-['Open Sans']">
+                <div className="flex flex-col bg-white border border-lightgray p-6 rounded-2xl shadow-md mt-6">
+                    <div className="flex justify-between items-center">
+                        <div className="text-black text-2xl md:text-xl sm:text-lg font-bold font-['Open Sans']">
                             My Carpool
                         </div>
                     </div>
                     {myCarpool ? (
                         <>
+                        <div className="flex flex-col bg-white p-4 rounded-lg  mt-4">
                             <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                                <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
                                     Members
                                 </div>
-                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
                                     {myCarpool.members.map((member) => member[1]).join(", ")}
                                 </div>
                             </div>
-                            <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                            <div className="flex-col justify-start items-start gap-2.5 flex mt-4">
+                                <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
                                     Driving Days
                                 </div>
-                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
                                     {Object.entries(myCarpool.driverSchedule)
                                         .map(([day, driver]) => {
                                             const dayIndex = parseInt(day, 10); // day to a number
@@ -1787,17 +1788,18 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                         .join(", ")}
                                 </div>
                             </div>
-                            <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl font-bold font-['Open Sans']">
+                            <div className="flex-col justify-start items-start gap-2.5 flex mt-4">
+                                <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
                                     Riders
                                 </div>
-                                <div className="text-gray text-xl font-normal font-['Open Sans']">
+                                <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
                                     {myCarpool.riders.join(", ")}
                                 </div>
                             </div>
+                        </div>
                         </>
                     ) : (
-                        <div className="text-gray text-xl font-normal font-['Open Sans']">
+                        <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans'] mt-4">
                             You are not currently assigned to a carpool.
                         </div>
                     )}
