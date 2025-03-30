@@ -52,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({
                                     <Link
                                         href="/carpools"
                                         className={
-                                            currentPath === "/carpools"
+                                            currentPath === "/carpools" || currentPath.startsWith("/pool-info")
                                                 ? "text-blue"
                                                 : "text-gray hover:text-blue"
                                         }
@@ -77,7 +77,7 @@ const Header: React.FC<HeaderProps> = ({
                     </>
                 ) : null}
                 <span
-                    className="text-base text-w font-semibold bg-blue p-2 cursor-pointer rounded-md"
+                    className="text-base text-w font-medium bg-blue p-2 cursor-pointer rounded-md"
                     onClick={async () => {
                         "use server";
                         if (userId) {

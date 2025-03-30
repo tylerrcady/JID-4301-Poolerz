@@ -25,7 +25,7 @@ interface CarpoolOptMapping {
 
 
 const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
-  userId = "67d3358e45ee3c027f8e59d6"; // DELETE line later, will use for testing rn
+  // userId = "67d3358e45ee3c027f8e59d6"; // DELETE line later, will use for testing rn
   const [events, setEvents] = useState<CarpoolCalendarEvent[]>([]);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [view, setView] = useState<View>(Views.WEEK);
