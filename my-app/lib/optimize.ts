@@ -1,6 +1,28 @@
 // example-usage.ts
 import { optimizeCarpools } from "@/optimizer/optimizer";
 
+export function extractTimeInfo(carpoolDoc: any) {
+    let startTime = "";
+    let endTime = "";
+    
+    if (carpoolDoc?.startTime && carpoolDoc?.endTime) {
+        startTime = carpoolDoc.startTime;
+        endTime = carpoolDoc.endTime;
+    } else if (carpoolDoc?.notes) {
+        try {
+            const timeMatch = carpoolDoc.notes.match(/Times: [A-Za-z]+: (\d+:\d+)-(\d+:\d+)/);
+            if (timeMatch && timeMatch.length >= 3) {
+                startTime = timeMatch[1];
+                endTime = timeMatch[2];
+            }
+        } catch (e) {
+            console.error("Error extracting time from notes:", e);
+        }
+    }
+    
+    return { startTime, endTime };
+}
+
 export async function Optimizer(carpoolId: string) {
     async function getInput() {
         try {
@@ -36,6 +58,9 @@ export async function Optimizer(carpoolId: string) {
             }
             const members = ccd.carpoolMembers;
 
+            // Extract time information using our helper
+            const { startTime, endTime } = extractTimeInfo(ccd);
+
             // access user-carpool-data
             const userCarpoolPromises = members.map(async (userId: string) => {
                 const userCarpoolResponse = await fetch(
@@ -65,6 +90,8 @@ export async function Optimizer(carpoolId: string) {
                 carpoolName: ccd.carpoolName,
                 carpoolLocation: ccd.carpoolLocation || {},
                 carpoolDays: ccd.carpoolDays || [],
+                startTime,
+                endTime,
                 carpoolMembers: members.map(
                     (member: string, i: number) => i + 1
                 ),
@@ -95,6 +122,8 @@ export async function Optimizer(carpoolId: string) {
                 }),
                 users: await Promise.all(
                     members.map(async (member: string, i: number) => {
+                        const userCarpoolData =
+                            userCarpoolResults[i]?.createCarpoolData?.userData || {};
                         const formData = formResults[i]?.userFormData || {};
 
                         const nameResponse = await fetch(
@@ -107,6 +136,19 @@ export async function Optimizer(carpoolId: string) {
                         }
                         const nameData = await nameResponse.json();
 
+                        const matchingCarpool = userCarpoolData.carpools?.find(
+                            (c: any) => c.carpoolId === doc.carpoolID
+                        );
+                
+                        // Extract carCapacity and location from the matching carpool
+                        const carCapacity = matchingCarpool?.carCapacity || 0;
+                        const location = {
+                            address: userCarpoolData?.userLocation?.address || "",
+                            city: userCarpoolData?.userLocation?.city || "",
+                            state: userCarpoolData?.userLocation?.state || "",
+                            zipCode: userCarpoolData?.userLocation?.zipCode || "",
+                        };
+
                         return {
                             userId: formData.userId,
                             name: nameData.name,
@@ -118,19 +160,9 @@ export async function Optimizer(carpoolId: string) {
                                       (child: any) => child.name
                                   )
                                 : [],
-                            carCapacity: formData.userFormData.carCapacity || 0, //! pulls from form data, not sure if we want from userCarpoolData
-                            location: {
-                                address:
-                                    formData.userFormData.location?.address ||
-                                    "",
-                                city:
-                                    formData.userFormData.location?.city || "",
-                                state:
-                                    formData.userFormData.location?.state || "",
-                                zipCode:
-                                    formData.userFormData.location?.zipCode ||
-                                    "",
-                            },
+                            //carCapacity: userCarpoolData.carCapacity || 0, //! pulls from form data, not sure if we want from userCarpoolData
+                            carCapacity,
+                            location
                         };
                     })
                 ),
@@ -145,14 +177,18 @@ export async function Optimizer(carpoolId: string) {
     async function run(data: any) {
         const apiKey = "AIzaSyCGFoau74-eJjeaKFqh0CXiqsGPe5Rx5Yc"; // probably change to .env variable later on (@ ignacio)
         const results = await optimizeCarpools(data, apiKey); // call and return the optimizer & its outputs
+        
+        // Add time information to the results without changing optimizer logic
         return {
-            initialClusters: results.initialClusters,
-            validatedClusters: results.validatedClusters,
-            finalClusters: results.finalClusters,
-            unclusteredUsers: results.unclusteredUsers,
+            ...results,
+            timeInfo: {
+                startTime: data.startTime || "",
+                endTime: data.endTime || ""
+            }
         };
     }
 
     const data = await getInput();
+    console.log("Data:", data);
     return await run(data); // run the example and return the results
 }

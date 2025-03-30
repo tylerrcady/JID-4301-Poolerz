@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({
     const callbackUrl = "/";
 
     return (
-        <header className="flex justify-between flex-wrap items-center bg-white py-4 px-3 text-w gap-2 m-2 rounded-md w-11/12">
+        <header className="flex justify-between flex-wrap items-center bg-white py-4 px-5 text-w gap-2 mb-7 rounded-md w-full">
             <Link href="/" aria-label="Go to home">
                 <div className="relative w-full max-w-xs">
                     <Image
@@ -38,9 +38,22 @@ const Header: React.FC<HeaderProps> = ({
                             <>
                                 <span className="text-lg mr-5 font-medium transition-colors duration-200">
                                     <Link
+                                        href="/dashboard"
+                                        className={
+                                            currentPath === "/dashboard"
+                                                ? "text-blue"
+                                                : "text-gray hover:text-blue"
+                                        }
+                                    >
+                                        Info
+                                    </Link>
+                                </span>
+                                <span className="text-lg mr-5 font-medium transition-colors duration-200">
+                                    <Link
                                         href="/carpools"
                                         className={
-                                            currentPath === "/carpools"
+                                            currentPath === "/carpools" ||
+                                            currentPath.startsWith("/pool-info")
                                                 ? "text-blue"
                                                 : "text-gray hover:text-blue"
                                         }
@@ -65,7 +78,7 @@ const Header: React.FC<HeaderProps> = ({
                     </>
                 ) : null}
                 <span
-                    className="text-base text-w font-semibold bg-blue p-2 cursor-pointer rounded-md"
+                    className="text-base text-w font-medium bg-blue p-2 cursor-pointer rounded-md"
                     onClick={async () => {
                         "use server";
                         if (userId) {

@@ -482,7 +482,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
             disabled={isSubmitDisabled}
             className={`px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] ${
               isSubmitDisabled
-                ? "bg-gray-400 cursor-not-allowed"
+                ? "bg-lightblue cursor-not-allowed"
                 : "bg-blue border border-blue"
             }`}
           >

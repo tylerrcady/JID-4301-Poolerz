@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AddModal from "@/components/modals/add-modal";
 import Button from "@/components/atoms/Button";
@@ -34,9 +34,42 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [stateField, setStateField] = useState("");
+  const [zip, setZip] = useState("");
+  const [riders, setRiders] = useState<{ id: string; name: string; selected: boolean }[]>([]);
+  const [drivingAvailability, setDrivingAvailability] = useState<string[]>([]);
+  const [carCapacity, setCarCapacity] = useState("");
   const [error, setError] = useState("");
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [additionalNotes, setAdditionalNotes] = useState("");
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+
+  useEffect(() => {
+      if (!userId) return;
+      fetch(`/api/user-form-data?userId=${userId}`)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to fetch user form data");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          const doc = data.userFormData;
+          const children = doc?.userFormData?.children || [];
+          const mapped = children.map((child: any, idx: number) => ({
+            id: child.id || `child-${idx}`,
+            name: child.name,
+            selected: false,
+          }));
+          setRiders(mapped);
+        })
+        .catch((err) => {
+          console.error(err);
+          setError("Could not load children from profile.");
+        });
+    }, [userId]);
 
   // toggle day selection
   const handleDayToggle = (day: string) => {
@@ -44,6 +77,18 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
     console.log(selectedDays);
+  };
+
+  const toggleAvailability = (day: string) => {
+    setDrivingAvailability((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
+  const handleRiderToggle = (id: string) => {
+    setRiders((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, selected: !r.selected } : r))
+    );
   };
 
   const handleBackClick = () => {
@@ -58,6 +103,21 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
   const handleCancelBack = () => {
     setIsBackModalOpen(false);
   };
+
+  useEffect(() => {
+      if (
+        address.trim() &&
+        city.trim() &&
+        stateField.trim() &&
+        zip.trim() &&
+        carCapacity.trim() &&
+        drivingAvailability.length > 0
+      ) {
+        setIsSubmitDisabled(false);
+      } else {
+        setIsSubmitDisabled(true);
+      }
+    }, [address, city, stateField, zip, carCapacity, drivingAvailability]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,14 +155,19 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
       .filter((num): num is number => num !== undefined)
       .sort((a, b) => a - b);
 
+    // LOOK INTO: why this is needed for app to run
+    const notesWithTime = additionalNotes
+      ? `Times: ${formattedTimes}. Additional Notes: ${additionalNotes}`
+      : `Times: ${formattedTimes}`;
+
     const formData = {
       creatorId: userId,
       carpoolName: poolName,
       carpoolLocation: sharedLocation,
       carpoolDays: selectedDaysAsInt,
-      notes: additionalNotes
-        ? `Times: ${formattedTimes}. Additional Notes: ${additionalNotes}`
-        : `Times: ${formattedTimes}`,
+      startTime: startTime,
+      endTime: endTime,
+      notes: notesWithTime,
       carpoolMembers: [userId],
     };
 
@@ -125,6 +190,42 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
           poolName
         )}`
       );
+      // now post to user-carpool data
+      const joinUserData: JoinCarpoolData = {
+        userLocation: {
+            address,
+            city,
+            state: stateField,
+            zipCode: zip
+        },
+        carpools: [{
+          carpoolId: result.joinCode,
+          riders: riders
+          .filter(rider => rider.selected)
+          .map(rider => rider.name),
+          notes: additionalNotes,
+          drivingAvailability: selectedDaysAsInt,
+          carCapacity: Number(carCapacity),
+        }]
+      };
+      console.log("Join Carpool Data:", joinUserData);
+      const combine = {
+        userId: userId,
+        createCarpoolData: formData,
+        joinData: joinUserData
+      }
+      const response2 = await fetch("/api/join-carpool-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ joinCarpoolData: combine}),
+      });
+      const result2 = await response2.json();
+      if (!response2.ok) {
+        setError(result2.error || "Failed to create carpool.");
+        return;
+      }
     } catch (error: unknown) {
       console.error("Error submitting form:", error);
       setError("Internal Server Error. Please try again.");
@@ -262,6 +363,94 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                 className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
               />
             </div>
+            <div className="flex flex-col gap-1">
+            <label className="text-gray text-xl font-bold font-['Open Sans']">
+              Your Driving Availability <span className="text-red">*</span>
+            </label>
+            <div className="flex flex-wrap gap-3">
+              {DAYS_OF_WEEK.map((day) => {
+                const selected = drivingAvailability.includes(day.value);
+                return (
+                  <div
+                    key={day.value}
+                    onClick={() => toggleAvailability(day.value)}
+                    className={`flex items-center justify-center rounded-full cursor-pointer text-lg ${
+                      selected
+                        ? "bg-blue text-white"
+                        : "bg-white border border-gray text-black"
+                    }`}
+                    style={{ width: "40px", height: "40px" }}
+                  >
+                    {day.label}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-gray text-xl font-bold font-['Open Sans']">
+              Your Address <span className="text-red">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="p-2 border border-gray rounded-md text-black"
+            />
+            <input
+              type="text"
+              placeholder="City"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="p-2 border border-gray rounded-md text-black"
+            />
+            <input
+              type="text"
+              placeholder="State"
+              value={stateField}
+              onChange={(e) => setStateField(e.target.value)}
+              className="p-2 border border-gray rounded-md text-black"
+            />
+            <input
+              type="text"
+              placeholder="Zip Code"
+              value={zip}
+              onChange={(e) => setZip(e.target.value)}
+              className="p-2 border border-gray rounded-md text-black"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+          <label className="text-gray text-xl font-bold font-['Open Sans']">
+            Riders <span className="text-red">*</span>
+          </label>
+          <div className="flex gap-4">
+            {riders.map((rider) => (
+              <label key={rider.id} className="flex items-center gap-1 font-['Open Sans']">
+                <input
+                  type="checkbox"
+                  checked={rider.selected}
+                  onChange={() => handleRiderToggle(rider.id)}
+                  className="form-checkbox h-5 w-5 text-blue"
+                />
+                <span className="text-black">{rider.name}</span>
+              </label>
+            ))}
+          </div>
+          </div>
+            <div className="flex flex-col gap-1">
+            <label className="text-gray text-xl font-bold font-['Open Sans']">
+              Car Capacity <span className="text-red">*</span>
+            </label>
+            <input
+              type="number"
+              placeholder="Enter capacity (max 8)"
+              value={carCapacity}
+              onChange={(e) => setCarCapacity(e.target.value)}
+              className="p-2 border border-gray rounded-md text-black"
+              max={8}
+            />
+          </div>
             {/* Additional Notes Field */}
             <div className="flex flex-col gap-1">
               <label className="text-gray text-xl font-bold font-['Open Sans']">
@@ -278,7 +467,12 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
             {error && <p className="text-red text-med">{error}</p>}
             <button
               type="submit"
-              className="px-6 py-2 bg-[#4b859f] rounded-md border border-[#4b859f] text-white text-lg md:text-xl font-semibold font-['Open Sans']"
+              disabled={isSubmitDisabled}
+              className={`px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] ${
+                isSubmitDisabled
+                  ? "bg-lightblue cursor-not-allowed"
+                  : "bg-blue border border-blue"
+              }`}
             >
               Continue
             </button>

@@ -124,20 +124,14 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
         setJoinCarpoolData(fetchedData.flat());
     }, [carpoolIds, handleCarpoolsGetWithCarpoolId]);
 
-    // tyler note: join the data properly to prevent no duplicates
-    const allCarpools = carpoolIds.map((carpoolId) => {
-        const createCarpool = createCarpoolData.find(
-            (carpool) => carpool.carpoolID === carpoolId
-        );
-        const joinCarpool = joinCarpoolData.find(
-            (carpool) => carpool.carpoolID === carpoolId
-        );
-        return {
-            ...createCarpool,
-            ...joinCarpool,
-            isOwner: !!createCarpool,
-        };
-    });
+    // annie note: previous joining didn't pull created carpools properly,
+    // this uses old logic, but filters for duplicates
+    const allCarpools = [
+        ...createCarpoolData.map((carpool) => ({ ...carpool, isOwner: true })),
+        ...joinCarpoolData.filter(
+            (joined) => !createCarpoolData.some((created) => created.carpoolID === joined.carpoolID)
+        ).map((carpool) => ({ ...carpool, isOwner: false })),
+    ];
 
     // Fetch create-carpool data when carpoolIds change
     useEffect(() => {
@@ -203,13 +197,13 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                         <div className="mt-2 space-y-3">
                             {allCarpools.map((carpool, index) => (
                                 <Link
-                                    href={`/pool-info/${index}?carpoolId=${carpoolIds[index]}`} // need to pass the carpoolId in too for the optimizer
+                                    href={`/pool-info/${index}?carpoolId=${allCarpools[index].carpoolID}&newPool=${carpool.isOwner}`}
                                     key={index}
                                     className="block"
                                 >
                                     <div className="p-3 rounded-md shadow-sm cursor-pointer flex justify-between items-center">
                                         <div className="flex flex-col gap-2">
-                                            <div className="text-2xl font-regular text-gray">
+                                            <div className="text-2xl md:text-reg font-regular text-gray">
                                                 {
                                                     carpool.createCarpoolData
                                                         ?.carpoolName
@@ -233,7 +227,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                             ))}
                         </div>
                     ) : (
-                        <p className="mt-2 text-gray-600 text-lg md:text-xl font-normal font-['Open Sans']">
+                        <p className="mt-2 text-gray text-lg md:text-xl font-normal font-['Open Sans']">
                             You currently have no carpools - create or join one
                             to start!
                         </p>

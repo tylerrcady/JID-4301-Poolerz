@@ -16,6 +16,7 @@ interface UserFormData {
     carCapacity: number;
     availabilities: Availability[];
     location: UserLocation;
+    phoneNumber: string;
 }
 
 interface SharedLocation extends UserLocation {
@@ -40,6 +41,8 @@ interface CreateCarpoolData {
     carpoolName: string;
     carpoolLocation: SharedLocation;
     carpoolDays: number[];
+    startTime: string;
+    endTime: string;
     notes: string;
     carpoolMembers: string[];
 }
@@ -49,5 +52,27 @@ interface UserDocument {
     userId: string;
     userFormData: UserFormData;
     isFormComplete: boolean;
+}
+
+interface TransformedCarpool {
+    id: number;
+    members: string[];
+    memberIds: string[];
+    riders: string[];
+    driverSchedule: Record<string, string> | any; // Use any temporarily to resolve type issue
+    totalDistance: number;
+    startTime?: string;
+    endTime?: string;
+}
+
+interface TransformedResults {
+    carpools: TransformedCarpool[];
+    unassignedMembers: string[];
+    unassignedMemberIds: string[];
+    metrics: {
+        totalClusters: number;
+        totalMembers: number;
+        unassignedCount: number;
+    };
 }
 
