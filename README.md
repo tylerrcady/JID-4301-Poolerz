@@ -2,6 +2,28 @@
 Poolerz is a web-based carpooling application designed to support busy professionals with children between the ages of 7 and 15 who attend camps, schools, or clubs with no transportation option. Carpooling among parents is the preferred solution, but some parents may not have a strong network or may not know any other parents and have a limited opportunity to connect. For parents who are connected, carpooling is complex and complicated and requires the exchange of a lot of information, such as capacity, availability, constraints, proximity, and more. It's a logistical challenge. At Poolerz, we strive to solve all of these problems.
 
 # Release Notes
+## Version 0.4.0: https://jda-4301-poolerz.vercel.app/
+### Features
+- List of Carpools now includes both created and joined carpools, with an _Owner_ tag to distinguish created carpools.
+- Users can now leave carpools if they are not the owner.
+- Dynamic Carpool Information Page:
+    - Users can now edit their carpool information (e.g., driving availability, car capacity, etc.).
+    - Carpool owners can edit the carpool event information.
+    - Carpool owners can run the optimizer as many times as they’d like. Optimizer results are displayed on the dynamic pool-info page.
+- The User Form now collects phone numbers so that users can access contact information for other users in their carpool group.
+- When users create a carpool, it is now added to their list of joined carpools in the user-carpool-data
+- Start and End times of a carpool are stored in database and passed through the optimizer
+  
+### Bug Fixes
+- The Carpool-info Page now dynamically renders the correct carpool information and pulls both riders and members for a pool.
+- "Remove" button now visually removes elements before saving
+- UI fix: All components are properly aligned with header in join-carpool
+ 
+### Known Issues
+- Fetching information for the pool-info page occasionally lags due to database organization.
+- Validation should be added for checking inputted locations/addresses.
+- Registration Form UI's input fields still needs to be fully checked for regex edge cases
+  
 ## Version 0.3.0: https://jda-4301-poolerz.vercel.app/
 ### Features
 - Join Carpool Flow & Implementation
