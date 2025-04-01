@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { signIn, signOut } from "next-auth/react"; // Import from next-auth
+import { signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 

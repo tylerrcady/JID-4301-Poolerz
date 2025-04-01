@@ -100,6 +100,12 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
           selected: false,
         }));
         setRiders(mapped);
+
+        const userAddress = doc?.userFormData?.location || {};
+        setAddress(userAddress.address || "");
+        setCity(userAddress.city || "");
+        setStateField(userAddress.state || "");
+        setZip(userAddress.zipCode || "");
       })
       .catch((err) => {
         console.error(err);
