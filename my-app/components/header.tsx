@@ -1,28 +1,25 @@
-//"use client";
-import React, {useState} from "react";
-import { signIn, signOut } from "@/auth";
+"use client";
+
+import React, { useState } from "react";
+import { signIn, signOut } from "next-auth/react"; // Import from next-auth
 import Link from "next/link";
 import Image from "next/image";
-
-//import { usePathname } from 'next/navigation'
 
 interface HeaderProps {
     userId: string | undefined;
     isFormComplete: boolean;
-    currentPath: string; // prop
-    menuOpen: boolean; // prop
+    currentPath: string;
 }
 
 const Header: React.FC<HeaderProps> = ({
     userId,
     isFormComplete,
     currentPath,
-    menuOpen,
 }) => {
-    const callbackUrl = "/";
+    const [menuOpen, setMenuOpen] = useState(false);
 
     return (
-        <header className="flex justify-between flex-wrap items-center bg-white py-4 px-5 text-w gap-2 mb-7 rounded-md w-full">
+        <header className="flex justify-between items-center bg-white py-4 px-5 text-w gap-2 mb-7 rounded-md w-full">
             <Link href="/" aria-label="Go to home">
                 <div className="relative w-full max-w-xs">
                     <Image
@@ -33,84 +30,124 @@ const Header: React.FC<HeaderProps> = ({
                     />
                 </div>
             </Link>
-            {/* <div className="flex items-center gap-4"> */}
+            {/* Hamburger Menu */}
             <div className="md:hidden">
-                {/* Hamburger Menu Button */}
                 <button
-                    className="text-gray focus:outline-none"
+                    onClick={() => setMenuOpen(!menuOpen)}
+                    className="text-gray"
                     aria-label="Toggle menu"
                 >
                     <Image
-                        src="/public/burger-menu.svg"
-                        alt="Menu"
+                        src="/burger-menu.svg"
+                        alt="Toggle menu"
                         width={40}
                         height={40}
+                        className="object-contain"
                     />
                 </button>
+                <nav
+                    className={`absolute top-16 left-0 w-full bg-white shadow-md rounded-md transform transition-all duration-500 ease-in-out ${
+                        menuOpen ? "opacity-100 scale-y-100" : "opacity-0 scale-y-0"
+                    } origin-top`}
+                >
+                    {userId && isFormComplete && (
+                        <>
+                            <Link
+                                href="/dashboard"
+                                className={`block text-lg font-medium transition-colors duration-200 px-5 py-2 ${
+                                    currentPath === "/dashboard"
+                                        ? "text-blue"
+                                        : "text-gray hover:text-blue"
+                                }`}
+                            >
+                                Dashboard
+                            </Link>
+                            <Link
+                                href="/carpools"
+                                className={`block text-lg font-medium transition-colors duration-200 px-5 py-2 ${
+                                    currentPath === "/carpools" || currentPath.startsWith("/pool-info")
+                                        ? "text-blue"
+                                        : "text-gray hover:text-blue"
+                                }`}
+                            >
+                                Carpools
+                            </Link>
+                            <Link
+                                href="/user-profile"
+                                className={`block text-lg font-medium transition-colors duration-200 px-5 py-2 ${
+                                    currentPath === "/user-profile"
+                                        ? "text-blue"
+                                        : "text-gray hover:text-blue"
+                                }`}
+                            >
+                                Profile
+                            </Link>
+                        </>
+                    )}
+                    <span
+                        className="inline-block text-base text-w text-sm font-medium bg-blue ml-5 mb-5 px-5
+                                    py-2 cursor-pointer rounded-md mt-2"
+                        onClick={async () => {
+                            if (userId) {
+                                await signOut();
+                            } else {
+                                await signIn("google");
+                            }
+                        }}
+                    >
+                        {userId ? "Log Out" : "Log In"}
+                    </span>
+                </nav>
             </div>
-            <div
-                className={`${
-                    menuOpen ? "block" : "hidden"
-                } md:flex flex-col md:flex-row items-center gap-4 w-full md:w-auto`}
-            >
-                {userId ? (
+            {/* Desktop Menu */}
+            <nav className="hidden md:flex md:items-center md:gap-10">
+                {userId && isFormComplete && (
                     <>
-                        {isFormComplete && (
-                            <>  
-                                <span className="text-lg mr-5 font-medium transition-colors duration-200">
-                                    <Link
-                                        href="/dashboard"
-                                        className={
-                                            currentPath === "/dashboard"
-                                                ? "text-blue"
-                                                : "text-gray hover:text-blue"
-                                        }
-                                    >
-                                        Dashboard
-                                    </Link>
-                                </span>
-                                <span className="text-lg mr-5 font-medium transition-colors duration-200">
-                                    <Link
-                                        href="/carpools"
-                                        className={
-                                            currentPath === "/carpools" || currentPath.startsWith("/pool-info")
-                                                ? "text-blue"
-                                                : "text-gray hover:text-blue"
-                                        }
-                                    >
-                                        Carpools
-                                    </Link>
-                                </span>
-                                <span className="text-lg mr-5 font-medium transition-colors duration-200">
-                                    <Link
-                                        href="/user-profile"
-                                        className={
-                                            currentPath === "/user-profile"
-                                                ? "text-blue"
-                                                : "text-gray hover:text-blue"
-                                        }
-                                    >
-                                        Profile
-                                    </Link>
-                                </span>
-                            </>
-                        )}
+                        <Link
+                            href="/dashboard"
+                            className={`text-lg font-medium transition-colors duration-200 ${
+                                currentPath === "/dashboard"
+                                    ? "text-blue"
+                                    : "text-gray hover:text-blue"
+                            }`}
+                        >
+                            Dashboard
+                        </Link>
+                        <Link
+                            href="/carpools"
+                            className={`text-lg font-medium transition-colors duration-200 ${
+                                currentPath === "/carpools" || currentPath.startsWith("/pool-info")
+                                    ? "text-blue"
+                                    : "text-gray hover:text-blue"
+                            }`}
+                        >
+                            Carpools
+                        </Link>
+                        <Link
+                            href="/user-profile"
+                            className={`text-lg font-medium transition-colors duration-200 ${
+                                currentPath === "/user-profile"
+                                    ? "text-blue"
+                                    : "text-gray hover:text-blue"
+                            }`}
+                        >
+                            Profile
+                        </Link>
                     </>
-                ) : null}
+                )}
                 <span
                     className="text-base text-w font-medium bg-blue p-2 cursor-pointer rounded-md"
                     onClick={async () => {
-                        "use server";
                         if (userId) {
                             await signOut();
                         } else {
-                            await signIn("google", { callbackUrl });
+                            await signIn("google");
                         }
                     }}
                 >
                     {userId ? "Log Out" : "Log In"}
                 </span>
-            </div>
+            </nav>
         </header>
     );
 };
