@@ -1580,9 +1580,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             <div className="text-black text-2xl md:text-xl sm:text-lg font-bold font-['Open Sans']">
                                 Carpools
                             </div>
-                            <div className="text-black">
-                                (You are the owner)
-                            </div>
                             <div className="px-6 py-2 bg-blue rounded-md flex justify-center items-center">
                                 {!loading && (
                                     <button
