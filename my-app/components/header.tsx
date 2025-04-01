@@ -1,5 +1,5 @@
 //"use client";
-import React from "react";
+import React, {useState} from "react";
 import { signIn, signOut } from "@/auth";
 import Link from "next/link";
 import Image from "next/image";
@@ -10,12 +10,14 @@ interface HeaderProps {
     userId: string | undefined;
     isFormComplete: boolean;
     currentPath: string; // prop
+    menuOpen: boolean; // prop
 }
 
 const Header: React.FC<HeaderProps> = ({
     userId,
     isFormComplete,
     currentPath,
+    menuOpen,
 }) => {
     const callbackUrl = "/";
 
@@ -31,7 +33,26 @@ const Header: React.FC<HeaderProps> = ({
                     />
                 </div>
             </Link>
-            <div className="flex items-center gap-4">
+            {/* <div className="flex items-center gap-4"> */}
+            <div className="md:hidden">
+                {/* Hamburger Menu Button */}
+                <button
+                    className="text-gray focus:outline-none"
+                    aria-label="Toggle menu"
+                >
+                    <Image
+                        src="/public/burger-menu.svg"
+                        alt="Menu"
+                        width={40}
+                        height={40}
+                    />
+                </button>
+            </div>
+            <div
+                className={`${
+                    menuOpen ? "block" : "hidden"
+                } md:flex flex-col md:flex-row items-center gap-4 w-full md:w-auto`}
+            >
                 {userId ? (
                     <>
                         {isFormComplete && (
