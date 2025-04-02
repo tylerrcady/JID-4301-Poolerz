@@ -190,7 +190,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
             </div>
     
             {/* Current Carpools */}
-            <div className="flex flex-col w-full md:w-1/2 bg-white rounded-md shadow-lg p-6 md:p-8 gap-6">
+            <div className="flex flex-col w-full md:w-1/2 bg-gradient-to-t from-offwhite2 to-white rounded-md shadow-lg p-6 md:p-8 gap-6">
                 <div>
                     <h2 className="text-black text-xl md:text-2xl font-bold font-['Open Sans']">
                         Current Carpools
@@ -203,7 +203,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                                     key={index}
                                     className="block"
                                 >
-                                    <div className="p-3 rounded-md shadow-sm cursor-pointer flex justify-between items-center">
+                                    <div className="p-3 bg-w bg-opacity-70 rounded-md shadow-sm cursor-pointer flex justify-between items-center">
                                         <div className="flex flex-col gap-2">
                                             <div className="text-2xl md:text-reg font-regular text-gray">
                                                 {carpool.createCarpoolData?.carpoolName}

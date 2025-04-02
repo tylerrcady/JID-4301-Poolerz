@@ -2,11 +2,12 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import Button from "@components/atoms/Button";
-
+import { signIn, signOut } from "next-auth/react";
 import AddModal from "./modals/add-modal";
 import TextInput from "@components/atoms/text-input";
 import NumberInput from "@components/atoms/number-input";
 import AddIcon from "./icons/AddIcon";
+import EditIcon from "./icons/EditIcon";
 
 interface UserProfileProps {
     userId: string | undefined;
@@ -171,199 +172,240 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     };
 
     return (
-        // do not change the first div at all
         <div className="flex flex-col md:flex-row items-start h-auto w-full bg-w p-10 gap-4">
-            {/*Profile Section*/}
-            <div className="flex-1 max-w-[500x] min-w-[300px] h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
-                <div className="justify-between items-start flex flex-wrap flex-col gap-2">
-                    <div className="text-blue text-2xl font-bold">Profile</div>
-                    {isEditingProfile ? (
-                        <div className="flex items-center gap-2 cursor-pointer">
-                            <div className="flex gap-2">
-                                <Button
-                                    text="Cancel"
-                                    type="cancel"
-                                    onClick={handleCancel}
-                                />
-                                <Button
-                                    text="Save"
-                                    type="primary"
-                                    onClick={handleSave}
-                                />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2 cursor-pointer">
-                            <Button
-                                text="Edit"
-                                type="secondary"
-                                onClick={handleEditProfile}
-                            />
-                        </div>
-                    )}
+            {/* Profile Pic + Uneditable Info */}
+            <div className="flex flex-col items-center justify-center md:items-center md:w-1/3 gap-4">
+                <div className="rounded-full bg-gray flex items-center justify-center">
+                    <img
+                        width={150}
+                        height={150}
+                        //src="/profile.svg"
+                        src="/mask group.png"
+                        alt="Profile"
+                        className="w-150 h-150 rounded-full object-cover"
+                    />
                 </div>
-                <div className="break-all">
+                <div className="text-center md:text-left">
                     <div className="text-black text-xl font-bold">{name}</div>
                     <div className="text-gray font-normal">{email}</div>
                 </div>
-                {userFormData && (
-                   <>
-                   <div className="break-all">
-                       <div className="text-black text-xl font-bold">
-                           Number of Children
-                       </div>
-                       <div className="text-gray text-base font-normal">
-                           {userFormData.numChildren}
-                       </div>
-                   </div>
-                   <div className="break-all">
-                       <div className="text-black text-xl font-bold">
-                           Phone Number
-                       </div>
-                       <div className="text-gray text-base font-normal">
-                           {isEditingProfile ? (
-                               <TextInput
-                                   currentValue={userFormData.phoneNumber || ""}
-                                   onChange={(value) => {
-                                       setUserFormData({
-                                           ...userFormData,
-                                           phoneNumber: value,
-                                       });
-                                   }}
-                                   placeholder="Enter phone number"
-                               />
-                           ) : (
-                               userFormData.phoneNumber || "Not provided"
-                           )}
-                       </div>
-                   </div>
-               </>
-           )}
-       </div>
-            {/*Family Section*/}
-            <div className="flex-1  max-w-[500x] min-w-[300px] h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
-                <div className="justify-between items-start flex flex-wrap flex-col gap-2">
-                    <div className="text-blue text-2xl font-bold">Riders</div>
-                    {isEditingFamily ? (
+                <div className="py-1">
+                    <Button
+                        text="View My Carpools"
+                        type="primary"
+                        onClick={() => {
+                            window.location.href = "/carpools";
+                        }}
+                    />
+                </div>
+                <button
+                    className="text-red font-normal"
+                    onClick={async () => {
+                        if (userId) {
+                            await signOut();
+                        }
+                    }}
+                >
+                    Log out
+                </button>
+            </div>
+    
+            {/* Profile and Family */}
+            <div className="flex flex-col md:flex-col flex-1 gap-6">
+                {/* Profile Section */}
+                <div className="flex-1 w-4/6 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
+                    <div className="justify-between items-center flex flex-wrap gap-2">
+                        <div className="text-blue text-2xl font-bold">Profile</div>
+                        {isEditingProfile ? (
+                            <div className="flex items-center gap-2 cursor-pointer">
+                                <div className="flex gap-2">
+                                    <Button
+                                        text="Cancel"
+                                        type="cancel"
+                                        onClick={handleCancel}
+                                    />
+                                    <Button
+                                        text="Save"
+                                        type="primary"
+                                        onClick={handleSave}
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 cursor-pointer">
+                                <Button
+                                    text="Edit"
+                                    type="secondary"
+                                    icon={<EditIcon />}
+                                    onClick={handleEditProfile}
+                                />
+                            </div>
+                        )}
+                    </div>
+                    {userFormData && (
+                        <>
+                            <div className="break-all">
+                                <div className="text-black text-xl font-bold">
+                                    Address
+                                </div>
+                                <div className="text-gray text-base font-normal">
+                                    {`${userFormData.location.address}, 
+                                        ${userFormData.location.city}, 
+                                        ${userFormData.location.state}, 
+                                        ${userFormData.location.zipCode}`}
+                                </div>
+                            </div>
+                            <div className="break-all">
+                                <div className="text-black text-xl font-bold">
+                                    Phone Number
+                                </div>
+                                <div className="text-gray text-base font-normal">
+                                    {isEditingProfile ? (
+                                        <TextInput
+                                            currentValue={
+                                                userFormData.phoneNumber || ""
+                                            }
+                                            onChange={(value) => {
+                                                setUserFormData({
+                                                    ...userFormData,
+                                                    phoneNumber: value,
+                                                });
+                                            }}
+                                            placeholder="Enter phone number"
+                                        />
+                                    ) : (
+                                        userFormData.phoneNumber || "Not provided"
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+    
+                {/* Family Section */}
+                <div className="flex-1 w-4/6 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
+                    <div className="justify-between items-center flex flex-wrap gap-2">
+                        <div className="text-blue text-2xl font-bold">Family</div>
+                        {isEditingFamily ? (
+                            <div className="flex items-center gap-2 cursor-pointer">
+                                <div className="flex gap-2">
+                                    <Button
+                                        text="Cancel"
+                                        type="cancel"
+                                        onClick={handleCancel}
+                                    />
+                                    <Button
+                                        text="Save"
+                                        type="primary"
+                                        onClick={handleSave}
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 cursor-pointer">
+                                <Button
+                                    text="Edit"
+                                    type="secondary"
+                                    icon={<EditIcon />}
+                                    onClick={handleEditFamily}
+                                />
+                            </div>
+                        )}
+                    </div>
+                    <div>
+                        {userFormData &&
+                            userFormData.children.map((child, index) => (
+                                <div
+                                    key={`${child.name}-${index}`}
+                                    className="flex flex-col items-start"
+                                >
+                                    <div className="text-gray text-xl">
+                                        {isEditingFamily ? (
+                                            <TextInput
+                                                currentValue={child.name}
+                                                onChange={(value) => {
+                                                    const updatedChildren =
+                                                        userFormData.children.map(
+                                                            (c, i) =>
+                                                                i === index
+                                                                    ? {
+                                                                          ...c,
+                                                                          name: value,
+                                                                      }
+                                                                    : c
+                                                        );
+                                                    setUserFormData({
+                                                        ...userFormData,
+                                                        children: updatedChildren,
+                                                    });
+                                                }}
+                                                placeholder="Enter rider's name"
+                                            />
+                                        ) : (
+                                            <span className="text-xl font-bold text-black">
+                                                {child.name}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {isEditingFamily && (
+                                        <div className="w text-gray text-xl">
+                                            <Button
+                                                text="Remove"
+                                                type="remove"
+                                                onClick={() => {
+                                                    const updatedChildren =
+                                                        userFormData.children.filter(
+                                                            (_, i) => i !== index
+                                                        );
+                                                    setUserFormData({
+                                                        ...userFormData,
+                                                        children: updatedChildren,
+                                                        numChildren:
+                                                            updatedChildren.length,
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                    </div>
+                    {isEditingFamily && (
                         <div className="flex items-center gap-2 cursor-pointer">
-                            <div className="flex gap-2">
+                            <Button
+                                icon={<AddIcon strokeColor="#FFFFFF" />}
+                                text="Add Rider"
+                                type="primary"
+                                onClick={() => setIsChildModalOpen(true)}
+                            />
+                        </div>
+                    )}
+                    <AddModal
+                        isOpen={isChildModalOpen}
+                        text="Add Child"
+                        onClose={() => setIsChildModalOpen(false)}
+                    >
+                        <div className="flex flex-col gap-4">
+                            <TextInput
+                                currentValue={newChildName}
+                                onChange={setNewChildName}
+                                placeholder="Enter child's name"
+                            />
+                            <div className="flex w-2/5 justify-start gap-4">
                                 <Button
                                     text="Cancel"
                                     type="cancel"
-                                    onClick={handleCancel}
+                                    onClick={() => setIsChildModalOpen(false)}
                                 />
                                 <Button
                                     text="Save"
                                     type="primary"
-                                    onClick={handleSave}
+                                    onClick={handleAddChild}
                                 />
                             </div>
                         </div>
-                    ) : (
-                        <div className="flex items-center gap-2 cursor-pointer">
-                            <Button
-                                text="Edit"
-                                type="secondary"
-                                onClick={handleEditFamily}
-                            />
-                        </div>
-                    )}
+                    </AddModal>
                 </div>
-                <div>
-                    {userFormData &&
-                        userFormData.children.map((child, index) => (
-                            <div
-                                key={`${child.name}-${index}`} // ensure unique key by combining name and index to prevent rendering issues
-                                // ! note: we should probably add id's to children to uniquely identify them in the database
-                                className="flex flex-col items-start"
-                            >
-                                <div className="text-gray text-xl">
-                                    {isEditingFamily ? (
-                                        <TextInput
-                                            currentValue={child.name}
-                                            onChange={(value) => {
-                                                const updatedChildren =
-                                                    userFormData.children.map(
-                                                        (c, i) =>
-                                                            i === index
-                                                                ? {
-                                                                      ...c,
-                                                                      name: value,
-                                                                  }
-                                                                : c
-                                                    );
-                                                setUserFormData({
-                                                    ...userFormData,
-                                                    children: updatedChildren,
-                                                });
-                                            }}
-                                            placeholder="Enter rider's name"
-                                        />
-                                    ) : (
-                                        <span className="text-2xl font-bold text-black">
-                                            {child.name}
-                                        </span>
-                                    )}
-                                </div>
-                                {isEditingFamily && (
-                                    <div className="w text-gray text-xl">
-                                        <Button
-                                            text="Remove"
-                                            type="remove"
-                                            onClick={() => {
-                                                const updatedChildren =
-                                                    userFormData.children.filter(
-                                                        (_, i) => i !== index
-                                                    );
-                                                setUserFormData({
-                                                    ...userFormData,
-                                                    children: updatedChildren,
-                                                    numChildren:
-                                                        updatedChildren.length,
-                                                });
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                </div>
-                {isEditingFamily && (
-                    <div className="flex items-center gap-2 cursor-pointer">
-                        <Button
-                            icon={<AddIcon strokeColor="#FFFFFF" />}
-                            text="Add Rider"
-                            type="primary"
-                            onClick={() => setIsChildModalOpen(true)}
-                        />
-                    </div>
-                )}
-                {/* Modal for adding a child */}
-                <AddModal
-                    isOpen={isChildModalOpen}
-                    text="Add Child"
-                    onClose={() => setIsChildModalOpen(false)}
-                >
-                    <div className="flex flex-col gap-4">
-                        <TextInput
-                            currentValue={newChildName}
-                            onChange={setNewChildName}
-                            placeholder="Enter child's name"
-                        />
-                        <div className="flex w-2/5 justify-start gap-4">
-                            <Button
-                                text="Cancel"
-                                type="cancel"
-                                onClick={() => setIsChildModalOpen(false)}
-                            />
-                            <Button
-                                text="Save"
-                                type="primary"
-                                onClick={handleAddChild}
-                            />
-                        </div>
-                    </div>
-                </AddModal>
             </div>
         </div>
     );

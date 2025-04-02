@@ -5,6 +5,7 @@ import BackButton from "@/components/atoms/back-button";
 import AddModal from "@/components/modals/add-modal";
 import Button from "@/components/atoms/Button";
 import { Optimizer } from "@/lib/optimize";
+import EditIcon from "./icons/EditIcon";
 
 interface UserWithCoords {
     userId: string;
@@ -1551,11 +1552,13 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                 Organization Information
                             </div>
                             {isOwner && (
-                                <div
-                                    className="text-blue text-xl md:text-lg sm:text-md font-bold font-['Open Sans'] cursor-pointer"
-                                    onClick={handleEditOrgInfo}
-                                >
-                                    Edit
+                                <div className="flex items-center gap-2 cursor-pointer">
+                                    <Button
+                                        text="Edit"
+                                        type="secondary"
+                                        icon={<EditIcon />}
+                                        onClick={handleEditOrgInfo}
+                                    />
                                 </div>
                             )}
                         </div>
@@ -1711,12 +1714,14 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             <div className="text-black text-2xl md:text-xl sm:text-lg font-bold font-['Open Sans']">
                                 My Information
                             </div>
-                            <div
-                                className="text-blue text-xl md:text-lg sm:text-md font-bold font-['Open Sans'] cursor-pointer"
-                                onClick={handleEditMyInfo}
-                            >
-                                Edit
-                            </div>
+                            <div className="flex items-center gap-2 cursor-pointer">
+                                    <Button
+                                        text="Edit"
+                                        type="secondary"
+                                        icon={<EditIcon />}
+                                        onClick={handleEditMyInfo}
+                                    />
+                                </div>
                         </div>
 
                         {isEditingMyInfo ? (

@@ -53,8 +53,8 @@ export default function Button({
             style={{ width }}
             title={text}
         >
-            {icon ? <span>{icon}</span> : null}
             <span className="line-clamp-1">{children || text}</span>
+            {icon ? <span className="ml-1 flex items-center">{icon}</span> : null}
         </button>
     );
 }

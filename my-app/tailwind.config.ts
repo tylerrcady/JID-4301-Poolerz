@@ -21,6 +21,7 @@ const config: Config = {
                 w: "#FFFFFF",
                 white: "#FFFFFF",
                 offwhite: "#EDEDED",
+                offwhite2: "#F5F5F5",
                 black: "#000000",
                 lightgray: "#F7F7F7",
                 gray: "#575757",
