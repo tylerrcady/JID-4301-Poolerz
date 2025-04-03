@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { auth } from "@/auth";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
@@ -22,10 +22,11 @@ export default async function Page() {
     }
 
     return (
-        <div className="flex items-center justify-between h-screen flex-col bg-w">
-            <Header userId={userId} 
-            isFormComplete={isFormComplete} 
-            currentPath='/user-profile' 
+        <div className="flex items-center justify-between h-full min-h-screen flex-col bg-w text-d">
+            <Header
+                userId={userId}
+                isFormComplete={isFormComplete}
+                currentPath="/user-profile"
             />
             {session?.user?.id ? (
                 <UserProfile

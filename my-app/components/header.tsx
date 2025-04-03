@@ -19,7 +19,7 @@ const Header: React.FC<HeaderProps> = ({
     const [menuOpen, setMenuOpen] = useState(false);
 
     return (
-        <header className="flex justify-between items-center bg-white py-4 px-5 text-w gap-2 mb-7 rounded-md w-full">
+        <header className="flex justify-between items-center bg-white py-4 px-5 text-w gap-2 w-full">
             <Link href="/" aria-label="Go to home">
                 <div className="relative w-full max-w-xs">
                     <Image
@@ -47,7 +47,9 @@ const Header: React.FC<HeaderProps> = ({
                 </button>
                 <nav
                     className={`absolute top-16 left-0 w-full bg-white shadow-md rounded-md transform transition-all duration-500 ease-in-out ${
-                        menuOpen ? "opacity-100 scale-y-100" : "opacity-0 scale-y-0"
+                        menuOpen
+                            ? "opacity-100 scale-y-100"
+                            : "opacity-0 scale-y-0"
                     } origin-top`}
                 >
                     {userId && isFormComplete && (
@@ -65,7 +67,8 @@ const Header: React.FC<HeaderProps> = ({
                             <Link
                                 href="/carpools"
                                 className={`block text-lg font-medium transition-colors duration-200 px-5 py-2 ${
-                                    currentPath === "/carpools" || currentPath.startsWith("/pool-info")
+                                    currentPath === "/carpools" ||
+                                    currentPath.startsWith("/pool-info")
                                         ? "text-blue underline underline-offset-8 decoration-2"
                                         : "text-gray hover:text-blue"
                                 }`}
@@ -116,7 +119,8 @@ const Header: React.FC<HeaderProps> = ({
                         <Link
                             href="/carpools"
                             className={`text-lg font-medium transition-colors duration-200 ${
-                                currentPath === "/carpools" || currentPath.startsWith("/pool-info")
+                                currentPath === "/carpools" ||
+                                currentPath.startsWith("/pool-info")
                                     ? "text-blue underline underline-offset-8 decoration-2"
                                     : "text-gray hover:text-blue"
                             }`}
