@@ -2,7 +2,10 @@
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useCallback } from "react";
 import BackButton from "@/components/atoms/back-button";
+import AddModal from "@/components/modals/add-modal";
+import Button from "@/components/atoms/Button";
 import { Optimizer } from "@/lib/optimize";
+import EditIcon from "./icons/EditIcon";
 
 interface UserWithCoords {
     userId: string;
@@ -127,6 +130,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [userIdToNameMap, setUserIdToNameMap] = useState<
         Record<string, string>
     >({});
+    // const [groupAddresses, setGroupAddresses] = useState<Record<string, any>>({});
 
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
     const [leaveError, setLeaveError] = useState<string | null>(null);
@@ -186,176 +190,27 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         }
     };
 
-    /*     const processOptimizationResults = (data: any) => {
+    /* const fetchUserAddresses = async (userIds: string[]) => {
         try {
-            if (!data?.results) {
-                return null;
+            const query = userIds.map((id) => `userId=${encodeURIComponent(id)}`).join("&");
+            const response = await fetch(`/api/join-carpool-data?${query}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                setGroupAddresses(data.userCarpoolData);
+            } else {
+                console.error("Failed to fetch user addresses:", response.statusText);
             }
-            
-            const results = JSON.parse(JSON.stringify(data.results));
-            console.log("Results pre carpool: ",results);
-            
-            if (results.carpools && Array.isArray(results.carpools)) {
-                results.carpools.forEach((carpool: TransformedCarpool) => {
-                    console.log("Carpool data:", carpool);
-                    if (carpool.driverSchedule) {
-                        const userIdToNameMap: Record<string, string> = {};
-                        
-                        if (carpool.members && Array.isArray(carpool.members) && 
-                            carpool.memberIds && Array.isArray(carpool.memberIds)) {
-                            for (let i = 0; i < Math.min(carpool.memberIds.length, carpool.members.length); i++) {
-                                userIdToNameMap[carpool.memberIds[i]] = carpool.members[i];
-                            }
-                        }
-                        
-                        const hasDriverTuples = Object.values(carpool.driverSchedule).some(driver => 
-                            Array.isArray(driver) && driver.length === 2
-                        );
-                        
-                        const hasDriverUserIds = Object.values(carpool.driverSchedule).some(driver => 
-                            typeof driver === 'string' && 
-                            (driver.length === 24 || driver.includes('-') || /^[a-zA-Z0-9]{10,}$/.test(driver))
-                        );
-                        
-                        if (hasDriverTuples) {
-                            const processedDriverSchedule: Record<string, string> = {};
-                            
-                            Object.entries(carpool.driverSchedule).forEach(([day, driver]: [string, any]) => {
-                                if (Array.isArray(driver) && driver.length === 2) {
-                                    processedDriverSchedule[day] = driver[1];
-                                } else if (typeof driver === 'object' && driver !== null) {
-                                    processedDriverSchedule[day] = driver.name || driver.userId || JSON.stringify(driver);
-                                } else {
-                                    processedDriverSchedule[day] = String(driver || "Unassigned");
-                                }
-                            });
-                            
-                            carpool.driverSchedule = processedDriverSchedule;
-                        } else if (hasDriverUserIds && Object.keys(userIdToNameMap).length > 0) {
-                            const processedDriverSchedule: Record<string, string> = {};
-                            
-                            Object.entries(carpool.driverSchedule).forEach(([day, driverId]: [string, any]) => {
-                                if (typeof driverId === 'string' && userIdToNameMap[driverId]) {
-                                    processedDriverSchedule[day] = userIdToNameMap[driverId];
-                                } else if (typeof driverId === 'object' && driverId !== null) {
-                                    processedDriverSchedule[day] = driverId.name || driverId.userId || JSON.stringify(driverId);
-                                } else {
-                                    processedDriverSchedule[day] = String(driverId || "Unassigned");
-                                }
-                            });
-                            
-                            carpool.driverSchedule = processedDriverSchedule;
-                        } else {
-                            Object.entries(carpool.driverSchedule).forEach(([day, driver]: [string, any]) => {
-                                if (typeof driver === 'object' && driver !== null) {
-                                    carpool.driverSchedule[day] = driver.name || driver.userId || JSON.stringify(driver);
-                                }
-                            });
-                        }
-                    }
-                    
-                    if (!carpool.startTime && startTime) {
-                        carpool.startTime = startTime;
-                    }
-                    if (!carpool.endTime && endTime) {
-                        carpool.endTime = endTime;
-                    }
-                    
-                    if (carpool.members && Array.isArray(carpool.members)) {
-                        const hasTuples = carpool.members.some((member: any) => 
-                            Array.isArray(member) && member.length === 2
-                        );
-                        
-                        if (hasTuples) {
-                            const extractedIds: string[] = [];
-                            const extractedNames: string[] = [];
-                            
-                            carpool.members.forEach((tuple: any) => {
-                                if (Array.isArray(tuple) && tuple.length === 2) {
-                                    extractedIds.push(tuple[0]);
-                                    extractedNames.push(tuple[1]);
-                                } else {
-                                    const id = typeof tuple === 'string' ? tuple : 'unknown-id';
-                                    extractedIds.push(id);
-                                    extractedNames.push(`Member ${String(id).substring(0, 5)}...`);
-                                }
-                            });
-                            
-                            carpool.memberIds = extractedIds;
-                            carpool.members = extractedNames;
-                        } else {
-                            const seemsLikeIds = carpool.members.some((member: string) => 
-                                typeof member === 'string' && 
-                                (member.length === 24 ||
-                                 member.includes('-') ||
-                                 /^[a-zA-Z0-9]{10,}$/.test(member))
-                            );
-                            
-                            if (!carpool.memberIds && seemsLikeIds) {
-                                carpool.memberIds = [...carpool.members];
-                                
-                                carpool.members = carpool.members.map((memberId: string) => {
-                                    if (typeof memberId === 'string' && memberId.includes(' ')) {
-                                        return memberId;
-                                    }
-                                    return `Member ${memberId.substring(0, 5)}...`;
-                                });
-                            }
-                        }
-                    }
-                });
-            }
-            
-            if (results.unassignedMembers && Array.isArray(results.unassignedMembers)) {
-                const hasTuples = results.unassignedMembers.some((member: any) => 
-                    Array.isArray(member) && member.length === 2
-                );
-                
-                if (hasTuples) {
-                    const extractedIds: string[] = [];
-                    const extractedNames: string[] = [];
-                    
-                    results.unassignedMembers.forEach((tuple: any) => {
-                        if (Array.isArray(tuple) && tuple.length === 2) {
-                            extractedIds.push(tuple[0]);
-                            extractedNames.push(tuple[1]);
-                        } else {
-                            const id = typeof tuple === 'string' ? tuple : 'unknown-id';
-                            extractedIds.push(id);
-                            extractedNames.push(`Member ${String(id).substring(0, 5)}...`);
-                        }
-                    });
-                    
-                    results.unassignedMemberIds = extractedIds;
-                    results.unassignedMembers = extractedNames;
-                } else {
-                    const seemsLikeIds = results.unassignedMembers.some((member: string) => 
-                        typeof member === 'string' && 
-                        (member.length === 24 ||
-                         member.includes('-') ||
-                         /^[a-zA-Z0-9]{10,}$/.test(member))
-                    );
-                    
-                    if (seemsLikeIds) {
-                        results.unassignedMemberIds = [...results.unassignedMembers];
-                        
-                        results.unassignedMembers = results.unassignedMembers.map((memberId: string) => {
-                            if (typeof memberId === 'string' && memberId.includes(' ')) {
-                                return memberId;
-                            }
-                            return `Member ${memberId.substring(0, 5)}...`;
-                        });
-                    }
-                }
-            }
-            
-            return results;
         } catch (error) {
-            console.error("Error processing optimization results:", error);
-            return null;
+            console.error("Error fetching user addresses:", error);
         }
-    }; */
-
+    };
+ */
     const processOptimizationResults = async (
         data: any,
         userIdToNameMap: Record<string, string>
@@ -906,12 +761,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                     }
                                 }
                             ),
-                            /* unassignedMembers: optimizerResults.unclusteredUsers 
-                                ? optimizerResults.unclusteredUsers.map(user => user.name || "Unknown user")
-                                : [],
-                            unassignedMemberIds: optimizerResults.unclusteredUsers 
-                                ? optimizerResults.unclusteredUsers.map(user => user.userId || "unknown-id")
-                                : [], */
                             unassignedMembers: optimizerResults.unclusteredUsers
                                 ? optimizerResults.unclusteredUsers.map(
                                       (user) =>
@@ -1703,11 +1552,13 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                 Organization Information
                             </div>
                             {isOwner && (
-                                <div
-                                    className="text-blue text-xl md:text-lg sm:text-md font-bold font-['Open Sans'] cursor-pointer"
-                                    onClick={handleEditOrgInfo}
-                                >
-                                    Edit
+                                <div className="flex items-center gap-2 cursor-pointer">
+                                    <Button
+                                        text="Edit"
+                                        type="secondary"
+                                        icon={<EditIcon />}
+                                        onClick={handleEditOrgInfo}
+                                    />
                                 </div>
                             )}
                         </div>
@@ -1863,12 +1714,14 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             <div className="text-black text-2xl md:text-xl sm:text-lg font-bold font-['Open Sans']">
                                 My Information
                             </div>
-                            <div
-                                className="text-blue text-xl md:text-lg sm:text-md font-bold font-['Open Sans'] cursor-pointer"
-                                onClick={handleEditMyInfo}
-                            >
-                                Edit
-                            </div>
+                            <div className="flex items-center gap-2 cursor-pointer">
+                                    <Button
+                                        text="Edit"
+                                        type="secondary"
+                                        icon={<EditIcon />}
+                                        onClick={handleEditMyInfo}
+                                    />
+                                </div>
                         </div>
 
                         {isEditingMyInfo ? (
@@ -2055,9 +1908,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         <div className="self-stretch flex flex-col md:flex-row md:items-center md:justify-start gap-4">
                             <div className="text-black text-2xl md:text-xl sm:text-lg font-bold font-['Open Sans']">
                                 Carpools
-                            </div>
-                            <div className="text-black">
-                                (You are the owner)
                             </div>
                             <div className="px-6 py-2 bg-blue rounded-md flex justify-center items-center">
                                 {!loading && (
@@ -2444,23 +2294,27 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                 </div>
                                 <div className="flex-col justify-start items-start gap-2.5 flex mt-4">
                                     <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
-                                        Driving Days
+                                        Driving Schedule
                                     </div>
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
-                                        {Object.entries(
-                                            myCarpool.driverSchedule
-                                        )
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                        {Object.entries(myCarpool.driverSchedule)
                                             .map(([day, driver]) => {
-                                                const dayIndex = parseInt(
-                                                    day,
-                                                    10
-                                                ); // day to a number
-                                                const dayName =
-                                                    daysOfWeek[dayIndex] ||
-                                                    "Unknown Day"; // map to weekday name
-                                                return `${dayName}: ${driver}`;
-                                            })
-                                            .join(", ")}
+                                                const dayIndex = parseInt(day, 10); // Convert day to a number
+                                                const dayName = daysOfWeek[dayIndex] || "Unknown Day"; // Map to weekday name
+                                                return (
+                                                    <div
+                                                        key={day}
+                                                        className="flex flex-col items-start rounded-md bg-white"
+                                                    >
+                                                        <span className="text-blue text-lg font-semibold">
+                                                            {dayName}:
+                                                        </span>
+                                                        <span className="text-gray text-md font-medium mt-1">
+                                                            {typeof driver === "string" || typeof driver === "number" ? driver : "Unassigned"}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
                                     </div>
                                 </div>
                                 <div className="flex-col justify-start items-start gap-2.5 flex mt-4">
@@ -2496,35 +2350,25 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             )}
 
             {/*leave cofnirmation */}
-            {isLeaveModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4">
-                        <h2 className="text-2xl font-bold mb-4 text-black">
-                            Leave Carpool
-                        </h2>
-                        <p className="text-black text-lg mb-6">
-                            Are you sure you want to leave this carpool? This
-                            action cannot be undone.
-                        </p>
-                        <div className="flex justify-end gap-4">
-                            <button
-                                onClick={handleCancelLeave}
-                                className="px-6 py-3 text-black text-lg hover:bg-gray-100 rounded-lg"
-                                disabled={isLeaving}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleConfirmLeave}
-                                className="px-6 py-3 bg-red-600 text-black text-lg font-semibold rounded-lg hover:bg-red-700 disabled:bg-red-400"
-                                disabled={isLeaving}
-                            >
-                                {isLeaving ? "Leaving..." : "Leave"}
-                            </button>
-                        </div>
-                    </div>
+            <AddModal
+                isOpen={isLeaveModalOpen}
+                text="Leave Carpool"
+                onClose={handleCancelLeave}
+            >
+                <p className="text-black text-lg mb-6">
+                    Are you sure you want to leave this carpool? This action cannot be undone.
+                </p>
+                <div className="flex justify-end gap-4">
+                    <Button text="No, Cancel" 
+                            type="secondary" 
+                            onClick={handleCancelLeave}
+                            disabled={isLeaving}/>
+                    <Button text={isLeaving ? "Leaving..." : "Yes, Leave"} 
+                            type="primary" 
+                            onClick={handleConfirmLeave} 
+                            disabled={isLeaving}/>
                 </div>
-            )}
+            </AddModal>
         </>
     );
 };
