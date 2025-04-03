@@ -27,7 +27,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     const [newChildName, setNewChildName] = useState("");
     const [isEditingAvailability, setIsEditingAvailability] = useState(false);
     const [userFormData, setUserFormData] = useState<UserFormData | null>(null);
-    const [userFormDataBackup, setUserFormDataBackup] = useState<UserFormData | null>(null);
+    const [userFormDataBackup, setUserFormDataBackup] =
+        useState<UserFormData | null>(null);
 
     // GET user-form-data handler
     const handleUserFormGet = useCallback(async () => {
@@ -172,9 +173,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     };
 
     return (
-        <div className="flex flex-col md:flex-row items-start h-auto w-full bg-w p-10 gap-4">
+        <div className="flex flex-col justify-center md:flex-row items-start h-auto w-full bg-w p-10 gap-4">
             {/* Profile Pic + Uneditable Info */}
-            <div className="flex flex-col items-center justify-center md:items-center md:w-1/3 gap-4">
+            <div className="flex flex-col items-center justify-center md:items-center w-1/2 gap-4">
                 <div className="rounded-full bg-gray flex items-center justify-center">
                     <img
                         width={150}
@@ -209,13 +210,15 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     Log out
                 </button>
             </div>
-    
+
             {/* Profile and Family */}
-            <div className="flex flex-col md:flex-col flex-1 gap-6">
+            <div className="flex flex-col justify-center md:flex-col flex-1 gap-6 w-1/2">
                 {/* Profile Section */}
                 <div className="flex-1 w-4/6 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                     <div className="justify-between items-center flex flex-wrap gap-2">
-                        <div className="text-blue text-2xl font-bold">Profile</div>
+                        <div className="text-blue text-2xl font-bold">
+                            Profile
+                        </div>
                         {isEditingProfile ? (
                             <div className="flex items-center gap-2 cursor-pointer">
                                 <div className="flex gap-2">
@@ -274,18 +277,21 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                             placeholder="Enter phone number"
                                         />
                                     ) : (
-                                        userFormData.phoneNumber || "Not provided"
+                                        userFormData.phoneNumber ||
+                                        "Not provided"
                                     )}
                                 </div>
                             </div>
                         </>
                     )}
                 </div>
-    
+
                 {/* Family Section */}
                 <div className="flex-1 w-4/6 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                     <div className="justify-between items-center flex flex-wrap gap-2">
-                        <div className="text-blue text-2xl font-bold">Family</div>
+                        <div className="text-blue text-2xl font-bold">
+                            Family
+                        </div>
                         {isEditingFamily ? (
                             <div className="flex items-center gap-2 cursor-pointer">
                                 <div className="flex gap-2">
@@ -336,7 +342,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                         );
                                                     setUserFormData({
                                                         ...userFormData,
-                                                        children: updatedChildren,
+                                                        children:
+                                                            updatedChildren,
                                                     });
                                                 }}
                                                 placeholder="Enter rider's name"
@@ -355,11 +362,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                 onClick={() => {
                                                     const updatedChildren =
                                                         userFormData.children.filter(
-                                                            (_, i) => i !== index
+                                                            (_, i) =>
+                                                                i !== index
                                                         );
                                                     setUserFormData({
                                                         ...userFormData,
-                                                        children: updatedChildren,
+                                                        children:
+                                                            updatedChildren,
                                                         numChildren:
                                                             updatedChildren.length,
                                                     });

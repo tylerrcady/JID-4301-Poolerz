@@ -108,7 +108,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
             ...prev,
             phoneNumber: value,
         }));
-    }
+    };
 
     const validatePage = () => {
         console.log("Validating current page:", currentPage);
@@ -130,7 +130,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 );
                 return false;
             }
-            
+
             if (!userFormData.phoneNumber.trim()) {
                 alert("Please enter a phone number before continuing.");
                 return false;
@@ -146,7 +146,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 alert("Please fill in all location fields before continuing.");
                 return false;
             }
-        } 
+        }
 
         return true;
     };
@@ -210,13 +210,27 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 application.
             </div>
             <Image
-                src="/poolerz.jpg"
+                src="/poolerz.io.png"
                 alt="Poolerz Logo"
                 width={245}
                 height={42}
             />
             {currentPage === 1 && (
                 <>
+                    <div className="mb-4">
+                        <label className="block text-sm text-black font-medium mb-2">
+                            Phone Number
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Phone Number"
+                            className="border p-2 w-full text-black rounded-lg active:border-blue"
+                            value={userFormData.phoneNumber}
+                            onChange={(e) =>
+                                handlePhoneNumberChange(e.target.value)
+                            }
+                        />
+                    </div>
                     <h1 className="text-2xl text-black font-bold">
                         Household Information
                     </h1>
@@ -260,20 +274,6 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                             ))}
                         </>
                     )}
-                    <div className="mb-4">
-                        <label className="block text-sm text-black font-medium mb-2">
-                            Phone Number
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Phone Number"
-                            className="border p-2 w-full text-black rounded-lg active:border-blue"
-                            value={userFormData.phoneNumber}
-                            onChange={(e) =>
-                                handlePhoneNumberChange(e.target.value)
-                            }
-                        />
-                    </div>
                     <button
                         className="px-4 py-2 bg-blue text-w rounded min-w-1/6"
                         onClick={handleContinue}

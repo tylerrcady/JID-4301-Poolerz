@@ -128,9 +128,14 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     // this uses old logic, but filters for duplicates
     const allCarpools = [
         ...createCarpoolData.map((carpool) => ({ ...carpool, isOwner: true })),
-        ...joinCarpoolData.filter(
-            (joined) => !createCarpoolData.some((created) => created.carpoolID === joined.carpoolID)
-        ).map((carpool) => ({ ...carpool, isOwner: false })),
+        ...joinCarpoolData
+            .filter(
+                (joined) =>
+                    !createCarpoolData.some(
+                        (created) => created.carpoolID === joined.carpoolID
+                    )
+            )
+            .map((carpool) => ({ ...carpool, isOwner: false })),
     ];
 
     // Fetch create-carpool data when carpoolIds change
@@ -149,7 +154,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
     }, [userId, handleCarpoolsGet, handleUserCarpoolsGet]);
 
     return (
-        <div className="flex flex-col md:flex-row justify-between gap-6 m-4 px-40 w-full items-start">
+        <div className="flex flex-col md:flex-row justify-between gap-6 px-10 w-full items-start">
             {/* Create and Join Carpool */}
             <div className="flex flex-col w-full md:w-1/2 gap-6">
                 {/* Create Carpool */}
@@ -159,7 +164,8 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                             Create Carpool
                         </h2>
                         <p className="mt-2 text-gray text-lg md:text-xl font-normal font-['Open Sans']">
-                            Start a new carpool to add and manage families within the organization
+                            Start a new carpool to add and manage families
+                            within the organization
                         </p>
                     </div>
                     <button
@@ -169,7 +175,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                         Create
                     </button>
                 </div>
-    
+
                 {/* Join Carpool */}
                 <div className="flex flex-col w-full bg-gradient-to-t from-offwhite to-white rounded-md shadow-lg p-6 gap-4 h-auto">
                     <div>
@@ -177,7 +183,8 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                             Join Carpool
                         </h2>
                         <p className="mt-2 text-gray text-lg md:text-xl font-normal font-['Open Sans']">
-                            Join an existing carpool with a code to view your group, rides, and schedule
+                            Join an existing carpool with a code to view your
+                            group, rides, and schedule
                         </p>
                     </div>
                     <button
@@ -188,7 +195,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                     </button>
                 </div>
             </div>
-    
+
             {/* Current Carpools */}
             <div className="flex flex-col w-full md:w-1/2 bg-gradient-to-t from-offwhite2 to-white rounded-md shadow-lg p-6 md:p-8 gap-6">
                 <div>
@@ -206,10 +213,15 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                                     <div className="p-3 bg-w bg-opacity-70 rounded-md shadow-sm cursor-pointer flex justify-between items-center">
                                         <div className="flex flex-col gap-2">
                                             <div className="text-2xl md:text-reg font-regular text-gray">
-                                                {carpool.createCarpoolData?.carpoolName}
+                                                {
+                                                    carpool.createCarpoolData
+                                                        ?.carpoolName
+                                                }
                                             </div>
                                             {carpool.isOwner && (
-                                                <div className="italic">Owner</div>
+                                                <div className="italic">
+                                                    Owner
+                                                </div>
                                             )}
                                         </div>
                                         <Image
@@ -225,7 +237,8 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                         </div>
                     ) : (
                         <p className="mt-2 text-gray text-lg md:text-xl font-normal font-['Open Sans']">
-                            You currently have no carpools - create or join one to start!
+                            You currently have no carpools - create or join one
+                            to start!
                         </p>
                     )}
                 </div>

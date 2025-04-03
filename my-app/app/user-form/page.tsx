@@ -9,10 +9,11 @@ export default async function Page() {
     const session = await auth();
 
     return (
-        <div className="flex items-center justify-between h-screen flex-col bg-w">
-            <Header userId={session?.user?.id} 
-            isFormComplete={false} 
-            currentPath="/user-form" 
+        <div className="flex items-center justify-between h-full min-h-screen flex-col bg-w text-d">
+            <Header
+                userId={session?.user?.id}
+                isFormComplete={false}
+                currentPath="/user-form"
             />
             {session?.user?.id ? (
                 <UserForm userId={session?.user?.id} />
