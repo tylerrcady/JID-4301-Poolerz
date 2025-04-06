@@ -29,6 +29,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     const [userFormData, setUserFormData] = useState<UserFormData | null>(null);
     const [userFormDataBackup, setUserFormDataBackup] =
         useState<UserFormData | null>(null);
+    const [userCarpoolData, setUserCarpoolData] = useState<any[]>([]);
+    const [carpoolDetails, setCarpoolDetails] = useState<{[key: string]: any}>({});
 
     // GET user-form-data handler
     const handleUserFormGet = useCallback(async () => {
@@ -60,6 +62,41 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     useEffect(() => {
         handleUserFormGet();
     }, [userId, handleUserFormGet]);
+
+    useEffect(() => {
+        const fetchCarpoolData = async () => {
+            if (!userId) return;
+            
+            try {
+                // Fetch user's carpool data
+                const response = await fetch(`/api/join-carpool-data?userId=${userId}`);
+                const data = await response.json();
+                const joinedCarpools = data?.createCarpoolData?.userData?.carpools || [];
+                setUserCarpoolData(joinedCarpools);
+
+                // Fetch details for each carpool
+                const carpoolPromises = joinedCarpools.map(async (carpool: any) => {
+                    const carpoolResponse = await fetch(`/api/create-carpool-data?carpoolId=${carpool.carpoolId}`);
+                    const carpoolData = await carpoolResponse.json();
+                    return {
+                        id: carpool.carpoolId,
+                        data: carpoolData.createCarpoolData[0]?.createCarpoolData || carpoolData.createCarpoolData
+                    };
+                });
+
+                const carpoolResults = await Promise.all(carpoolPromises);
+                const carpoolDetailsMap = carpoolResults.reduce((acc, curr) => {
+                    acc[curr.id] = curr.data;
+                    return acc;
+                }, {});
+                setCarpoolDetails(carpoolDetailsMap);
+            } catch (error) {
+                console.error("Error fetching carpool data:", error);
+            }
+        };
+
+        fetchCarpoolData();
+    }, [userId]);
 
     const handleEditProfile = () => {
         if (!isEditingProfile) {
@@ -376,9 +413,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                             userFormData.children.map((child, index) => (
                                 <div
                                     key={`${child.name}-${index}`}
-                                    className="flex flex-col items-start"
+                                    className="flex flex-col items-start w-full"
                                 >
-                                    <div className="text-gray text-xl">
+                                    <div className="text-gray text-xl w-full">
                                         {isEditingFamily ? (
                                             <TextInput
                                                 currentValue={child.name}
@@ -402,9 +439,28 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                 placeholder="Enter rider's name"
                                             />
                                         ) : (
-                                            <span className="text-xl font-bold text-black">
-                                                {child.name}
-                                            </span>
+                                            <>
+                                                <span className="text-xl font-bold text-black">
+                                                    {child.name}
+                                                </span>
+                                                {/* Display associated carpools */}
+                                                <div className="ml-6 mt-1 mb-4">
+                                                    {userCarpoolData
+                                                        .filter(carpool => carpool.riders.includes(child.name))
+                                                        .map(carpool => {
+                                                            const carpoolInfo = carpoolDetails[carpool.carpoolId];
+                                                            return carpoolInfo ? (
+                                                                <div 
+                                                                    key={carpool.carpoolId}
+                                                                    className="text-base text-gray-600 mb-1"
+                                                                >
+                                                                    {carpoolInfo.carpoolName}
+                                                                </div>
+                                                            ) : null;
+                                                        })
+                                                    }
+                                                </div>
+                                            </>
                                         )}
                                     </div>
                                     {isEditingFamily && (
