@@ -251,10 +251,67 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                     Address
                                 </div>
                                 <div className="text-gray text-base font-normal">
-                                    {`${userFormData.location.address}, 
+                                    {isEditingProfile ? (
+                                        <div className="flex flex-col gap-2">
+                                            <TextInput
+                                                currentValue={userFormData.location.address}
+                                                onChange={(value) => {
+                                                    setUserFormData({
+                                                        ...userFormData,
+                                                        location: {
+                                                            ...userFormData.location,
+                                                            address: value,
+                                                        },
+                                                    });
+                                                }}
+                                                placeholder="Enter street address"
+                                            />
+                                            <TextInput
+                                                currentValue={userFormData.location.city}
+                                                onChange={(value) => {
+                                                    setUserFormData({
+                                                        ...userFormData,
+                                                        location: {
+                                                            ...userFormData.location,
+                                                            city: value,
+                                                        },
+                                                    });
+                                                }}
+                                                placeholder="Enter city"
+                                            />
+                                            <TextInput
+                                                currentValue={userFormData.location.state}
+                                                onChange={(value) => {
+                                                    setUserFormData({
+                                                        ...userFormData,
+                                                        location: {
+                                                            ...userFormData.location,
+                                                            state: value,
+                                                        },
+                                                    });
+                                                }}
+                                                placeholder="Enter state"
+                                            />
+                                            <TextInput
+                                                currentValue={userFormData.location.zipCode}
+                                                onChange={(value) => {
+                                                    setUserFormData({
+                                                        ...userFormData,
+                                                        location: {
+                                                            ...userFormData.location,
+                                                            zipCode: value,
+                                                        },
+                                                    });
+                                                }}
+                                                placeholder="Enter ZIP code"
+                                            />
+                                        </div>
+                                    ) : (
+                                        `${userFormData.location.address}, 
                                         ${userFormData.location.city}, 
                                         ${userFormData.location.state}, 
-                                        ${userFormData.location.zipCode}`}
+                                        ${userFormData.location.zipCode}`
+                                    )}
                                 </div>
                             </div>
                             <div className="break-all">
@@ -264,9 +321,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                 <div className="text-gray text-base font-normal">
                                     {isEditingProfile ? (
                                         <TextInput
-                                            currentValue={
-                                                userFormData.phoneNumber || ""
-                                            }
+                                            currentValue={userFormData.phoneNumber || ""}
                                             onChange={(value) => {
                                                 setUserFormData({
                                                     ...userFormData,
@@ -276,8 +331,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                             placeholder="Enter phone number"
                                         />
                                     ) : (
-                                        userFormData.phoneNumber ||
-                                        "Not provided"
+                                        userFormData.phoneNumber || "Not provided"
                                     )}
                                 </div>
                             </div>
