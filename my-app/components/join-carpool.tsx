@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import BackButton from "@/components/atoms/back-button";
 import AddModal from "@/components/modals/add-modal";
 import Button from "@/components/atoms/Button";
+import Loading from "./icons/Loading";
 
 const DAYS_OF_WEEK = [
     { label: "Su", value: "Su", number: 0 },
@@ -85,6 +86,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
     const [additionalNotes, setAdditionalNotes] = useState("");
     const [error, setError] = useState("");
     const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!userId) return;
@@ -121,18 +123,27 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
         setFetchError("");
         setCarpoolDoc(null);
         if (joinCode.length === 6) {
+            setLoading(true);
             fetch(`/api/create-carpool-data?carpoolId=${joinCode}`)
                 .then((res) => {
-                    if (!res.ok)
-                        throw new Error("Carpool not found or server error");
+                    if (!res.ok) {
+                        setFetchError("No carpool found for that code.");
+                        setIsEnterVisible(false);
+                        setLoading(false);
+                        return null;
+                    }
                     return res.json();
                 })
                 .then((data) => {
                     if (
+                        !data ||
                         !data.createCarpoolData ||
                         data.createCarpoolData.length === 0
                     ) {
-                        throw new Error("Carpool not found for that code");
+                        setFetchError("Carpool not found for that code.");
+                        setIsEnterVisible(false);
+                        setLoading(false);
+                        return;
                     }
                     const doc = Array.isArray(data.createCarpoolData)
                         ? data.createCarpoolData[0]
@@ -140,10 +151,12 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                     setCarpoolDoc(doc);
                     setIsEnterVisible(true);
                 })
-                .catch((err) => {
-                    console.error(err);
-                    setFetchError("No carpool found for that code.");
+                .catch(() => {
+                    setFetchError("An error occurred while fetching data.");
                     setIsEnterVisible(false);
+                })
+                .finally(() => {
+                    setLoading(false); // Ensure loading is stopped in all cases
                 });
         } else {
             setIsEnterVisible(false);
@@ -208,6 +221,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
     }, [address, city, stateField, zip, carCapacity, drivingAvailability]);
 
     const handleSubmit = async (e: React.FormEvent) => {
+        setLoading(true);
         e.preventDefault();
         if (!carpoolDoc) {
             setError("Carpool data not loaded. Please try again.");
@@ -276,6 +290,8 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
         } catch (error: unknown) {
             console.error("Error submitting form:", error);
             setError("Internal Server Error. Please try again.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -288,23 +304,73 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                     <BackButton onClick={handleBackClick} />
                 </div>
                 <div className="h-auto flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6 items-center justify-center">
-                    <h1 className="text-black text-2xl font-bold font-['Open Sans']">
+                    <div className="text-black text-2xl font-bold font-['Open Sans']">
                         Join a Carpool
-                    </h1>
+                    </div>
                     <p className="text-black text-lg font-bold font-['Open Sans']">
                         Enter a Join Code
                     </p>
                     <p className="text-black text-lg font-['Open Sans']">
                         Enter a code below to join a carpool organization
                     </p>
-                    <div className="flex justify-center">
-                        <input
-                            type="text"
-                            maxLength={6}
-                            value={joinCode}
-                            onChange={(e) => setJoinCode(e.target.value)}
-                            className="text-center text-2xl text-black font-bold font-['Open Sans'] border-b-2 border-black focus:outline-none"
-                        />
+                    <div className="flex justify-center gap-2">
+                        {Array.from({ length: 6 }).map((_, index) => (
+                            <input
+                                key={index}
+                                type="text"
+                                maxLength={1}
+                                value={joinCode[index] || ""}
+                                onChange={(e) => {
+                                    const value = e.target.value.toLowerCase();
+                                    if (
+                                        /^[a-z0-9]$/.test(value) ||
+                                        value === ""
+                                    ) {
+                                        const newCode =
+                                            joinCode.substring(0, index) +
+                                            value +
+                                            joinCode.substring(index + 1);
+                                        setJoinCode(newCode);
+                                        if (value && index < 5) {
+                                            const nextInput =
+                                                document.getElementById(
+                                                    `code-input-${index + 1}`
+                                                );
+                                            nextInput?.focus();
+                                        }
+                                    }
+                                }}
+                                onPaste={(e) => {
+                                    e.preventDefault();
+                                    const pastedValue = e.clipboardData
+                                        .getData("text")
+                                        .toLowerCase();
+                                    const sanitizedValue = pastedValue
+                                        .split("")
+                                        .filter((char) =>
+                                            /^[a-z0-9]$/.test(char)
+                                        )
+                                        .slice(0, 6)
+                                        .join("");
+                                    setJoinCode(sanitizedValue);
+                                }}
+                                onKeyDown={(e) => {
+                                    if (
+                                        e.key === "Backspace" &&
+                                        !joinCode[index] &&
+                                        index > 0
+                                    ) {
+                                        const prevInput =
+                                            document.getElementById(
+                                                `code-input-${index - 1}`
+                                            );
+                                        prevInput?.focus();
+                                    }
+                                }}
+                                id={`code-input-${index}`}
+                                className="w-12 h-16 border-2 border-gray text-center text-2xl font-bold font-['Open Sans']"
+                            />
+                        ))}
                     </div>
                     {fetchError && (
                         <p className="text-red text-sm text-center">
@@ -319,6 +385,11 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                             >
                                 Enter
                             </button>
+                        </div>
+                    )}
+                    {loading && (
+                        <div className="flex justify-center">
+                            <Loading />
                         </div>
                     )}
                     {/* Confirmation Modal */}
@@ -346,7 +417,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                             <div className="flex justify-end gap-4">
                                 <Button
                                     text="No"
-                                    type="secondary"
+                                    type="aysbutton"
                                     onClick={handleConfirmNo}
                                 />
                                 <Button
@@ -372,7 +443,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                             <div className="flex justify-end gap-4">
                                 <Button
                                     text="No, continue"
-                                    type="secondary"
+                                    type="aysbutton"
                                     onClick={handleCancelBack}
                                 />
                                 <Button
@@ -394,168 +465,193 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
             <div className="w-11/12 mx-auto px-1">
                 <BackButton onClick={handleBackClick} />
             </div>
-            <div className="flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6">
+            <div className="flex flex-col w-full p-4 gap-6 items-center">
                 <h1 className="text-gray text-2xl font-bold font-['Open Sans']">
                     Join {carpoolDoc?.createCarpoolData.carpoolName}
                 </h1>
                 <p className="text-gray text-lg font-bold font-['Open Sans']">
                     Add Ride Information
                 </p>
-                <form
-                    onSubmit={handleSubmit}
-                    className="bg-white rounded-md p-4 flex flex-col gap-4"
-                >
-                    {/* Riders */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-gray text-xl font-bold font-['Open Sans']">
-                            Riders <span className="text-red">*</span>
-                        </label>
-                        <div className="flex gap-4">
-                            {riders.map((rider) => (
-                                <label
-                                    key={rider.id}
-                                    className="flex items-center gap-1 font-['Open Sans']"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        checked={rider.selected}
-                                        onChange={() =>
-                                            handleRiderToggle(rider.id)
-                                        }
-                                        className="form-checkbox h-5 w-5 text-blue"
-                                    />
-                                    <span className="text-black">
-                                        {rider.name}
-                                    </span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-                    {/* Your Address */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-gray text-xl font-bold font-['Open Sans']">
-                            Your Address <span className="text-red">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Address"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            className="p-2 border border-gray rounded-md text-black"
-                        />
-                        <input
-                            type="text"
-                            placeholder="City"
-                            value={city}
-                            onChange={(e) => setCity(e.target.value)}
-                            className="p-2 border border-gray rounded-md text-black"
-                        />
-                        <input
-                            type="text"
-                            placeholder="State"
-                            value={stateField}
-                            onChange={(e) => setStateField(e.target.value)}
-                            className="p-2 border border-gray rounded-md text-black"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Zip Code"
-                            value={zip}
-                            onChange={(e) => setZip(e.target.value)}
-                            className="p-2 border border-gray rounded-md text-black"
-                        />
-                    </div>
-                    {/* Carpool Info */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-gray text-xl font-bold font-['Open Sans']">
-                            {carpoolDoc?.createCarpoolData.carpoolName}{" "}
-                            Information
-                        </label>
-                        <p className="text-black">
-                            Occurs Every:{" "}
-                            {decodeDays(
-                                carpoolDoc?.createCarpoolData.carpoolDays || []
-                            )}
-                            <br />
-                            Time:{" "}
-                            {parseTimeFromNotes(
-                                carpoolDoc?.createCarpoolData.notes || ""
-                            )}
-                        </p>
-                    </div>
-                    {/* Driving Availability */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-gray text-xl font-bold font-['Open Sans']">
-                            Your Driving Availability{" "}
-                            <span className="text-red">*</span>
-                        </label>
-                        <div className="flex flex-wrap gap-3">
-                            {DAYS_OF_WEEK.map((day) => {
-                                const selected = drivingAvailability.includes(
-                                    day.value
-                                );
-                                return (
-                                    <div
-                                        key={day.value}
-                                        onClick={() =>
-                                            toggleAvailability(day.value)
-                                        }
-                                        className={`flex items-center justify-center rounded-full cursor-pointer text-lg ${
-                                            selected
-                                                ? "bg-blue text-white"
-                                                : "bg-white border border-gray text-black"
-                                        }`}
-                                        style={{
-                                            width: "40px",
-                                            height: "40px",
-                                        }}
-                                    >
-                                        {day.label}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                    {/* Car Capacity */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-gray text-xl font-bold font-['Open Sans']">
-                            Car Capacity <span className="text-red">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            placeholder="Enter capacity (max 8)"
-                            value={carCapacity}
-                            onChange={(e) => setCarCapacity(e.target.value)}
-                            className="p-2 border border-gray rounded-md text-black"
-                            max={8}
-                        />
-                    </div>
-                    {/* Additional Notes */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-gray text-xl font-bold font-['Open Sans']">
-                            Additional Notes
-                        </label>
-                        <textarea
-                            placeholder="Enter comments, accommodations, etc."
-                            value={additionalNotes}
-                            onChange={(e) => setAdditionalNotes(e.target.value)}
-                            className="p-2 border border-gray rounded-md text-black"
-                            rows={3}
-                        />
-                    </div>
-                    {error && <p className="text-red text-sm">{error}</p>}
-                    <button
-                        type="submit"
-                        disabled={isSubmitDisabled}
-                        className={`px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] ${
-                            isSubmitDisabled
-                                ? "bg-lightblue cursor-not-allowed"
-                                : "bg-blue border border-blue"
-                        }`}
+                <div className="bg-white rounded-md p-4 flex flex-col gap-4 w-10/12">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="flex flex-col gap-6 w-full sm:flex-row justify-center"
                     >
-                        Continue
-                    </button>
-                </form>
+                        {/* Riders */}
+                        <div className="flex flex-col gap-6 w-full sm:w-1/2">
+                            <div className="flex flex-col gap-1">
+                                <label className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Riders <span className="text-red">*</span>
+                                </label>
+                                <div className="flex gap-4">
+                                    {riders.map((rider) => (
+                                        <label
+                                            key={rider.id}
+                                            className="flex items-center gap-1 font-['Open Sans']"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={rider.selected}
+                                                onChange={() =>
+                                                    handleRiderToggle(rider.id)
+                                                }
+                                                className="form-checkbox h-5 w-5 text-blue"
+                                            />
+                                            <span className="text-black">
+                                                {rider.name}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                            {/* Your Address */}
+                            <div className="flex flex-col gap-1">
+                                <label className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Your Address{" "}
+                                    <span className="text-red">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Address"
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                    className="p-2 border border-gray rounded-md text-black"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="City"
+                                    value={city}
+                                    onChange={(e) => setCity(e.target.value)}
+                                    className="p-2 border border-gray rounded-md text-black"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="State"
+                                    value={stateField}
+                                    onChange={(e) =>
+                                        setStateField(e.target.value)
+                                    }
+                                    className="p-2 border border-gray rounded-md text-black"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Zip Code"
+                                    value={zip}
+                                    onChange={(e) => setZip(e.target.value)}
+                                    className="p-2 border border-gray rounded-md text-black"
+                                />
+                            </div>
+                            {/* Carpool Info */}
+                            <div className="flex flex-col gap-1">
+                                <label className="text-gray text-xl font-bold font-['Open Sans']">
+                                    {carpoolDoc?.createCarpoolData.carpoolName}{" "}
+                                    Information
+                                </label>
+                                <p className="text-black">
+                                    Occurs Every:{" "}
+                                    {decodeDays(
+                                        carpoolDoc?.createCarpoolData
+                                            .carpoolDays || []
+                                    )}
+                                    <br />
+                                    Time:{" "}
+                                    {parseTimeFromNotes(
+                                        carpoolDoc?.createCarpoolData.notes ||
+                                            ""
+                                    )}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-6 w-full sm:w-1/2">
+                            {/* Driving Availability */}
+                            <div className="flex flex-col gap-1">
+                                <label className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Your Driving Availability{" "}
+                                    <span className="text-red">*</span>
+                                </label>
+                                <div className="flex flex-wrap gap-3">
+                                    {DAYS_OF_WEEK.map((day) => {
+                                        const selected =
+                                            drivingAvailability.includes(
+                                                day.value
+                                            );
+                                        return (
+                                            <div
+                                                key={day.value}
+                                                onClick={() =>
+                                                    toggleAvailability(
+                                                        day.value
+                                                    )
+                                                }
+                                                className={`flex items-center justify-center rounded-full cursor-pointer text-lg ${
+                                                    selected
+                                                        ? "bg-blue text-white"
+                                                        : "bg-white border border-gray text-black"
+                                                }`}
+                                                style={{
+                                                    width: "40px",
+                                                    height: "40px",
+                                                }}
+                                            >
+                                                {day.label}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            {/* Car Capacity */}
+                            <div className="flex flex-col gap-1">
+                                <label className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Car Capacity{" "}
+                                    <span className="text-red">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="Enter capacity (max 8)"
+                                    value={carCapacity}
+                                    onChange={(e) =>
+                                        setCarCapacity(e.target.value)
+                                    }
+                                    className="p-2 border border-gray rounded-md text-black"
+                                    max={8}
+                                />
+                            </div>
+                            {/* Additional Notes */}
+                            <div className="flex flex-col gap-1">
+                                <label className="text-gray text-xl font-bold font-['Open Sans']">
+                                    Additional Notes
+                                </label>
+                                <textarea
+                                    placeholder="Enter comments, accommodations, etc."
+                                    value={additionalNotes}
+                                    onChange={(e) =>
+                                        setAdditionalNotes(e.target.value)
+                                    }
+                                    className="p-2 border border-gray rounded-md text-black"
+                                    rows={3}
+                                />
+                            </div>
+                            {error && (
+                                <p className="text-red text-sm">{error}</p>
+                            )}
+                            <button
+                                type="submit"
+                                disabled={isSubmitDisabled}
+                                className={`px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] ${
+                                    isSubmitDisabled
+                                        ? "bg-lightblue cursor-not-allowed"
+                                        : "bg-blue border border-blue"
+                                }`}
+                            >
+                                {!loading ? (
+                                    <span>Continue</span>
+                                ) : (
+                                    <span>Loading...</span>
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                </div>
                 {/* Back Confirmation Modal */}
                 <AddModal
                     isOpen={isBackModalOpen}
@@ -571,7 +667,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                         <div className="flex justify-end gap-4">
                             <Button
                                 text="No, continue"
-                                type="secondary"
+                                type="aysbutton"
                                 onClick={handleCancelBack}
                             />
                             <Button

@@ -1,6 +1,13 @@
 interface Props {
     text: string;
-    type?: "primary" | "secondary" | "cancel" | "remove" | "login" | "signup";
+    type?:
+        | "primary"
+        | "secondary"
+        | "cancel"
+        | "remove"
+        | "login"
+        | "signup"
+        | "aysbutton";
     onClick?: () => void;
     submit?: boolean;
     icon?: React.ReactNode;
@@ -42,6 +49,10 @@ export default function Button({
         if (type === "signup") {
             styles = `text-gray bg-white pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:bg-lightblue active:text-black`;
         }
+        if (type === "aysbutton") {
+            styles =
+                "text-blue pt-2 text-base font-opensans rounded gap-2 hover:text-lightblue active:text-blue py-2 text-sm";
+        }
     }
 
     return (
@@ -54,7 +65,9 @@ export default function Button({
             title={text}
         >
             <span className="line-clamp-1">{children || text}</span>
-            {icon ? <span className="ml-1 flex items-center">{icon}</span> : null}
+            {icon ? (
+                <span className="ml-1 flex items-center">{icon}</span>
+            ) : null}
         </button>
     );
 }
