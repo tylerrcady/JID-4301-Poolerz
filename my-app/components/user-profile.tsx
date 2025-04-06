@@ -173,24 +173,23 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     };
 
     return (
-        <div className="flex flex-col justify-center md:flex-row items-start h-auto w-full bg-w p-10 gap-4">
-            {/* Profile Pic + Uneditable Info */}
-            <div className="flex flex-col items-center justify-center md:items-center w-1/2 gap-4">
+        <div className="flex flex-col md:flex-row justify-center items-start w-full bg-w p-4 md:p-10 gap-4 md:gap-2">
+            {/* Left section - profile info */}
+            <div className="flex flex-col items-center justify-center w-full md:w-1/3 gap-4">
                 <div className="rounded-full bg-gray flex items-center justify-center">
                     <img
                         width={150}
                         height={150}
-                        //src="/profile.svg"
                         src="/mask group.png"
                         alt="Profile"
                         className="w-150 h-150 rounded-full object-cover"
                     />
                 </div>
-                <div className="text-center md:text-left">
+                <div className="text-center">
                     <div className="text-black text-xl font-bold">{name}</div>
                     <div className="text-gray font-normal">{email}</div>
                 </div>
-                <div className="py-1">
+                <div className="py-1 w-full max-w-[200px]">
                     <Button
                         text="View My Carpools"
                         type="primary"
@@ -211,10 +210,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 </button>
             </div>
 
-            {/* Profile and Family */}
-            <div className="flex flex-col justify-center md:flex-col flex-1 gap-6 w-1/2">
+            {/* Right section - cards */}
+            <div className="flex flex-col w-full md:w-2/5 gap-6">
                 {/* Profile Section */}
-                <div className="flex-1 w-4/6 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
+                <div className="flex-1 w-full h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                     <div className="justify-between items-center flex flex-wrap gap-2">
                         <div className="text-blue text-2xl font-bold">
                             Profile
@@ -287,7 +286,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 </div>
 
                 {/* Family Section */}
-                <div className="flex-1 w-4/6 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
+                <div className="flex-1 w-full h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                     <div className="justify-between items-center flex flex-wrap gap-2">
                         <div className="text-blue text-2xl font-bold">
                             Family
