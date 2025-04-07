@@ -29,6 +29,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     const [userFormData, setUserFormData] = useState<UserFormData | null>(null);
     const [userFormDataBackup, setUserFormDataBackup] =
         useState<UserFormData | null>(null);
+    const [userCarpoolData, setUserCarpoolData] = useState<any[]>([]);
+    const [carpoolDetails, setCarpoolDetails] = useState<{[key: string]: any}>({});
 
     // GET user-form-data handler
     const handleUserFormGet = useCallback(async () => {
@@ -60,6 +62,41 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     useEffect(() => {
         handleUserFormGet();
     }, [userId, handleUserFormGet]);
+
+    useEffect(() => {
+        const fetchCarpoolData = async () => {
+            if (!userId) return;
+            
+            try {
+                // Fetch user's carpool data
+                const response = await fetch(`/api/join-carpool-data?userId=${userId}`);
+                const data = await response.json();
+                const joinedCarpools = data?.createCarpoolData?.userData?.carpools || [];
+                setUserCarpoolData(joinedCarpools);
+
+                // Fetch details for each carpool
+                const carpoolPromises = joinedCarpools.map(async (carpool: any) => {
+                    const carpoolResponse = await fetch(`/api/create-carpool-data?carpoolId=${carpool.carpoolId}`);
+                    const carpoolData = await carpoolResponse.json();
+                    return {
+                        id: carpool.carpoolId,
+                        data: carpoolData.createCarpoolData[0]?.createCarpoolData || carpoolData.createCarpoolData
+                    };
+                });
+
+                const carpoolResults = await Promise.all(carpoolPromises);
+                const carpoolDetailsMap = carpoolResults.reduce((acc, curr) => {
+                    acc[curr.id] = curr.data;
+                    return acc;
+                }, {});
+                setCarpoolDetails(carpoolDetailsMap);
+            } catch (error) {
+                console.error("Error fetching carpool data:", error);
+            }
+        };
+
+        fetchCarpoolData();
+    }, [userId]);
 
     const handleEditProfile = () => {
         if (!isEditingProfile) {
@@ -173,24 +210,23 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     };
 
     return (
-        <div className="flex flex-col justify-center md:flex-row items-start h-auto w-full bg-w p-10 gap-4">
-            {/* Profile Pic + Uneditable Info */}
-            <div className="flex flex-col items-center justify-center md:items-center w-1/2 gap-4">
+        <div className="flex flex-col md:flex-row justify-center items-start w-full bg-w p-4 md:p-10 gap-4 md:gap-2">
+            {/* Left section - profile info */}
+            <div className="flex flex-col items-center justify-center w-full md:w-1/3 gap-4">
                 <div className="rounded-full bg-gray flex items-center justify-center">
                     <img
                         width={150}
                         height={150}
-                        //src="/profile.svg"
                         src="/mask group.png"
                         alt="Profile"
                         className="w-150 h-150 rounded-full object-cover"
                     />
                 </div>
-                <div className="text-center md:text-left">
+                <div className="text-center">
                     <div className="text-black text-xl font-bold">{name}</div>
                     <div className="text-gray font-normal">{email}</div>
                 </div>
-                <div className="py-1">
+                <div className="py-1 w-full max-w-[200px]">
                     <Button
                         text="View My Carpools"
                         type="primary"
@@ -211,10 +247,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 </button>
             </div>
 
-            {/* Profile and Family */}
-            <div className="flex flex-col justify-center md:flex-col flex-1 gap-6 w-1/2">
+            {/* Right section - cards */}
+            <div className="flex flex-col w-full md:w-2/5 gap-6">
                 {/* Profile Section */}
-                <div className="flex-1 w-4/6 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
+                <div className="flex-1 w-full h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                     <div className="justify-between items-center flex flex-wrap gap-2">
                         <div className="text-blue text-2xl font-bold">
                             Profile
@@ -252,10 +288,67 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                     Address
                                 </div>
                                 <div className="text-gray text-base font-normal">
-                                    {`${userFormData.location.address}, 
+                                    {isEditingProfile ? (
+                                        <div className="flex flex-col gap-2">
+                                            <TextInput
+                                                currentValue={userFormData.location.address}
+                                                onChange={(value) => {
+                                                    setUserFormData({
+                                                        ...userFormData,
+                                                        location: {
+                                                            ...userFormData.location,
+                                                            address: value,
+                                                        },
+                                                    });
+                                                }}
+                                                placeholder="Enter street address"
+                                            />
+                                            <TextInput
+                                                currentValue={userFormData.location.city}
+                                                onChange={(value) => {
+                                                    setUserFormData({
+                                                        ...userFormData,
+                                                        location: {
+                                                            ...userFormData.location,
+                                                            city: value,
+                                                        },
+                                                    });
+                                                }}
+                                                placeholder="Enter city"
+                                            />
+                                            <TextInput
+                                                currentValue={userFormData.location.state}
+                                                onChange={(value) => {
+                                                    setUserFormData({
+                                                        ...userFormData,
+                                                        location: {
+                                                            ...userFormData.location,
+                                                            state: value,
+                                                        },
+                                                    });
+                                                }}
+                                                placeholder="Enter state"
+                                            />
+                                            <TextInput
+                                                currentValue={userFormData.location.zipCode}
+                                                onChange={(value) => {
+                                                    setUserFormData({
+                                                        ...userFormData,
+                                                        location: {
+                                                            ...userFormData.location,
+                                                            zipCode: value,
+                                                        },
+                                                    });
+                                                }}
+                                                placeholder="Enter ZIP code"
+                                            />
+                                        </div>
+                                    ) : (
+                                        `${userFormData.location.address}, 
                                         ${userFormData.location.city}, 
                                         ${userFormData.location.state}, 
-                                        ${userFormData.location.zipCode}`}
+                                        ${userFormData.location.zipCode}`
+                                    )}
                                 </div>
                             </div>
                             <div className="break-all">
@@ -265,9 +358,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                 <div className="text-gray text-base font-normal">
                                     {isEditingProfile ? (
                                         <TextInput
-                                            currentValue={
-                                                userFormData.phoneNumber || ""
-                                            }
+                                            currentValue={userFormData.phoneNumber || ""}
                                             onChange={(value) => {
                                                 setUserFormData({
                                                     ...userFormData,
@@ -277,8 +368,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                             placeholder="Enter phone number"
                                         />
                                     ) : (
-                                        userFormData.phoneNumber ||
-                                        "Not provided"
+                                        userFormData.phoneNumber || "Not provided"
                                     )}
                                 </div>
                             </div>
@@ -287,7 +377,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 </div>
 
                 {/* Family Section */}
-                <div className="flex-1 w-4/6 h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
+                <div className="flex-1 w-full h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                     <div className="justify-between items-center flex flex-wrap gap-2">
                         <div className="text-blue text-2xl font-bold">
                             Family
@@ -323,9 +413,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                             userFormData.children.map((child, index) => (
                                 <div
                                     key={`${child.name}-${index}`}
-                                    className="flex flex-col items-start"
+                                    className="flex flex-col items-start w-full"
                                 >
-                                    <div className="text-gray text-xl">
+                                    <div className="text-gray text-xl w-full">
                                         {isEditingFamily ? (
                                             <TextInput
                                                 currentValue={child.name}
@@ -349,9 +439,28 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                 placeholder="Enter rider's name"
                                             />
                                         ) : (
-                                            <span className="text-xl font-bold text-black">
-                                                {child.name}
-                                            </span>
+                                            <>
+                                                <span className="text-xl font-bold text-black">
+                                                    {child.name}
+                                                </span>
+                                                {/* Display associated carpools */}
+                                                <div className="ml-6 mt-1 mb-4">
+                                                    {userCarpoolData
+                                                        .filter(carpool => carpool.riders.includes(child.name))
+                                                        .map(carpool => {
+                                                            const carpoolInfo = carpoolDetails[carpool.carpoolId];
+                                                            return carpoolInfo ? (
+                                                                <div 
+                                                                    key={carpool.carpoolId}
+                                                                    className="text-base text-gray-600 mb-1"
+                                                                >
+                                                                    {carpoolInfo.carpoolName}
+                                                                </div>
+                                                            ) : null;
+                                                        })
+                                                    }
+                                                </div>
+                                            </>
                                         )}
                                     </div>
                                     {isEditingFamily && (
