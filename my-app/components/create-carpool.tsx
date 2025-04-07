@@ -49,6 +49,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [additionalNotes, setAdditionalNotes] = useState("");
     const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!userId) return;
@@ -130,6 +131,8 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
     }, [address, city, stateField, zip, carCapacity, drivingAvailability]);
 
     const handleSubmit = async (e: React.FormEvent) => {
+        setLoading(true);
+        setIsSubmitDisabled(true);
         e.preventDefault();
         setError("");
 
@@ -242,6 +245,9 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
         } catch (error: unknown) {
             console.error("Error submitting form:", error);
             setError("Internal Server Error. Please try again.");
+        } finally {
+            setLoading(false);
+            setIsSubmitDisabled(false);
         }
     };
 
@@ -253,17 +259,22 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
             </div>
             <div className="flex flex-col w-full p-4 gap-6 items-center">
                 {/* Title */}
-                <h1 className="text-gray text-2xl font-bold font-['Open Sans']">
-                    Create Carpool
-                </h1>
+                <div className="w-10/12 flex justify-start flex-col gap-2">
+                    <div className="justify-center text-zinc-600 text-2xl font-bold font-['Open_Sans']">
+                        Create Carpool
+                    </div>
+                    <div className="justify-center text-zinc-600 text-xl font-normal font-['Open_Sans']">
+                        Add Carpool Information
+                    </div>
+                </div>
 
                 {/* Form Card */}
                 <div className="bg-white rounded-md p-4 flex flex-col gap-4 w-10/12">
                     <form
                         onSubmit={handleSubmit}
-                        className="flex flex-row gap-10 w-full"
+                        className="flex flex-col gap-10 w-full sm:flex-row justify-center"
                     >
-                        <div className="flex flex-col gap-10 w-1/2">
+                        <div className="flex flex-col gap-10 w-full sm:w-1/2">
                             {/* Pool Name Field */}
                             <div className="flex flex-col gap-4">
                                 <label className="text-gray text-xl font-bold font-['Open Sans']">
@@ -381,34 +392,38 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                 </div>
                             </div>
                             {/* Start Time Field */}
-                            <div className="flex flex-col gap-1">
-                                <label className="text-gray text-xl font-bold font-['Open Sans']">
-                                    Start Time{" "}
-                                    <span className="text-red">*</span>
-                                </label>
-                                <input
-                                    type="time"
-                                    value={startTime}
-                                    onChange={(e) =>
-                                        setStartTime(e.target.value)
-                                    }
-                                    className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
-                                />
-                            </div>
-                            {/* NEW: End Time Field */}
-                            <div className="flex flex-col gap-1">
-                                <label className="text-gray text-xl font-bold font-['Open Sans']">
-                                    End Time <span className="text-red">*</span>
-                                </label>
-                                <input
-                                    type="time"
-                                    value={endTime}
-                                    onChange={(e) => setEndTime(e.target.value)}
-                                    className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
-                                />
+                            <div className="flex flex-col sm:flex-row gap-3 w-full justify-between">
+                                <div className="flex flex-col gap-1 w-full">
+                                    <label className="text-gray text-xl font-bold font-['Open Sans']">
+                                        Start Time{" "}
+                                        <span className="text-red">*</span>
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={startTime}
+                                        onChange={(e) =>
+                                            setStartTime(e.target.value)
+                                        }
+                                        className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1 w-full">
+                                    <label className="text-gray text-xl font-bold font-['Open Sans']">
+                                        End Time{" "}
+                                        <span className="text-red">*</span>
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={endTime}
+                                        onChange={(e) =>
+                                            setEndTime(e.target.value)
+                                        }
+                                        className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+                                    />
+                                </div>
                             </div>
                         </div>
-                        <div className="flex flex-col gap-10 w-1/2">
+                        <div className="flex flex-col gap-10 w-full sm:w-1/2">
                             <div className="flex flex-col gap-1">
                                 <label className="text-gray text-xl font-bold font-['Open Sans']">
                                     Your Driving Availability{" "}
@@ -539,16 +554,21 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                             {error && (
                                 <p className="text-red text-med">{error}</p>
                             )}
+
                             <button
                                 type="submit"
                                 disabled={isSubmitDisabled}
-                                className={`px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] ${
+                                className={`px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans' ] text-center ${
                                     isSubmitDisabled
                                         ? "bg-lightblue cursor-not-allowed"
                                         : "bg-blue border border-blue"
                                 }`}
                             >
-                                Continue
+                                {!loading ? (
+                                    <span>Continue</span>
+                                ) : (
+                                    <span>Loading...</span>
+                                )}
                             </button>
                         </div>
                     </form>
@@ -568,7 +588,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                         <div className="flex justify-end gap-4">
                             <Button
                                 text="No, continue"
-                                type="secondary"
+                                type="aysbutton"
                                 onClick={handleCancelBack}
                             />
                             <Button
