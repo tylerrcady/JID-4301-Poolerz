@@ -45,8 +45,30 @@ function parseTimeFromNotes(notes: string): string {
     if (prefixIndex === -1) return "N/A";
     const afterPrefix = notes.substring(prefixIndex + prefix.length).trim();
     const periodIndex = afterPrefix.indexOf(".");
-    if (periodIndex === -1) return afterPrefix;
-    return afterPrefix.substring(0, periodIndex).trim();
+    const timeString =
+        periodIndex === -1
+            ? afterPrefix
+            : afterPrefix.substring(0, periodIndex).trim();
+
+    const timeRegex = /(\d{2}):(\d{2})-(\d{2}):(\d{2})/g;
+    const matches = [...timeString.matchAll(timeRegex)];
+
+    if (matches.length === 0) return "N/A";
+
+    const [startHour, startMinute, endHour, endMinute] = matches[0]
+        .slice(1)
+        .map(Number);
+
+    const start = convertTo12HourFormat(startHour, startMinute);
+    const end = convertTo12HourFormat(endHour, endMinute);
+
+    return `${start} - ${end}`;
+}
+
+function convertTo12HourFormat(hour: number, minute: number): string {
+    const period = hour >= 12 ? "PM" : "AM";
+    const adjustedHour = hour % 12 || 12; // Convert 0 to 12 for 12-hour format
+    return `${adjustedHour}:${minute.toString().padStart(2, "0")} ${period}`;
 }
 
 function decodeDays(dayNumbers: number[]): string {
@@ -303,14 +325,14 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                 <div className="flex justify-start items-start w-11/12 mx-auto px-1">
                     <BackButton onClick={handleBackClick} />
                 </div>
-                <div className="h-auto flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6 items-center justify-center">
-                    <div className="text-black text-2xl font-bold font-['Open Sans']">
+                <div className="h-auto flex flex-col w-10/12 max-w-2xl mx-auto p-4 gap-6 items-center justify-center text-center">
+                    <div className="text-black text-center text-2xl font-bold font-['Open Sans']">
                         Join a Carpool
                     </div>
-                    <p className="text-black text-lg font-bold font-['Open Sans']">
+                    <p className="text-black text-center text-lg font-bold font-['Open Sans']">
                         Enter a Join Code
                     </p>
-                    <p className="text-black text-lg font-['Open Sans']">
+                    <p className="text-black text-center text-lg font-['Open Sans']">
                         Enter a code below to join a carpool organization
                     </p>
                     <div className="flex justify-center gap-2">
@@ -465,13 +487,16 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
             <div className="w-11/12 mx-auto px-1">
                 <BackButton onClick={handleBackClick} />
             </div>
-            <div className="flex flex-col w-full p-4 gap-6 items-center">
-                <h1 className="text-gray text-2xl font-bold font-['Open Sans']">
-                    Join {carpoolDoc?.createCarpoolData.carpoolName}
-                </h1>
-                <p className="text-gray text-lg font-bold font-['Open Sans']">
-                    Add Ride Information
-                </p>
+            <div className="flex flex-col w-full p-4 gap-4 items-center">
+                {/* Title */}
+                <div className="w-10/12 flex justify-start flex-col gap-2">
+                    <div className="justify-center text-zinc-600 text-2xl font-bold font-['Open_Sans']">
+                        Join {carpoolDoc?.createCarpoolData.carpoolName}
+                    </div>
+                    <div className="justify-center text-zinc-600 text-xl font-normal font-['Open_Sans']">
+                        Add Ride Information
+                    </div>
+                </div>
                 <div className="bg-white rounded-md p-4 flex flex-col gap-4 w-10/12">
                     <form
                         onSubmit={handleSubmit}
