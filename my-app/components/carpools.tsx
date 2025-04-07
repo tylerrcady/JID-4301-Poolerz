@@ -216,14 +216,14 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                         Current Carpools
                     </h2>
                     {createCarpoolData && createCarpoolData.length > 0 ? (
-                        <div className="mt-2 space-y-3 overflow-y-scroll h-80">
+                        <div className="mt-2 space-y-3 overflow-y-scroll h-80 px-5">
                             {allCarpools.map((carpool, index) => (
                                 <Link
                                     href={`/pool-info/${index}?carpoolId=${allCarpools[index].carpoolID}&newPool=${carpool.isOwner}`}
                                     key={index}
                                     className="block"
                                 >
-                                    <div className="p-3 bg-w bg-opacity-70 rounded-md shadow-sm cursor-pointer flex justify-between items-center hover:bg-gray hover:bg-opacity-15 hover:duration-75">
+                                    <div className="p-3 bg-w bg-opacity-70 rounded-md shadow-sm cursor-pointer flex justify-between items-center hover:bg-gray hover:bg-opacity-5 hover:duration-75">
                                         <div className="flex flex-col gap-2">
                                             <div className="text-2xl md:text-reg font-regular text-gray">
                                                 {
