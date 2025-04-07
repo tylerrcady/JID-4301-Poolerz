@@ -103,7 +103,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
             if (response.ok) {
                 const data = await response.json();
                 const joinedCarpoolsData =
-                    data?.createCarpoolData.userData.carpools;
+                    data?.createCarpoolData?.[0]?.userData?.carpools;
                 const carpoolIdsData: string[] =
                     joinedCarpoolsData?.map(
                         (carpool: { carpoolId: any }) => carpool.carpoolId

@@ -36,6 +36,7 @@ interface CarpoolDoc {
         carpoolDays: number[];
         notes: string;
         carpoolMembers: string[];
+        isClosed?: boolean;
     };
 }
 
