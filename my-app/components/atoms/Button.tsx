@@ -7,7 +7,8 @@ interface Props {
         | "remove"
         | "login"
         | "signup"
-        | "aysbutton";
+        | "aysbutton"
+        | "dropdown";
     onClick?: () => void;
     submit?: boolean;
     icon?: React.ReactNode;
@@ -33,15 +34,15 @@ export default function Button({
     } else {
         styles = `text-blue pt-2 text-base font-opensans rounded gap-2 hover:text-lightblue active:text-blue`;
         if (type === "primary") {
-            styles = `text-white bg-blue pt-2 px-4 py-2 text-sm font-opensans rounded gap-2 hover:bg-lightblue active:text-black`;
+            styles = `text-white bg-blue pt-2 px-4 py-2 text-sm font-opensans rounded gap-2 hover:bg-lightblue`;
             styles += " border";
         }
         if (type === "cancel") {
-            styles = `text-black bg-white px-4 py-2 text-sm font-opensans rounded gap-2 hover:text-red active:text-black`;
+            styles = `text-black bg-white px-4 py-2 text-sm font-opensans rounded gap-2 hover:text-red`;
             styles += " border";
         }
         if (type === "remove") {
-            styles = `text-red bg-white pt-2 py-2 text-sm font-opensans rounded gap-2 hover:text-darkred active:text-black`;
+            styles = `text-red bg-white pt-2 py-2 text-sm font-opensans rounded gap-2 hover:text-darkred`;
         }
         if (type === "login") {
             styles = `text-white bg-blue pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:bg-lightblue active:text-black`;
@@ -49,9 +50,8 @@ export default function Button({
         if (type === "signup") {
             styles = `text-gray bg-white pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:bg-lightblue active:text-black`;
         }
-        if (type === "aysbutton") {
-            styles =
-                "text-blue pt-2 text-base font-opensans rounded gap-2 hover:text-lightblue active:text-blue py-2 text-sm";
+        if (type === "dropdown") {
+            styles = `text-blue bg-white pt-2 px-4 py-2 text-base font-opensans rounded gap-2 hover:text-lightblue active:text-black`;
         }
     }
 

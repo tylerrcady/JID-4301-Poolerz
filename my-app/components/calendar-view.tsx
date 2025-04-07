@@ -47,7 +47,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
             if (response.ok) {
                 const data = await response.json();
                 const foundCarpools =
-                    data?.createCarpoolData.userData.carpools || [];
+                    data?.createCarpoolData?.[0]?.userData?.carpools || [];
                 const filterCarpoolIds: string[] = foundCarpools.map(
                     (cp: any) => cp.carpoolId
                 );

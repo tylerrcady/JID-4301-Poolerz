@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({
                                 className={`block text-lg font-medium transition-colors duration-200 px-5 py-2 ${
                                     currentPath === "/dashboard"
                                         ? "text-blue underline underline-offset-8 decoration-2"
-                                        : "text-gray hover:text-blue"
+                                        : "text-gray hover:text-lightblue hover:underline hover:underline-offset-8 hover:decoration-2"
                                 }`}
                             >
                                 Dashboard
@@ -70,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({
                                     currentPath === "/carpools" ||
                                     currentPath.startsWith("/pool-info")
                                         ? "text-blue underline underline-offset-8 decoration-2"
-                                        : "text-gray hover:text-blue"
+                                        : "text-gray hover:text-lightblue hover:underline hover:underline-offset-8 hover:decoration-2"
                                 }`}
                             >
                                 Carpools
@@ -80,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({
                                 className={`block text-lg font-medium transition-colors duration-200 px-5 py-2 ${
                                     currentPath === "/user-profile"
                                         ? "text-blue underline underline-offset-8 decoration-2"
-                                        : "text-gray hover:text-blue"
+                                        : "text-gray hover:text-lightblue hover:underline hover:underline-offset-8 hover:decoration-2"
                                 }`}
                             >
                                 Profile
@@ -111,7 +111,7 @@ const Header: React.FC<HeaderProps> = ({
                             className={`text-lg font-medium transition-colors duration-200 ${
                                 currentPath === "/dashboard"
                                     ? "text-blue underline underline-offset-8 decoration-2"
-                                    : "text-gray hover:text-blue"
+                                    : "text-gray hover:text-lightblue hover:underline hover:underline-offset-8 hover:decoration-2"
                             }`}
                         >
                             Dashboard
@@ -122,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({
                                 currentPath === "/carpools" ||
                                 currentPath.startsWith("/pool-info")
                                     ? "text-blue underline underline-offset-8 decoration-2"
-                                    : "text-gray hover:text-blue"
+                                    : "text-gray hover:text-lightblue hover:underline hover:underline-offset-8 hover:decoration-2"
                             }`}
                         >
                             Carpools
@@ -132,7 +132,7 @@ const Header: React.FC<HeaderProps> = ({
                             className={`text-lg font-medium transition-colors duration-200 ${
                                 currentPath === "/user-profile"
                                     ? "text-blue underline underline-offset-8 decoration-2"
-                                    : "text-gray hover:text-blue"
+                                    : "text-gray hover:text-lightblue hover:underline hover:underline-offset-8 hover:decoration-2"
                             }`}
                         >
                             Profile

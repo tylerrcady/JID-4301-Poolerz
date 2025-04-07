@@ -73,10 +73,10 @@ export async function GET(request: Request) {
     try {
         // get parameters
         const { searchParams } = new URL(request.url);
-        const userId = searchParams.get("userId");
+        const userIds = searchParams.getAll("userId");
 
         // check if parameters are valid
-        if (!userId) {
+        if (!userIds || userIds.length === 0) {
             return new Response(
                 JSON.stringify({ error: "Invalid parameters" }),
                 {
@@ -86,7 +86,7 @@ export async function GET(request: Request) {
         }
 
         // Retrieve the data from the database
-        const userCarpoolData = await getUserCarpoolData(userId);
+        const userCarpoolData = await Promise.all(userIds.map(userId => getUserCarpoolData(userId)));
 
         // return success/failure
         if (userCarpoolData) {

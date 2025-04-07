@@ -183,6 +183,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
             endTime: endTime,
             notes: notesWithTime,
             carpoolMembers: [userId],
+            isClosed: false,
         };
 
         try {
