@@ -2,16 +2,16 @@ import moment from "moment";
 
 const AgendaSection = ({ events }: { events: CarpoolCalendarEvent[] }) => {
     const today = moment();
-    const twoWeeksFromNow = moment().add(14, "days");
+    const oneWeekFromNow = moment().add(6, "days");
 
     // 2) Filter events to only those in [today, today+14days]
     const upcomingEvents = events
         .filter((event) => {
             const eventStart = moment(event.start);
-            // Include event if it starts on or after today AND on/before twoWeeksFromNow
+            // Include event if it starts on or after today AND on/before oneWeekFromNow
             return (
                 eventStart.isSameOrAfter(today, "day") &&
-                eventStart.isSameOrBefore(twoWeeksFromNow, "day")
+                eventStart.isSameOrBefore(oneWeekFromNow, "day")
             );
         })
         .sort((a, b) => a.start.getTime() - b.start.getTime());
