@@ -1,10 +1,23 @@
 import moment from "moment";
 
 const AgendaSection = ({ events }: { events: CarpoolCalendarEvent[] }) => {
-    const upcomingEvents = events
-        .filter((event) => event.start >= new Date())
-        .sort((a, b) => a.start.getTime() - b.start.getTime());
+    const today = moment();
+    const twoWeeksFromNow = moment().add(14, "days");
 
+    // 2) Filter events to only those in [today, today+14days]
+    const upcomingEvents = events
+        .filter((event) => {
+            const eventStart = moment(event.start);
+            // Include event if it starts on or after today AND on/before twoWeeksFromNow
+            return (
+                eventStart.isSameOrAfter(today, "day") &&
+                eventStart.isSameOrBefore(twoWeeksFromNow, "day")
+            );
+        })
+        .sort((a, b) => a.start.getTime() - b.start.getTime());
+    console.log(upcomingEvents);
+
+    // 3) Group by date key
     const groupedEvents = upcomingEvents.reduce((acc, event) => {
         const dateKey = moment(event.start).format("YYYY-MM-DD");
         if (!acc[dateKey]) acc[dateKey] = [];
@@ -12,9 +25,10 @@ const AgendaSection = ({ events }: { events: CarpoolCalendarEvent[] }) => {
         return acc;
     }, {} as Record<string, CarpoolCalendarEvent[]>);
 
+
     return (
         <div className="w-full md:w-2/5 mt-6 md:mt-0 bg-white rounded-lg px-4 py-4 font-sans text-black">
-            <h2 className="text-2xl font-semibold mb-4 text-black">Agenda</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-black">Upcoming Weeks</h2>
 
             <div className="flex flex-col gap-6 overflow-y-scroll h-96">
                 {Object.entries(groupedEvents).map(([date, dailyEvents], index) => (
@@ -44,7 +58,9 @@ const AgendaSection = ({ events }: { events: CarpoolCalendarEvent[] }) => {
                                 </div>
 
                                 {/* Driving role (if needed) */}
-                                <div className="text-xs text-black">You are driving</div>
+                                {event.isDriving && (
+                                    <div className="text-xs text-black">You are Driving</div>
+                                )}
                             </div>
                         ))}
                     </div>

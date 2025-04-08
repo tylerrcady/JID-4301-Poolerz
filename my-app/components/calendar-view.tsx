@@ -163,17 +163,20 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
         if (schedules) {
             const newEvents: CarpoolCalendarEvent[] = [];
             for (const schedule of schedules || []) {
-                const filteredSchedule: Record<string, string> = {};
-
-                // filter each schedule to only include the target userId
-                for (const [key, value] of Object.entries(schedule.schedule)) {
-                    if (value === userId) {
-                        filteredSchedule[key] = value;
-                    }
-                }
+                console.log(schedule);
+                // const filteredSchedule: Record<string, string> = {};
+                //
+                // // filter each schedule to only include the target userId
+                // for (const [key, value] of Object.entries(schedule.schedule)) {
+                //     if (value === userId) {
+                //         filteredSchedule[key] = value;
+                //     }
+                // }
+                console.log(schedule.schedule);
+                // console.log(filteredSchedule);
                 // creates event based on filtered schedule
                 const event = await helperCreateEvent(
-                    filteredSchedule,
+                    schedule.schedule,
                     schedule.carpoolId
                 );
                 newEvents.push(...event);
@@ -225,6 +228,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
         carpoolID: string
     ): Promise<CarpoolCalendarEvent[]> => {
         const resultEvents: CarpoolCalendarEvent[] = [];
+        // console.log(schedule);
 
         // receive carpoolName and start/end time if applicable
         const [carpoolName, startTime, endTime] = (await fetchCarpoolMeta(
@@ -247,6 +251,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
 
         Object.keys(schedule).forEach((dayKey) => {
             const dayOfWeek = optimizerDayMap[dayKey];
+            // console.log(schedule[dayKey]);
 
             for (let i = 1; i < WEEKS_TO_GENERATE; i++) {
                 let base = moment().startOf("day");
@@ -267,11 +272,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
                     .minute(minutesEnd)
                     .toDate();
 
+                const userDriving: boolean = (userId === schedule[dayKey]) ? true : false;
+                // console.log(userDriving);
                 resultEvents.push({
                     title: carpoolName,
                     start,
                     end,
                     color: "pink",
+                    isDriving: userDriving,
                 });
             }
         });

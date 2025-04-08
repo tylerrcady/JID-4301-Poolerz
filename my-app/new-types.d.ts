@@ -82,5 +82,6 @@ interface CarpoolCalendarEvent {
     start: Date;
     end: Date;
     color?: string;
+    isDriving?: boolean;
 }
 
