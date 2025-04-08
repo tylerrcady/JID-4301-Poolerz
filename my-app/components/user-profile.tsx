@@ -71,7 +71,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 // Fetch user's carpool data
                 const response = await fetch(`/api/join-carpool-data?userId=${userId}`);
                 const data = await response.json();
-                const joinedCarpools = data?.createCarpoolData[0]?.userData?.carpools || [];
+                const joinedCarpools = data?.createCarpoolData?.userData?.carpools || [];
                 setUserCarpoolData(joinedCarpools);
 
                 // Fetch details for each carpool
@@ -210,7 +210,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     };
 
     return (
-        <div className="flex flex-col md:flex-row justify-center items-start w-full bg-w p-4 md:p-10 gap-5">
+        <div className="flex flex-col md:flex-row justify-center items-start w-full bg-w p-4 md:p-10 gap-4 md:gap-2">
             {/* Left section - profile info */}
             <div className="flex flex-col items-center justify-center w-full md:w-1/3 gap-4">
                 <div className="rounded-full bg-gray flex items-center justify-center">
@@ -248,7 +248,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             </div>
 
             {/* Right section - cards */}
-            <div className="flex flex-col w-full md:w-1/2 gap-6">
+            <div className="flex flex-col w-full md:w-2/5 gap-6">
                 {/* Profile Section */}
                 <div className="flex-1 w-full h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                     <div className="justify-between items-center flex flex-wrap gap-2">
@@ -380,7 +380,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 <div className="flex-1 w-full h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                     <div className="justify-between items-center flex flex-wrap gap-2">
                         <div className="text-blue text-2xl font-bold">
-                            Riders
+                            Family
                         </div>
                         {isEditingFamily ? (
                             <div className="flex items-center gap-2 cursor-pointer">
