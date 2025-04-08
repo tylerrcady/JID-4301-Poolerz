@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Calendar, momentLocalizer, View, Views } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import Loading from "./icons/Loading";
 
 const localizer = momentLocalizer(moment);
 
@@ -24,13 +25,13 @@ interface CarpoolOptMapping {
 }
 
 const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
-    // userId = "67d3358e45ee3c027f8e59d6"; // DELETE line later, will use for testing rn
     const [events, setEvents] = useState<CarpoolCalendarEvent[]>([]);
     const [currentDate, setCurrentDate] = useState<Date>(new Date());
     const [view, setView] = useState<View>(Views.WEEK);
     const WEEKS_TO_GENERATE = 16; // hardcoded but represents how many weeks this carpool will take place
     const defaultStartTime = "00:00";
     const defaultEndTime = "01:00";
+    const [loading, setLoading] = useState<boolean>(true);
 
     // Get Handler for receiving all the carpoolIDs from user-carpool-data
     const handleUserDataGet = useCallback(async () => {
@@ -289,14 +290,16 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
 
     // Handler receives the driving schedules
     useEffect(() => {
+        setLoading(true);
         const receiveEvents = async () => {
             const finalCarpools = await fetchCarpoolsWithOpt(); // Gets carpool data with optimization results
             const schedules = receiveDrivingSchedules(finalCarpools);
-            createCarpoolCalendarEvents(schedules);
+            await createCarpoolCalendarEvents(schedules);
         };
 
         receiveEvents();
         console.log(events);
+        setLoading(false);
     }, []);
 
     // Custom event styling using eventPropGetter -- helps us add color
@@ -313,7 +316,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
         return { style };
     };
 
-    // Callback when an event is clickedn -- will later handle this more elegantly
+    // Callback when an event is clicked -- will later handle this more elegantly
     const onSelectEvent = (event: CarpoolCalendarEvent) => {
         alert(`Selected event: ${event.title}`);
     };
@@ -325,8 +328,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
 
     return (
         <div className="p-4">
-            {/* Calendar Component */}
-            <Calendar
+            {!loading ? (<Calendar
                 localizer={localizer}
                 events={events}
                 startAccessor="start"
@@ -340,7 +342,11 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
                 eventPropGetter={eventStyleGetter}
                 onSelectEvent={onSelectEvent}
                 style={{ height: 500, color: "#000000" }}
-            />
+            />) : (
+                <div className="flex justify-center items-center h-64 md:h-96 w-full">
+                    <Loading />
+                </div>
+                )}
         </div>
     );
 };
