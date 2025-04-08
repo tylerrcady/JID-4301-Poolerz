@@ -129,8 +129,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     ): SchedulesMapping | undefined => {
         if (!results) return undefined;
 
-        // This will store objects like:
-        // { carpoolId: "abc123", schedule: { "1": "userId", "2": "otherUserId", ... } }
+        // ex. schedules looks like: { carpoolId: "abc123", schedule: { "1": "userId", "2": "otherUserId", ... } }
         const schedules: SchedulesMapping = [];
 
         console.log("Carpools we are extracting from: ", results);
@@ -144,8 +143,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
                 );
 
                 if (userIsInCarpool) {
-                    // Instead of just pushing a bare schedule object,
-                    // push an object containing { carpoolId, schedule }
                     schedules.push({
                         carpoolId,
                         schedule: carpool.driverSchedule,
@@ -284,16 +281,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
 
     // Handler receives the driving schedules
     useEffect(() => {
-        setLoading(true);
         const receiveEvents = async () => {
+            setLoading(true);
             const finalCarpools = await fetchCarpoolsWithOpt(); // Gets carpool data with optimization results
             const schedules = receiveDrivingSchedules(finalCarpools);
             await createCarpoolCalendarEvents(schedules);
+            setLoading(false);
         };
-
         receiveEvents();
         console.log(events);
-        setLoading(false);
     }, []);
 
     // Custom event styling using eventPropGetter -- helps us add color
@@ -320,33 +316,41 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
         setCurrentDate(newDate);
     };
 
-    return (
-        <div className="flex flex-col md:flex-row gap-6">
-            <div className="w-full md:w-2/3">
-                {!loading ? (
-                    <Calendar
-                        localizer={localizer}
-                        events={events}
-                        startAccessor="start"
-                        endAccessor="end"
-                        views={[Views.MONTH, Views.WEEK, Views.DAY]}
-                        defaultView={view}
-                        view={view}
-                        onView={(view) => setView(view)}
-                        date={currentDate}
-                        onNavigate={handleNavigate}
-                        eventPropGetter={eventStyleGetter}
-                        onSelectEvent={onSelectEvent}
-                        style={{ height: 500, color: "#000000" }}
-                    />
-                ) : (
-                    <div className="flex justify-center items-center h-64 md:h-96 w-full">
-                        <Loading />
-                    </div>
-                )}
-            </div>
+    // Default start times to display
+    const scrollToTime = moment().startOf('day').hour(8).toDate();
 
-            {!loading && <AgendaSection events={events} />}
+    return (
+        <div className="flex flex-col w-full max-h-screen px-4 md:px-8">
+            {loading ? (
+                <div className="flex justify-center items-center w-full flex-grow">
+                    <Loading />
+                </div>
+            ) : (
+                <div className="flex flex-col md:flex-row gap-6">
+                    <div className="w-full md:w-3/5 lg:w-2/3">
+                        <Calendar
+                            localizer={localizer}
+                            events={events}
+                            startAccessor="start"
+                            endAccessor="end"
+                            views={[Views.MONTH, Views.WEEK, Views.DAY]}
+                            defaultView={view}
+                            view={view}
+                            onView={(view) => setView(view)}
+                            date={currentDate}
+                            onNavigate={handleNavigate}
+                            eventPropGetter={eventStyleGetter}
+                            onSelectEvent={onSelectEvent}
+                            style={{ height: "80%", color: "#000000" }}
+                            scrollToTime={scrollToTime}
+                        />
+                    </div>
+                    <AgendaSection events={events} />
+                    {/*<div className="w-full md:w-2/5 mt-6 md:mt-0">*/}
+                    {/*    <AgendaSection events={events} />*/}
+                    {/*</div>*/}
+                </div>
+            )}
         </div>
     );
 };
