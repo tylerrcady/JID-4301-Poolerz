@@ -207,6 +207,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     }
 
     const optimizerDayMap: Record<string, number> = {
+        "0": 0,
         "1": 1, // Monday
         "2": 2, // Tuesday
         "3": 3, // Wednesday
