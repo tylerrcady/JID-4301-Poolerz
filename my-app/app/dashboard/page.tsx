@@ -18,9 +18,6 @@ export default async function Page() {
                     <div className="w-full md:flex-1">
                         <CalendarView userId={session?.user?.id} />
                     </div>
-                    <div className="w-full md:w-1/3">
-                        Agenda placeholder
-                    </div>
                 </div>
             ) : (
                 <Login />

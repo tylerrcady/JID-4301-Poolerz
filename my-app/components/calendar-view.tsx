@@ -5,18 +5,12 @@ import { Calendar, momentLocalizer, View, Views } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Loading from "./icons/Loading";
+import AgendaSection from "@/components/agenda-view";
 
 const localizer = momentLocalizer(moment);
 
 interface CalendarViewProps {
     userId: string | undefined;
-}
-
-interface CarpoolCalendarEvent {
-    title: string;
-    start: Date;
-    end: Date;
-    color?: string;
 }
 
 interface CarpoolOptMapping {
@@ -327,26 +321,32 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     };
 
     return (
-        <div className="p-4">
-            {!loading ? (<Calendar
-                localizer={localizer}
-                events={events}
-                startAccessor="start"
-                endAccessor="end"
-                views={[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
-                defaultView={view}
-                view={view}
-                onView={(view) => setView(view)}
-                date={currentDate}
-                onNavigate={handleNavigate}
-                eventPropGetter={eventStyleGetter}
-                onSelectEvent={onSelectEvent}
-                style={{ height: 500, color: "#000000" }}
-            />) : (
-                <div className="flex justify-center items-center h-64 md:h-96 w-full">
-                    <Loading />
-                </div>
+        <div className="flex flex-col md:flex-row gap-6">
+            <div className="w-full md:w-2/3">
+                {!loading ? (
+                    <Calendar
+                        localizer={localizer}
+                        events={events}
+                        startAccessor="start"
+                        endAccessor="end"
+                        views={[Views.MONTH, Views.WEEK, Views.DAY]}
+                        defaultView={view}
+                        view={view}
+                        onView={(view) => setView(view)}
+                        date={currentDate}
+                        onNavigate={handleNavigate}
+                        eventPropGetter={eventStyleGetter}
+                        onSelectEvent={onSelectEvent}
+                        style={{ height: 500, color: "#000000" }}
+                    />
+                ) : (
+                    <div className="flex justify-center items-center h-64 md:h-96 w-full">
+                        <Loading />
+                    </div>
                 )}
+            </div>
+
+            {!loading && <AgendaSection events={events} />}
         </div>
     );
 };

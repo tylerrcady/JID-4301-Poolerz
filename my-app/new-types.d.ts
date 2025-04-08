@@ -77,3 +77,10 @@ interface TransformedResults {
     };
 }
 
+interface CarpoolCalendarEvent {
+    title: string;
+    start: Date;
+    end: Date;
+    color?: string;
+}
+
