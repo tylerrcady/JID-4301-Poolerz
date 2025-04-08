@@ -13,10 +13,10 @@ const AgendaSection = ({ events }: { events: CarpoolCalendarEvent[] }) => {
     }, {} as Record<string, CarpoolCalendarEvent[]>);
 
     return (
-        <div className="w-full md:w-2/5 mt-6 md:mt-0 bg-white rounded-lg px-4 py-4 font-sans text-black">
+        <div className="w-full bg-white rounded-lg md:px-4 md:py-4 font-sans text-black">
             <h2 className="text-2xl font-semibold mb-4 text-black">Agenda</h2>
 
-            <div className="flex flex-col gap-6 overflow-y-scroll h-96">
+            <div className="flex flex-col gap-6 overflow-y-auto max-h-[80vh] px-5">
                 {Object.entries(groupedEvents).map(([date, dailyEvents], index) => (
                     <div key={index} className="flex flex-col gap-4">
                         {/* Date heading */}
