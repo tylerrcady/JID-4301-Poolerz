@@ -216,7 +216,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                         Current Carpools
                     </h2>
                     {createCarpoolData && createCarpoolData.length > 0 ? (
-                        <div className="mt-2 space-y-3 overflow-y-scroll h-80 px-5">
+                        <div className="mt-2 space-y-3 overflow-y-scroll h-80 px-5 scrollbar-custom">
                             {allCarpools.map((carpool, index) => (
                                 <Link
                                     href={`/pool-info/${index}?carpoolId=${allCarpools[index].carpoolID}&newPool=${carpool.isOwner}`}
