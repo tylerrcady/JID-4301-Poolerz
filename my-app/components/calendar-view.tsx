@@ -4,18 +4,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Calendar, momentLocalizer, View, Views } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import Loading from "./icons/Loading";
+import AgendaSection from "@/components/agenda-view";
 
 const localizer = momentLocalizer(moment);
 
 interface CalendarViewProps {
     userId: string | undefined;
-}
-
-interface CarpoolCalendarEvent {
-    title: string;
-    start: Date;
-    end: Date;
-    color?: string;
 }
 
 interface CarpoolOptMapping {
@@ -24,13 +19,13 @@ interface CarpoolOptMapping {
 }
 
 const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
-    // userId = "67d3358e45ee3c027f8e59d6"; // DELETE line later, will use for testing rn
     const [events, setEvents] = useState<CarpoolCalendarEvent[]>([]);
     const [currentDate, setCurrentDate] = useState<Date>(new Date());
     const [view, setView] = useState<View>(Views.WEEK);
     const WEEKS_TO_GENERATE = 16; // hardcoded but represents how many weeks this carpool will take place
     const defaultStartTime = "00:00";
     const defaultEndTime = "01:00";
+    const [loading, setLoading] = useState<boolean>(true);
 
     // Get Handler for receiving all the carpoolIDs from user-carpool-data
     const handleUserDataGet = useCallback(async () => {
@@ -134,8 +129,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     ): SchedulesMapping | undefined => {
         if (!results) return undefined;
 
-        // This will store objects like:
-        // { carpoolId: "abc123", schedule: { "1": "userId", "2": "otherUserId", ... } }
+        // ex. schedules looks like: { carpoolId: "abc123", schedule: { "1": "userId", "2": "otherUserId", ... } }
         const schedules: SchedulesMapping = [];
 
         console.log("Carpools we are extracting from: ", results);
@@ -149,8 +143,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
                 );
 
                 if (userIsInCarpool) {
-                    // Instead of just pushing a bare schedule object,
-                    // push an object containing { carpoolId, schedule }
                     schedules.push({
                         carpoolId,
                         schedule: carpool.driverSchedule,
@@ -170,23 +162,20 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     ) => {
         if (schedules) {
             const newEvents: CarpoolCalendarEvent[] = [];
+            let colorIndex = 0;
             for (const schedule of schedules || []) {
-                const filteredSchedule: Record<string, string> = {};
+                console.log(schedule.schedule);
 
-                // filter each schedule to only include the target userId
-                for (const [key, value] of Object.entries(schedule.schedule)) {
-                    if (value === userId) {
-                        filteredSchedule[key] = value;
-                    }
-                }
-                // creates event based on filtered schedule
+                // creates event based on schedule using helper method
                 const event = await helperCreateEvent(
-                    filteredSchedule,
-                    schedule.carpoolId
+                    schedule.schedule,
+                    schedule.carpoolId,
+                    colorIndex,
                 );
                 newEvents.push(...event);
+                colorIndex += 1;
             }
-            setEvents(newEvents); // test if this works for a user in multiple carpooling schedules
+            setEvents(newEvents);
         }
     };
 
@@ -218,6 +207,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     }
 
     const optimizerDayMap: Record<string, number> = {
+        "0": 0,
         "1": 1, // Monday
         "2": 2, // Tuesday
         "3": 3, // Wednesday
@@ -227,10 +217,21 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
         "7": 0, // Sunday (0 in moment)
     };
 
+    const availableColors = [
+        "skyblue",
+        "#6BCB77", // green
+        "#A66DD4",
+        "pink",
+        "#FF6B6B", // red-ish
+        "#FFD93D", // yellow
+        "#FF8C42", // orange
+    ];
+
     // Helper method to create calendar event
     const helperCreateEvent = async (
         schedule: Record<string, string>,
-        carpoolID: string
+        carpoolID: string,
+        colorIndex: number,
     ): Promise<CarpoolCalendarEvent[]> => {
         const resultEvents: CarpoolCalendarEvent[] = [];
 
@@ -255,15 +256,11 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
 
         Object.keys(schedule).forEach((dayKey) => {
             const dayOfWeek = optimizerDayMap[dayKey];
-
-            for (let i = 1; i < WEEKS_TO_GENERATE; i++) {
+            const assignedColor = availableColors[colorIndex % availableColors.length];
+            for (let i = 0; i < WEEKS_TO_GENERATE; i++) {
                 let base = moment().startOf("day");
                 let eventDate = base.clone().day(dayOfWeek).add(i, "weeks");
 
-                // If first generated date is before today, shift it forward 1 week
-                if (eventDate.isBefore(base)) {
-                    eventDate = eventDate.add(1, "week");
-                }
                 const start = eventDate
                     .clone()
                     .hour(hoursStart)
@@ -275,11 +272,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
                     .minute(minutesEnd)
                     .toDate();
 
+                const userDriving: boolean = (userId === schedule[dayKey]) ? true : false;
+                // console.log(userDriving);
                 resultEvents.push({
                     title: carpoolName,
                     start,
                     end,
-                    color: "pink",
+                    color: assignedColor,
+                    isDriving: userDriving,
                 });
             }
         });
@@ -290,11 +290,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     // Handler receives the driving schedules
     useEffect(() => {
         const receiveEvents = async () => {
+            setLoading(true);
             const finalCarpools = await fetchCarpoolsWithOpt(); // Gets carpool data with optimization results
             const schedules = receiveDrivingSchedules(finalCarpools);
-            createCarpoolCalendarEvents(schedules);
+            await createCarpoolCalendarEvents(schedules);
+            setLoading(false);
         };
-
         receiveEvents();
         console.log(events);
     }, []);
@@ -313,7 +314,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
         return { style };
     };
 
-    // Callback when an event is clickedn -- will later handle this more elegantly
+    // Callback when an event is clicked -- will later handle this more elegantly
     const onSelectEvent = (event: CarpoolCalendarEvent) => {
         alert(`Selected event: ${event.title}`);
     };
@@ -323,24 +324,41 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
         setCurrentDate(newDate);
     };
 
+    // Default start times to display
+    const scrollToTime = moment().startOf('day').hour(8).toDate();
+
     return (
-        <div className="p-4">
-            {/* Calendar Component */}
-            <Calendar
-                localizer={localizer}
-                events={events}
-                startAccessor="start"
-                endAccessor="end"
-                views={[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
-                defaultView={view}
-                view={view}
-                onView={(view) => setView(view)}
-                date={currentDate}
-                onNavigate={handleNavigate}
-                eventPropGetter={eventStyleGetter}
-                onSelectEvent={onSelectEvent}
-                style={{ height: 500, color: "#000000" }}
-            />
+        <div className="flex flex-col w-full max-h-screen px-4 md:px-8">
+            {loading ? (
+                <div className="flex justify-center items-center w-full flex-grow">
+                    <Loading />
+                </div>
+            ) : (
+                <div className="flex flex-col md:flex-row gap-6">
+                    <div className="w-full md:w-3/5 lg:w-2/3">
+                        <Calendar
+                            localizer={localizer}
+                            events={events}
+                            startAccessor="start"
+                            endAccessor="end"
+                            views={[Views.MONTH, Views.WEEK, Views.DAY]}
+                            defaultView={view}
+                            view={view}
+                            onView={(view) => setView(view)}
+                            date={currentDate}
+                            onNavigate={handleNavigate}
+                            eventPropGetter={eventStyleGetter}
+                            onSelectEvent={onSelectEvent}
+                            style={{ height: "80%", color: "#000000" }}
+                            scrollToTime={scrollToTime}
+                        />
+                    </div>
+                    <AgendaSection events={events} />
+                    {/*<div className="w-full md:w-2/5 mt-6 md:mt-0">*/}
+                    {/*    <AgendaSection events={events} />*/}
+                    {/*</div>*/}
+                </div>
+            )}
         </div>
     );
 };
