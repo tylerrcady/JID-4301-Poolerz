@@ -328,14 +328,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     const scrollToTime = moment().startOf('day').hour(8).toDate();
 
     return (
-        <div className="flex flex-col w-full max-h-screen px-4 md:px-8">
+        <div className="flex flex-col w-full h-screen px-4 md:px-8">
             {loading ? (
                 <div className="flex justify-center items-center w-full flex-grow">
                     <Loading />
                 </div>
             ) : (
-                <div className="flex flex-col md:flex-row gap-6">
-                    <div className="w-full md:w-3/5 lg:w-2/3">
+                <div className="flex flex-col md:flex-row gap-6 h-full">
+                    <div className="mt-5 w-full md:w-3/5 lg:w-2/3 h-[50vh] md:h-[85vh] scrollbar-custom">
                         <Calendar
                             localizer={localizer}
                             events={events}
@@ -349,14 +349,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
                             onNavigate={handleNavigate}
                             eventPropGetter={eventStyleGetter}
                             onSelectEvent={onSelectEvent}
-                            style={{ height: "80%", color: "#000000" }}
+                            style={{ height: "100%", color: "#000000" }}
                             scrollToTime={scrollToTime}
                         />
                     </div>
-                    <AgendaSection events={events} />
-                    {/*<div className="w-full md:w-2/5 mt-6 md:mt-0">*/}
-                    {/*    <AgendaSection events={events} />*/}
-                    {/*</div>*/}
+                    <div className="w-full md:w-2/5 overflow-hidden mt-5 md:mt-0 mb-5 h-full">
+                        <AgendaSection events={events} />
+                    </div>
                 </div>
             )}
         </div>
