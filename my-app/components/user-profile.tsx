@@ -8,6 +8,7 @@ import TextInput from "@components/atoms/text-input";
 import NumberInput from "@components/atoms/number-input";
 import AddIcon from "./icons/AddIcon";
 import EditIcon from "./icons/EditIcon";
+import Loading from "@components/icons/Loading";
 
 interface UserProfileProps {
     userId: string | undefined;
@@ -31,9 +32,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
         useState<UserFormData | null>(null);
     const [userCarpoolData, setUserCarpoolData] = useState<any[]>([]);
     const [carpoolDetails, setCarpoolDetails] = useState<{[key: string]: any}>({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [isCarpoolLoading, setIsCarpoolLoading] = useState(true);
 
     // GET user-form-data handler
     const handleUserFormGet = useCallback(async () => {
+        setIsLoading(true);
         try {
             const response = await fetch(
                 `/api/user-form-data?userId=${userId}`,
@@ -50,12 +54,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     data && data.userFormData
                         ? data.userFormData.userFormData
                         : ""
-                ); // update variable with returned data if any exists
+                );
             } else {
                 console.error("Failed to fetch data:", response.statusText);
             }
         } catch (error) {
             console.error("Error fetching data:", error);
+        } finally {
+            setIsLoading(false);
         }
     }, [userId]);
 
@@ -67,6 +73,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
         const fetchCarpoolData = async () => {
             if (!userId) return;
             
+            setIsCarpoolLoading(true);
             try {
                 // Fetch user's carpool data
                 const response = await fetch(`/api/join-carpool-data?userId=${userId}`);
@@ -92,6 +99,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 setCarpoolDetails(carpoolDetailsMap);
             } catch (error) {
                 console.error("Error fetching carpool data:", error);
+            } finally {
+                setIsCarpoolLoading(false);
             }
         };
 
@@ -281,98 +290,104 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                             </div>
                         )}
                     </div>
-                    {userFormData && (
-                        <>
-                            <div className="break-all">
-                                <div className="text-black text-xl font-bold">
-                                    Address
+                    {isLoading || isCarpoolLoading ? (
+                        <div className="flex justify-center items-center">
+                            <Loading />
+                        </div>
+                    ) : (
+                        userFormData && (
+                            <>
+                                <div className="break-all">
+                                    <div className="text-black text-xl font-bold">
+                                        Address
+                                    </div>
+                                    <div className="text-gray text-base font-normal">
+                                        {isEditingProfile ? (
+                                            <div className="flex flex-col gap-2">
+                                                <TextInput
+                                                    currentValue={userFormData.location.address}
+                                                    onChange={(value) => {
+                                                        setUserFormData({
+                                                            ...userFormData,
+                                                            location: {
+                                                                ...userFormData.location,
+                                                                address: value,
+                                                            },
+                                                        });
+                                                    }}
+                                                    placeholder="Enter street address"
+                                                />
+                                                <TextInput
+                                                    currentValue={userFormData.location.city}
+                                                    onChange={(value) => {
+                                                        setUserFormData({
+                                                            ...userFormData,
+                                                            location: {
+                                                                ...userFormData.location,
+                                                                city: value,
+                                                            },
+                                                        });
+                                                    }}
+                                                    placeholder="Enter city"
+                                                />
+                                                <TextInput
+                                                    currentValue={userFormData.location.state}
+                                                    onChange={(value) => {
+                                                        setUserFormData({
+                                                            ...userFormData,
+                                                            location: {
+                                                                ...userFormData.location,
+                                                                state: value,
+                                                            },
+                                                        });
+                                                    }}
+                                                    placeholder="Enter state"
+                                                />
+                                                <TextInput
+                                                    currentValue={userFormData.location.zipCode}
+                                                    onChange={(value) => {
+                                                        setUserFormData({
+                                                            ...userFormData,
+                                                            location: {
+                                                                ...userFormData.location,
+                                                                zipCode: value,
+                                                            },
+                                                        });
+                                                    }}
+                                                    placeholder="Enter ZIP code"
+                                                />
+                                            </div>
+                                        ) : (
+                                            `${userFormData.location.address}, 
+                                            ${userFormData.location.city}, 
+                                            ${userFormData.location.state}, 
+                                            ${userFormData.location.zipCode}`
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="text-gray text-base font-normal">
-                                    {isEditingProfile ? (
-                                        <div className="flex flex-col gap-2">
+                                <div className="break-all">
+                                    <div className="text-black text-xl font-bold">
+                                        Phone Number
+                                    </div>
+                                    <div className="text-gray text-base font-normal">
+                                        {isEditingProfile ? (
                                             <TextInput
-                                                currentValue={userFormData.location.address}
+                                                currentValue={userFormData.phoneNumber || ""}
                                                 onChange={(value) => {
                                                     setUserFormData({
                                                         ...userFormData,
-                                                        location: {
-                                                            ...userFormData.location,
-                                                            address: value,
-                                                        },
+                                                        phoneNumber: value,
                                                     });
                                                 }}
-                                                placeholder="Enter street address"
+                                                placeholder="Enter phone number"
                                             />
-                                            <TextInput
-                                                currentValue={userFormData.location.city}
-                                                onChange={(value) => {
-                                                    setUserFormData({
-                                                        ...userFormData,
-                                                        location: {
-                                                            ...userFormData.location,
-                                                            city: value,
-                                                        },
-                                                    });
-                                                }}
-                                                placeholder="Enter city"
-                                            />
-                                            <TextInput
-                                                currentValue={userFormData.location.state}
-                                                onChange={(value) => {
-                                                    setUserFormData({
-                                                        ...userFormData,
-                                                        location: {
-                                                            ...userFormData.location,
-                                                            state: value,
-                                                        },
-                                                    });
-                                                }}
-                                                placeholder="Enter state"
-                                            />
-                                            <TextInput
-                                                currentValue={userFormData.location.zipCode}
-                                                onChange={(value) => {
-                                                    setUserFormData({
-                                                        ...userFormData,
-                                                        location: {
-                                                            ...userFormData.location,
-                                                            zipCode: value,
-                                                        },
-                                                    });
-                                                }}
-                                                placeholder="Enter ZIP code"
-                                            />
-                                        </div>
-                                    ) : (
-                                        `${userFormData.location.address}, 
-                                        ${userFormData.location.city}, 
-                                        ${userFormData.location.state}, 
-                                        ${userFormData.location.zipCode}`
-                                    )}
+                                        ) : (
+                                            userFormData.phoneNumber || "Not provided"
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="break-all">
-                                <div className="text-black text-xl font-bold">
-                                    Phone Number
-                                </div>
-                                <div className="text-gray text-base font-normal">
-                                    {isEditingProfile ? (
-                                        <TextInput
-                                            currentValue={userFormData.phoneNumber || ""}
-                                            onChange={(value) => {
-                                                setUserFormData({
-                                                    ...userFormData,
-                                                    phoneNumber: value,
-                                                });
-                                            }}
-                                            placeholder="Enter phone number"
-                                        />
-                                    ) : (
-                                        userFormData.phoneNumber || "Not provided"
-                                    )}
-                                </div>
-                            </div>
-                        </>
+                            </>
+                        )
                     )}
                 </div>
 
@@ -409,84 +424,93 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                         )}
                     </div>
                     <div>
-                        {userFormData &&
-                            userFormData.children.map((child, index) => (
-                                <div
-                                    key={`${child.name}-${index}`}
-                                    className="flex flex-col items-start w-full"
-                                >
-                                    <div className="text-gray text-xl w-full">
-                                        {isEditingFamily ? (
-                                            <TextInput
-                                                currentValue={child.name}
-                                                onChange={(value) => {
-                                                    const updatedChildren =
-                                                        userFormData.children.map(
-                                                            (c, i) =>
-                                                                i === index
-                                                                    ? {
-                                                                          ...c,
-                                                                          name: value,
-                                                                      }
-                                                                    : c
-                                                        );
-                                                    setUserFormData({
-                                                        ...userFormData,
-                                                        children:
-                                                            updatedChildren,
-                                                    });
-                                                }}
-                                                placeholder="Enter rider's name"
-                                            />
-                                        ) : (
-                                            <>
-                                                <span className="text-xl font-bold text-black">
-                                                    {child.name}
-                                                </span>
-                                                {/* Display associated carpools */}
-                                                <div className="ml-6 mt-1 mb-4">
-                                                    {userCarpoolData
-                                                        .filter(carpool => carpool.riders.includes(child.name))
-                                                        .map(carpool => {
-                                                            const carpoolInfo = carpoolDetails[carpool.carpoolId];
-                                                            return carpoolInfo ? (
-                                                                <div 
-                                                                    key={carpool.carpoolId}
-                                                                    className="text-base text-gray-600 mb-1"
-                                                                >
-                                                                    {carpoolInfo.carpoolName}
-                                                                </div>
-                                                            ) : null;
-                                                        })
-                                                    }
+                        {isLoading || isCarpoolLoading ? (
+                            <div className="flex justify-center items-center">
+                                <Loading />
+                            </div>
+                        ) : (
+                            userFormData && userCarpoolData && carpoolDetails && (
+                                <div>
+                                    {userFormData.children.map((child, index) => (
+                                        <div
+                                            key={`${child.name}-${index}`}
+                                            className="flex flex-col items-start w-full"
+                                        >
+                                            <div className="text-gray text-xl w-full">
+                                                {isEditingFamily ? (
+                                                    <TextInput
+                                                        currentValue={child.name}
+                                                        onChange={(value) => {
+                                                            const updatedChildren =
+                                                                userFormData.children.map(
+                                                                    (c, i) =>
+                                                                        i === index
+                                                                            ? {
+                                                                                  ...c,
+                                                                                  name: value,
+                                                                              }
+                                                                            : c
+                                                                );
+                                                            setUserFormData({
+                                                                ...userFormData,
+                                                                children:
+                                                                    updatedChildren,
+                                                            });
+                                                        }}
+                                                        placeholder="Enter rider's name"
+                                                    />
+                                                ) : (
+                                                    <>
+                                                        <span className="text-xl font-bold text-black">
+                                                            {child.name}
+                                                        </span>
+                                                        {/* Display associated carpools */}
+                                                        <div className="ml-4 mt-2 mb-6">
+                                                            {userCarpoolData
+                                                                .filter(carpool => carpool.riders.includes(child.name))
+                                                                .map(carpool => {
+                                                                    const carpoolInfo = carpoolDetails[carpool.carpoolId];
+                                                                    return carpoolInfo ? (
+                                                                        <div 
+                                                                            key={carpool.carpoolId}
+                                                                            className="text-base text-gray-600 mb-1"
+                                                                        >
+                                                                            {carpoolInfo.carpoolName}
+                                                                        </div>
+                                                                    ) : null;
+                                                                })
+                                                            }
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                            {isEditingFamily && (
+                                                <div className="w text-gray text-xl">
+                                                    <Button
+                                                        text="Remove"
+                                                        type="remove"
+                                                        onClick={() => {
+                                                            const updatedChildren =
+                                                                userFormData.children.filter(
+                                                                    (_, i) =>
+                                                                        i !== index
+                                                                );
+                                                            setUserFormData({
+                                                                ...userFormData,
+                                                                children:
+                                                                    updatedChildren,
+                                                                numChildren:
+                                                                    updatedChildren.length,
+                                                            });
+                                                        }}
+                                                    />
                                                 </div>
-                                            </>
-                                        )}
-                                    </div>
-                                    {isEditingFamily && (
-                                        <div className="w text-gray text-xl">
-                                            <Button
-                                                text="Remove"
-                                                type="remove"
-                                                onClick={() => {
-                                                    const updatedChildren =
-                                                        userFormData.children.filter(
-                                                            (_, i) =>
-                                                                i !== index
-                                                        );
-                                                    setUserFormData({
-                                                        ...userFormData,
-                                                        children:
-                                                            updatedChildren,
-                                                        numChildren:
-                                                            updatedChildren.length,
-                                                    });
-                                                }}
-                                            />
+                                            )}
                                         </div>
-                                    )}
+                                    ))}
                                 </div>
-                            ))}
+                            )
+                        )}
                     </div>
                     {isEditingFamily && (
                         <div className="flex items-center gap-2 cursor-pointer">

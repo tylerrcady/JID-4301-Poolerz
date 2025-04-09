@@ -162,23 +162,20 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     ) => {
         if (schedules) {
             const newEvents: CarpoolCalendarEvent[] = [];
+            let colorIndex = 0;
             for (const schedule of schedules || []) {
-                const filteredSchedule: Record<string, string> = {};
+                console.log(schedule.schedule);
 
-                // filter each schedule to only include the target userId
-                for (const [key, value] of Object.entries(schedule.schedule)) {
-                    if (value === userId) {
-                        filteredSchedule[key] = value;
-                    }
-                }
-                // creates event based on filtered schedule
+                // creates event based on schedule using helper method
                 const event = await helperCreateEvent(
-                    filteredSchedule,
-                    schedule.carpoolId
+                    schedule.schedule,
+                    schedule.carpoolId,
+                    colorIndex,
                 );
                 newEvents.push(...event);
+                colorIndex += 1;
             }
-            setEvents(newEvents); // test if this works for a user in multiple carpooling schedules
+            setEvents(newEvents);
         }
     };
 
@@ -210,6 +207,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     }
 
     const optimizerDayMap: Record<string, number> = {
+        "0": 0,
         "1": 1, // Monday
         "2": 2, // Tuesday
         "3": 3, // Wednesday
@@ -219,10 +217,21 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
         "7": 0, // Sunday (0 in moment)
     };
 
+    const availableColors = [
+        "skyblue",
+        "#6BCB77", // green
+        "#A66DD4",
+        "pink",
+        "#FF6B6B", // red-ish
+        "#FFD93D", // yellow
+        "#FF8C42", // orange
+    ];
+
     // Helper method to create calendar event
     const helperCreateEvent = async (
         schedule: Record<string, string>,
-        carpoolID: string
+        carpoolID: string,
+        colorIndex: number,
     ): Promise<CarpoolCalendarEvent[]> => {
         const resultEvents: CarpoolCalendarEvent[] = [];
 
@@ -247,15 +256,11 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
 
         Object.keys(schedule).forEach((dayKey) => {
             const dayOfWeek = optimizerDayMap[dayKey];
-
-            for (let i = 1; i < WEEKS_TO_GENERATE; i++) {
+            const assignedColor = availableColors[colorIndex % availableColors.length];
+            for (let i = 0; i < WEEKS_TO_GENERATE; i++) {
                 let base = moment().startOf("day");
                 let eventDate = base.clone().day(dayOfWeek).add(i, "weeks");
 
-                // If first generated date is before today, shift it forward 1 week
-                if (eventDate.isBefore(base)) {
-                    eventDate = eventDate.add(1, "week");
-                }
                 const start = eventDate
                     .clone()
                     .hour(hoursStart)
@@ -267,11 +272,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
                     .minute(minutesEnd)
                     .toDate();
 
+                const userDriving: boolean = (userId === schedule[dayKey]) ? true : false;
+                // console.log(userDriving);
                 resultEvents.push({
                     title: carpoolName,
                     start,
                     end,
-                    color: "pink",
+                    color: assignedColor,
+                    isDriving: userDriving,
                 });
             }
         });
