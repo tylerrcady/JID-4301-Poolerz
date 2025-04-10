@@ -187,7 +187,15 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
     }, [joinCode]);
 
     const handleEnterClick = () => {
+        console.log("carpool doc: ", carpoolDoc);
         if (!carpoolDoc) return;
+        
+        const members = carpoolDoc.createCarpoolData.carpoolMembers || [];
+        if (Array.isArray(members) && members.includes(userId || "")) {
+            setError("You are already a member of this carpool.");
+            return;
+        }
+
         setIsConfirmModalOpen(true);
     };
 
@@ -401,13 +409,18 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                         </p>
                     )}
                     {isEnterVisible && carpoolDoc && (
-                        <div className="flex justify-center">
+                        <div className="flex flex-col justify-center items-center">
                             <button
                                 onClick={handleEnterClick}
                                 className="px-6 py-2 bg-blue rounded-md border border-blue text-white text-lg md:text-xl font-semibold font-['Open Sans']"
                             >
                                 Enter
                             </button>
+                            {error && (
+                                <p className="text-red text-sm text-center mt-4">
+                                    {error}
+                                </p>
+                            )}
                         </div>
                     )}
                     {loading && (
