@@ -1713,15 +1713,18 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             {`Join Code: ${carpoolId}`}
                         </div>
                     </div>
-                    <div className="self-stretch justify-start items-start inline-flex gap-10">
-                        <button
-                            className={`px-4 py-2 rounded text-white ${
-                                carpoolOrgInfo?.isClosed ? "bg-gray" : "bg-blue"}`}
-                            onClick={toggleClose}
-                        >
-                            {carpoolOrgInfo?.isClosed ? "Open Now" : "Close Now"}
-                        </button>
-                    </div>
+                    {isOwner && (
+                        <div className="self-stretch justify-start items-start inline-flex gap-10">
+                            <button
+                                className={`px-4 py-2 rounded text-white ${
+                                    carpoolOrgInfo?.isClosed === true ? "bg-gray" : "bg-blue"
+                                }`}
+                                onClick={toggleClose}
+                            >
+                                {carpoolOrgInfo?.isClosed === true ? "Open Now" : "Close Now"}
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className="flex flex-col bg-w p-6 border border-lightgray rounded-2xl md:flex-row md:justify-between shadow-md gap-6 mt-6">
                     {/* Organization Information */}
