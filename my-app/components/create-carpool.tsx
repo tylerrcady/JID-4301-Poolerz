@@ -62,7 +62,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
             })
             .then((data) => {
                 const doc = data.userFormData;
-                const children = doc?.userFormData?.children || [];
+                const children = doc?.[0]?.userFormData?.children || [];
                 const mapped = children.map((child: any, idx: number) => ({
                     id: child.id || `child-${idx}`,
                     name: child.name,
@@ -261,10 +261,10 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
             <div className="flex flex-col w-full p-4 gap-6 items-center">
                 {/* Title */}
                 <div className="w-10/12 flex justify-start flex-col gap-2">
-                    <div className="justify-center text-zinc-600 text-2xl font-bold font-['Open_Sans']">
+                    <div className="justify-center text-gray text-2xl font-bold font-['Open Sans']">
                         Create Carpool
                     </div>
-                    <div className="justify-center text-zinc-600 text-xl font-normal font-['Open_Sans']">
+                    <div className="justify-center text-gray text-xl font-normal font-['Open Sans']">
                         Add Carpool Information
                     </div>
                 </div>
