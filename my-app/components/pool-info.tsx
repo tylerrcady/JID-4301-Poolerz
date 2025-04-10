@@ -136,20 +136,61 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         Record<string, string>
     >({});
     const [groupAddresses, setGroupAddresses] = useState<Record<string, any>>({});
+
     const [groupPhoneNumbers, setGroupPhoneNumbers] = useState<Record<string, any>>({});
 
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
     const [leaveError, setLeaveError] = useState<string | null>(null);
     const [isLeaving, setIsLeaving] = useState(false);
     const [showCarpools, setCarpoolDropdown] = useState(false);
-    const [isClosed, setIsClosed] = useState(false);
 
     const setShowCarpools = () => {
         setCarpoolDropdown((prev) => !prev);
     };
 
+    // helper method that ensures that closes carpool
+    const closeCarpool: (arg0: boolean)  => Promise<void> = async (updateClosed: boolean) => {
+        try {
+            // get carpoolOrgInfo
+            console.log(carpoolOrgInfo);
+
+            // Spread the existing carpool data and update 'isClosed'
+            const updatedOrgInfo: any = {
+                ...carpoolOrgInfo,
+                isClosed: updateClosed,
+            };
+            console.log(updatedOrgInfo);
+            setCarpoolOrgInfo(updatedOrgInfo);
+
+            // Now update the carpoolData and change isClosed = true
+            const response = await fetch("/api/update-carpool", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    carpoolId,
+                    carpoolData: updatedOrgInfo,
+                }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || "Failed to close carpool");
+            }
+
+        } catch (error: any) {
+            console.error("Error closing carpool:", error);
+            setLeaveError(error.message || "Failed to close carpool");
+        }
+    }
+
     const toggleClose = async() => {
-            setIsClosed((prev) => !prev);
+        // toggle update closed
+        let update = (carpoolOrgInfo?.isClosed) ? false : true;
+
+        await closeCarpool(update);
+        //setIsClosed((prev) => !prev);
     };
 
     const router = useRouter();
@@ -1672,15 +1713,18 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             {`Join Code: ${carpoolId}`}
                         </div>
                     </div>
-                    <div className="self-stretch justify-start items-start inline-flex gap-10">
-                        <button
-                            className={`px-4 py-2 rounded text-white text-sm md:text-base ${
-                                isClosed ? "bg-gray" : "bg-blue"}`}
-                            onClick={toggleClose}
-                        >
-                            {isClosed ? "Open Now" : "Close Now"}
-                        </button>
-                    </div>
+                    {isOwner && (
+                        <div className="self-stretch justify-start items-start inline-flex gap-10">
+                            <button
+                                className={`px-4 py-2 rounded text-white ${
+                                    carpoolOrgInfo?.isClosed === true ? "bg-gray" : "bg-blue"
+                                }`}
+                                onClick={toggleClose}
+                            >
+                                {carpoolOrgInfo?.isClosed === true ? "Open Now" : "Close Now"}
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className="flex flex-col bg-w p-6 border border-lightgray rounded-2xl md:flex-row md:justify-between shadow-md gap-6 mt-6">
                     {/* Organization Information */}
@@ -2546,7 +2590,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 </div>
             )}
 
-            {/*leave cofnirmation */}
+            {/*leave confirmation */}
             <AddModal
                 isOpen={isLeaveModalOpen}
                 text="Leave Carpool"
