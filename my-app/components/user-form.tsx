@@ -658,26 +658,26 @@ export default function UserForm({ userId }: UserFormProps) {
                         className={`child-field flex flex-col w-full ${isAnimatingOut ? 'child-field-exit' : 'child-field-enter'}`}
                         style={{ marginBottom: isAnimatingOut ? '0' : '1rem' }}
                       >
-                        <div className="flex items-center mb-2">
-                          <label className="text-black font-['Open_Sans'] text-[16px] font-normal leading-normal flex-grow">
-                            Child {index + 1} Name:
-                          </label>
+                        <label className="text-black font-['Open_Sans'] text-[16px] font-normal mb-2 leading-normal">
+                          Child {index + 1} Name:
+                        </label>
+                        <div className="relative flex items-center">
+                          <input
+                            type="text"
+                            className="w-full p-2 border border-black rounded-md focus:outline-none text-black font-['Open_Sans'] text-[16px] font-normal leading-normal"
+                            value={userFormData.children[index]?.name || ""}
+                            onChange={(e) => updateChildName(index, e.target.value)}
+                            placeholder="Enter child name"
+                          />
                           <button
                             type="button"
                             onClick={() => handleRemoveChild(index)}
-                            className="text-[#E60606] font-['Open_Sans'] text-[20px] font-normal w-[21px] h-[21px] flex items-center justify-center"
+                            className="absolute right-2 text-[#E60606] font-['Open_Sans'] text-[20px] font-normal w-[21px] h-[21px] flex items-center justify-center"
                             aria-label="Remove child"
                           >
                             ×
                           </button>
                         </div>
-                        <input
-                          type="text"
-                          className="w-full p-2 border border-black rounded-md focus:outline-none text-black font-['Open_Sans'] text-[16px] font-normal leading-normal"
-                          value={userFormData.children[index]?.name || ""}
-                          onChange={(e) => updateChildName(index, e.target.value)}
-                          placeholder="Enter child name"
-                        />
                       </div>
                     );
                   })}
