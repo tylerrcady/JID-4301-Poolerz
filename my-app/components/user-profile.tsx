@@ -52,7 +52,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 const data = await response.json();
                 setUserFormData(
                     data && data.userFormData
-                        ? data.userFormData.userFormData
+                        ? data.userFormData[0].userFormData
                         : ""
                 );
             } else {
@@ -78,16 +78,17 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                 // Fetch user's carpool data
                 const response = await fetch(`/api/join-carpool-data?userId=${userId}`);
                 const data = await response.json();
-                const joinedCarpools = data?.createCarpoolData[0]?.userData?.carpools || [];
+                const joinedCarpools = data?.createCarpoolData?.[0]?.userData?.carpools || [];
                 setUserCarpoolData(joinedCarpools);
 
                 // Fetch details for each carpool
                 const carpoolPromises = joinedCarpools.map(async (carpool: any) => {
                     const carpoolResponse = await fetch(`/api/create-carpool-data?carpoolId=${carpool.carpoolId}`);
                     const carpoolData = await carpoolResponse.json();
+                    console.log(`Carpool Details for ${carpool.carpoolId}:`, carpoolData);
                     return {
                         id: carpool.carpoolId,
-                        data: carpoolData.createCarpoolData[0]?.createCarpoolData || carpoolData.createCarpoolData
+                        data: carpoolData.createCarpoolData?.[0] || {},
                     };
                 });
 
@@ -463,9 +464,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                                     return carpoolInfo ? (
                                                                         <div 
                                                                             key={carpool.carpoolId}
-                                                                            className="text-base text-gray-600 mb-1"
+                                                                            className="text-base text-gray mb-1"
                                                                         >
-                                                                            {carpoolInfo.carpoolName}
+                                                                            {carpoolInfo.createCarpoolData.carpoolName}
                                                                         </div>
                                                                     ) : null;
                                                                 })
