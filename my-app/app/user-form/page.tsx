@@ -20,23 +20,23 @@ const openSans = Open_Sans({
 export default async function Page() {
   const session = await auth();
 
-  if (session?.user?.id) {
-    return (
-      <main className={`${mavenPro.className} ${openSans.className}`}>
-        <UserForm userId={session.user.id} />
-      </main>
-    );
-  }
-
   return (
     <div className={`flex flex-col items-center justify-between h-full min-h-screen bg-w text-d ${mavenPro.className} ${openSans.className}`}>
-      <Header
-        userId={session?.user?.id}
-        isFormComplete={false}
-        currentPath="/user-form"
-      />
-      <Main userName={session?.user?.name} />
-      <Footer />
+      {session?.user?.id ? (
+        <main className="w-full">
+          <UserForm userId={session.user.id} />
+        </main>
+      ) : (
+        <>
+          <Header
+            userId={session?.user?.id}
+            isFormComplete={false}
+            currentPath="/user-form"
+          />
+          <Main userName={session?.user?.name} />
+          <Footer />
+        </>
+      )}
     </div>
   );
 }
