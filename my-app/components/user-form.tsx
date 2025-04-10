@@ -598,8 +598,9 @@ export default function UserForm({ userId }: UserFormProps) {
 
               <div>
                 <input
-                  type="text"
+                  type="tel"
                   placeholder="Phone Number"
+                  pattern="[0-9]{10}"
                   className={`border p-2 w-full rounded-md focus:outline-none text-black ${
                     errors.phoneNumber ? "border-red-500" : "border-black"
                   }`}
