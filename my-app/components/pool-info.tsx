@@ -135,19 +135,58 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         Record<string, string>
     >({});
     const [groupAddresses, setGroupAddresses] = useState<Record<string, any>>({});
-
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
     const [leaveError, setLeaveError] = useState<string | null>(null);
     const [isLeaving, setIsLeaving] = useState(false);
     const [showCarpools, setCarpoolDropdown] = useState(false);
-    const [isClosed, setIsClosed] = useState(false);
 
     const setShowCarpools = () => {
         setCarpoolDropdown((prev) => !prev);
     };
 
+    // helper method that ensures that closes carpool
+    const closeCarpool: (arg0: boolean)  => Promise<void> = async (updateClosed: boolean) => {
+        try {
+            // get carpoolOrgInfo
+            console.log(carpoolOrgInfo);
+
+            // Spread the existing carpool data and update 'isClosed'
+            const updatedOrgInfo: any = {
+                ...carpoolOrgInfo,
+                isClosed: updateClosed,
+            };
+            console.log(updatedOrgInfo);
+            setCarpoolOrgInfo(updatedOrgInfo);
+
+            // Now update the carpoolData and change isClosed = true
+            const response = await fetch("/api/update-carpool", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    carpoolId,
+                    carpoolData: updatedOrgInfo,
+                }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || "Failed to close carpool");
+            }
+
+        } catch (error: any) {
+            console.error("Error closing carpool:", error);
+            setLeaveError(error.message || "Failed to close carpool");
+        }
+    }
+
     const toggleClose = async() => {
-            setIsClosed((prev) => !prev);
+        // toggle update closed
+        let update = (carpoolOrgInfo?.isClosed) ? false : true;
+
+        await closeCarpool(update);
+        //setIsClosed((prev) => !prev);
     };
 
     const router = useRouter();
@@ -1613,10 +1652,10 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                     <div className="self-stretch justify-start items-start inline-flex gap-10">
                         <button
                             className={`px-4 py-2 rounded text-white ${
-                                isClosed ? "bg-gray" : "bg-blue"}`}
+                                carpoolOrgInfo?.isClosed ? "bg-gray" : "bg-blue"}`}
                             onClick={toggleClose}
                         >
-                            {isClosed ? "Open Now" : "Close Now"}
+                            {carpoolOrgInfo?.isClosed ? "Open Now" : "Close Now"}
                         </button>
                     </div>
                 </div>
@@ -1760,7 +1799,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                     <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
                                         Location
                                     </div>
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation.name}, ${carpoolOrgInfo?.carpoolLocation.address}, ${carpoolOrgInfo?.carpoolLocation.city}, ${carpoolOrgInfo?.carpoolLocation.state} ${carpoolOrgInfo?.carpoolLocation.zipCode}`}</div>
+                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation?.name}, ${carpoolOrgInfo?.carpoolLocation?.address}, ${carpoolOrgInfo?.carpoolLocation?.city}, ${carpoolOrgInfo?.carpoolLocation?.state} ${carpoolOrgInfo?.carpoolLocation?.zipCode}`}</div>
                                 </div>
                                 <div className="flex-col justify-start items-start mt-5 flex">
                                     <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
@@ -2323,7 +2362,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 </div>
             )}
 
-            {/*leave cofnirmation */}
+            {/*leave confirmation */}
             <AddModal
                 isOpen={isLeaveModalOpen}
                 text="Leave Carpool"
