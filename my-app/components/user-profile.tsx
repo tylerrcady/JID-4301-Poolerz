@@ -181,7 +181,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
 
     const handleSave = async () => {
         try {
-            // First, get the list of children whose names have changed
+            // First identify deleted children by comparing with backup
+            const deletedChildren = userFormDataBackup?.children.filter(backupChild => 
+                !userFormData?.children.some(currentChild => currentChild.name === backupChild.name)
+            ) || [];
+
+            // Get the list of children whose names have changed
             const changedChildren = userFormData?.children.map((child, index) => {
                 const originalChild = userFormDataBackup?.children[index];
                 if (originalChild && originalChild.name !== child.name) {
@@ -208,6 +213,55 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             if (!response.ok) {
                 console.error("Failed to save user data:", response.statusText);
                 return;
+            }
+
+            // Process deleted children
+            if (deletedChildren.length > 0) {
+                // Find all carpools where any of the deleted children are riders
+                const carpoolsToUpdate = userCarpoolData.filter(carpool => 
+                    deletedChildren.some(child => carpool.riders.includes(child.name))
+                );
+
+                // Update each carpool
+                for (const carpool of carpoolsToUpdate) {
+                    const carpoolDetail = carpoolDetails[carpool.carpoolId];
+                    if (!carpoolDetail) continue;
+
+                    const updatedRiders = carpool.riders.filter((rider: string) => 
+                        !deletedChildren.some(child => child.name === rider)
+                    );
+
+                    // Update the carpool with the removed riders
+                    await fetch("/api/update-carpool", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            carpoolId: carpool.carpoolId,
+                            carpoolData: {
+                                ...carpoolDetail.createCarpoolData,
+                                riders: updatedRiders
+                            }
+                        }),
+                    });
+
+                    // Update the user's carpool data
+                    await fetch("/api/update-user-carpool", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            userId,
+                            carpoolId: carpool.carpoolId,
+                            carpoolData: {
+                                ...carpool,
+                                riders: updatedRiders
+                            }
+                        }),
+                    });
+                }
             }
 
             // If any children's names changed, update their names in the carpools
@@ -462,11 +516,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     )}
                 </div>
 
-                {/* Family Section */}
+                {/* Riders Section */}
                 <div className="flex-1 w-full h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                     <div className="justify-between items-center flex flex-wrap gap-2">
                         <div className="text-blue text-2xl font-bold">
-                            Family
+                            Riders
                         </div>
                         {isEditingFamily ? (
                             <div className="flex items-center gap-2 cursor-pointer">
@@ -551,17 +605,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                         text="Remove"
                                                         type="remove"
                                                         onClick={() => {
-                                                            const updatedChildren =
-                                                                userFormData.children.filter(
-                                                                    (_, i) =>
-                                                                        i !== index
-                                                                );
+                                                            const updatedChildren = userFormData.children.filter((_, i) => i !== index);
                                                             setUserFormData({
                                                                 ...userFormData,
-                                                                children:
-                                                                    updatedChildren,
-                                                                numChildren:
-                                                                    updatedChildren.length,
+                                                                children: updatedChildren,
+                                                                numChildren: updatedChildren.length,
                                                             });
                                                         }}
                                                     />
