@@ -69,42 +69,43 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
         handleUserFormGet();
     }, [userId, handleUserFormGet]);
 
+    // Extract fetchCarpoolData into a separate function
+    const fetchCarpoolData = async () => {
+        if (!userId) return;
+        
+        setIsCarpoolLoading(true);
+        try {
+            // Fetch user's carpool data
+            const response = await fetch(`/api/join-carpool-data?userId=${userId}`);
+            const data = await response.json();
+            const joinedCarpools = data?.createCarpoolData?.[0]?.userData?.carpools || [];
+            setUserCarpoolData(joinedCarpools);
+
+            // Fetch details for each carpool
+            const carpoolPromises = joinedCarpools.map(async (carpool: any) => {
+                const carpoolResponse = await fetch(`/api/create-carpool-data?carpoolId=${carpool.carpoolId}`);
+                const carpoolData = await carpoolResponse.json();
+                console.log(`Carpool Details for ${carpool.carpoolId}:`, carpoolData);
+                return {
+                    id: carpool.carpoolId,
+                    data: carpoolData.createCarpoolData?.[0] || {},
+                };
+            });
+
+            const carpoolResults = await Promise.all(carpoolPromises);
+            const carpoolDetailsMap = carpoolResults.reduce((acc, curr) => {
+                acc[curr.id] = curr.data;
+                return acc;
+            }, {});
+            setCarpoolDetails(carpoolDetailsMap);
+        } catch (error) {
+            console.error("Error fetching carpool data:", error);
+        } finally {
+            setIsCarpoolLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchCarpoolData = async () => {
-            if (!userId) return;
-            
-            setIsCarpoolLoading(true);
-            try {
-                // Fetch user's carpool data
-                const response = await fetch(`/api/join-carpool-data?userId=${userId}`);
-                const data = await response.json();
-                const joinedCarpools = data?.createCarpoolData?.[0]?.userData?.carpools || [];
-                setUserCarpoolData(joinedCarpools);
-
-                // Fetch details for each carpool
-                const carpoolPromises = joinedCarpools.map(async (carpool: any) => {
-                    const carpoolResponse = await fetch(`/api/create-carpool-data?carpoolId=${carpool.carpoolId}`);
-                    const carpoolData = await carpoolResponse.json();
-                    console.log(`Carpool Details for ${carpool.carpoolId}:`, carpoolData);
-                    return {
-                        id: carpool.carpoolId,
-                        data: carpoolData.createCarpoolData?.[0] || {},
-                    };
-                });
-
-                const carpoolResults = await Promise.all(carpoolPromises);
-                const carpoolDetailsMap = carpoolResults.reduce((acc, curr) => {
-                    acc[curr.id] = curr.data;
-                    return acc;
-                }, {});
-                setCarpoolDetails(carpoolDetailsMap);
-            } catch (error) {
-                console.error("Error fetching carpool data:", error);
-            } finally {
-                setIsCarpoolLoading(false);
-            }
-        };
-
         fetchCarpoolData();
     }, [userId]);
 
@@ -179,8 +180,25 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     };
 
     const handleSave = async () => {
-        // setIsLoading(true);
         try {
+            // First identify deleted children by comparing with backup
+            const deletedChildren = userFormDataBackup?.children.filter(backupChild => 
+                !userFormData?.children.some(currentChild => currentChild.name === backupChild.name)
+            ) || [];
+
+            // Get the list of children whose names have changed
+            const changedChildren = userFormData?.children.map((child, index) => {
+                const originalChild = userFormDataBackup?.children[index];
+                if (originalChild && originalChild.name !== child.name) {
+                    return {
+                        oldName: originalChild.name,
+                        newName: child.name
+                    };
+                }
+                return null;
+            }).filter(change => change !== null);
+
+            // Save user form data
             const response = await fetch(`/api/user-form-data`, {
                 method: "POST",
                 headers: {
@@ -191,31 +209,137 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     userFormData: { ...userFormData },
                 }),
             });
-            if (response.ok) {
-                console.log("User data saved successfully!");
-                if (isEditingFamily) {
-                    setIsEditingFamily(false);
-                }
-                if (isEditingProfile) {
-                    setIsEditingProfile(false);
-                }
-                if (isEditingAvailability) {
-                    setIsEditingAvailability(false);
-                }
-                if (isChildModalOpen) {
-                    setIsChildModalOpen(false);
-                }
-                if (isAvailabilityModalOpen) {
-                    setIsAvailabilityModalOpen(false);
-                }
-                handleUserFormGet();
-            } else {
-                console.error("Failed to save data:", response.statusText);
+
+            if (!response.ok) {
+                console.error("Failed to save user data:", response.statusText);
+                return;
             }
+
+            // Process deleted children
+            if (deletedChildren.length > 0) {
+                // Find all carpools where any of the deleted children are riders
+                const carpoolsToUpdate = userCarpoolData.filter(carpool => 
+                    deletedChildren.some(child => carpool.riders.includes(child.name))
+                );
+
+                // Update each carpool
+                for (const carpool of carpoolsToUpdate) {
+                    const carpoolDetail = carpoolDetails[carpool.carpoolId];
+                    if (!carpoolDetail) continue;
+
+                    const updatedRiders = carpool.riders.filter((rider: string) => 
+                        !deletedChildren.some(child => child.name === rider)
+                    );
+
+                    // Update the carpool with the removed riders
+                    await fetch("/api/update-carpool", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            carpoolId: carpool.carpoolId,
+                            carpoolData: {
+                                ...carpoolDetail.createCarpoolData,
+                                riders: updatedRiders
+                            }
+                        }),
+                    });
+
+                    // Update the user's carpool data
+                    await fetch("/api/update-user-carpool", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            userId,
+                            carpoolId: carpool.carpoolId,
+                            carpoolData: {
+                                ...carpool,
+                                riders: updatedRiders
+                            }
+                        }),
+                    });
+                }
+            }
+
+            // If any children's names changed, update their names in the carpools
+            if (changedChildren && changedChildren.length > 0) {
+                // Get all carpools that need updating
+                const carpoolsToUpdate = userCarpoolData.filter(carpool => 
+                    changedChildren.some(change => 
+                        carpool.riders.includes(change.oldName)
+                    )
+                );
+
+                // Update each carpool
+                for (const carpool of carpoolsToUpdate) {
+                    const carpoolDetail = carpoolDetails[carpool.carpoolId];
+                    if (!carpoolDetail) continue;
+
+                    const updatedRiders = carpool.riders.map((rider: string) => {
+                        const change = changedChildren.find(c => c.oldName === rider);
+                        return change ? change.newName : rider;
+                    });
+
+                    // Update the carpool with the new rider names
+                    await fetch("/api/update-carpool", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            carpoolId: carpool.carpoolId,
+                            carpoolData: {
+                                ...carpoolDetail.createCarpoolData,
+                                riders: updatedRiders
+                            }
+                        }),
+                    });
+
+                    // Update the user's carpool data
+                    await fetch("/api/update-user-carpool", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            userId,
+                            carpoolId: carpool.carpoolId,
+                            carpoolData: {
+                                ...carpool,
+                                riders: updatedRiders
+                            }
+                        }),
+                    });
+                }
+            }
+
+            console.log("User data saved successfully!");
+            if (isEditingFamily) {
+                setIsEditingFamily(false);
+            }
+            if (isEditingProfile) {
+                setIsEditingProfile(false);
+            }
+            if (isEditingAvailability) {
+                setIsEditingAvailability(false);
+            }
+            if (isChildModalOpen) {
+                setIsChildModalOpen(false);
+            }
+            if (isAvailabilityModalOpen) {
+                setIsAvailabilityModalOpen(false);
+            }
+            
+            // Refetch both user form data and carpool data after saving
+            await Promise.all([
+                handleUserFormGet(),
+                fetchCarpoolData()
+            ]);
         } catch (error) {
             console.error("Error saving data:", error);
-        } finally {
-            // setIsLoading(false);
         }
     };
 
@@ -392,7 +516,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     )}
                 </div>
 
-                {/* Family Section */}
+                {/* Riders Section */}
                 <div className="flex-1 w-full h-auto p-5 bg-white rounded-md shadow flex-col gap-4 flex">
                     <div className="justify-between items-center flex flex-wrap gap-2">
                         <div className="text-blue text-2xl font-bold">
@@ -481,17 +605,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                         text="Remove"
                                                         type="remove"
                                                         onClick={() => {
-                                                            const updatedChildren =
-                                                                userFormData.children.filter(
-                                                                    (_, i) =>
-                                                                        i !== index
-                                                                );
+                                                            const updatedChildren = userFormData.children.filter((_, i) => i !== index);
                                                             setUserFormData({
                                                                 ...userFormData,
-                                                                children:
-                                                                    updatedChildren,
-                                                                numChildren:
-                                                                    updatedChildren.length,
+                                                                children: updatedChildren,
+                                                                numChildren: updatedChildren.length,
                                                             });
                                                         }}
                                                     />
