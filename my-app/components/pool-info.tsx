@@ -1483,7 +1483,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             }
             const data = await response.json();
             const doc = data.userFormData;
-            console.log("Doc: ", doc);
             if (doc && doc?.[0]?.userFormData && doc?.[0]?.userFormData.children) {
                 const children = doc[0].userFormData.children || [];
                 const mappedChildren = children.map(
