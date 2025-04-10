@@ -189,7 +189,14 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
     const handleEnterClick = () => {
         console.log("carpool doc: ", carpoolDoc);
         if (!carpoolDoc) return;
-        
+
+        // first check if carpool is closed
+        if (carpoolDoc.createCarpoolData.isClosed) {
+            setError("Carpool is closed and cannot be joined.");
+            return;
+        }
+
+        // check if user is already member of carpool
         const members = carpoolDoc.createCarpoolData.carpoolMembers || [];
         if (Array.isArray(members) && members.includes(userId || "")) {
             setError("You are already a member of this carpool.");

@@ -45,7 +45,7 @@ interface CreateCarpoolData {
     endTime: string;
     notes: string;
     carpoolMembers: string[];
-    isClosed: boolean;
+    isClosed?: boolean;
 }
 
 //separate interface for the database document structure 
