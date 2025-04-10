@@ -432,33 +432,23 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                             userFormData && userCarpoolData && carpoolDetails && (
                                 <div>
                                     {userFormData.children.map((child, index) => (
-                                        <div
-                                            key={`${child.name}-${index}`}
-                                            className="flex flex-col items-start w-full"
-                                        >
+                                        <div key={`child-${index}`} className="flex flex-col items-start w-full">
                                             <div className="text-gray text-xl w-full">
                                                 {isEditingFamily ? (
-                                                    <TextInput
-                                                        currentValue={child.name}
-                                                        onChange={(value) => {
-                                                            const updatedChildren =
-                                                                userFormData.children.map(
-                                                                    (c, i) =>
-                                                                        i === index
-                                                                            ? {
-                                                                                  ...c,
-                                                                                  name: value,
-                                                                              }
-                                                                            : c
-                                                                );
-                                                            setUserFormData({
-                                                                ...userFormData,
-                                                                children:
-                                                                    updatedChildren,
-                                                            });
-                                                        }}
-                                                        placeholder="Enter rider's name"
-                                                    />
+                                                    <div key={`child-input-container-${index}`}>
+                                                        <TextInput
+                                                            currentValue={child.name}
+                                                            onChange={(value) => {
+                                                                setUserFormData({
+                                                                    ...userFormData,
+                                                                    children: userFormData.children.map((c, i) =>
+                                                                        i === index ? { ...c, name: value } : c
+                                                                    )
+                                                                });
+                                                            }}
+                                                            placeholder="Enter rider's name"
+                                                        />
+                                                    </div>
                                                 ) : (
                                                     <>
                                                         <span className="text-xl font-bold text-black">
