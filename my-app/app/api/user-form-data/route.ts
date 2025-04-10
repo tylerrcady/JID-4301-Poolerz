@@ -61,9 +61,9 @@ export async function GET(request: Request) {
 
     try {
         const { searchParams } = new URL(request.url);
-        const userId = searchParams.get("userId");
+        const userIds = searchParams.getAll("userId");
 
-        if (!userId) {
+        if (!userIds || userIds.length === 0) {
             return new Response(
                 JSON.stringify({ error: "Invalid parameters" }),
                 {
@@ -73,10 +73,10 @@ export async function GET(request: Request) {
         }
 
         // GET the data
-        const userFormData = await getUserFormData(userId); // currently returns "" if none
+        const userFormData = await Promise.all(userIds.map(userId => getUserFormData(userId))); // currently returns "" if none
 
         // return success/failure
-        if (userFormData == "" || userFormData) {
+        if (userFormData.length === 0 || userFormData) {
             return new Response(JSON.stringify({ userFormData }), {
                 status: 200,
             });

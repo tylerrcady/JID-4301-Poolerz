@@ -68,6 +68,10 @@ const Header: React.FC<HeaderProps> = ({
                                 href="/carpools"
                                 className={`block text-lg font-medium transition-colors duration-200 px-5 py-2 ${
                                     currentPath === "/carpools" ||
+                                    currentPath === "/join-carpool" ||
+                                    currentPath === "/create-carpool" ||
+                                    currentPath === "/carpool-joined" ||
+                                    currentPath === "/carpool-created" ||
                                     currentPath.startsWith("/pool-info")
                                         ? "text-blue underline underline-offset-8 decoration-2"
                                         : "text-gray hover:text-lightblue hover:underline hover:underline-offset-8 hover:decoration-2"
@@ -120,6 +124,10 @@ const Header: React.FC<HeaderProps> = ({
                             href="/carpools"
                             className={`text-lg font-medium transition-colors duration-200 ${
                                 currentPath === "/carpools" ||
+                                currentPath === "/join-carpool" ||
+                                currentPath === "/create-carpool" ||
+                                currentPath === "/carpool-joined" ||
+                                currentPath === "/carpool-created" ||
                                 currentPath.startsWith("/pool-info")
                                     ? "text-blue underline underline-offset-8 decoration-2"
                                     : "text-gray hover:text-lightblue hover:underline hover:underline-offset-8 hover:decoration-2"

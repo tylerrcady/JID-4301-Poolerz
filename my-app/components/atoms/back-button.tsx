@@ -16,13 +16,13 @@ export default function BackButton({ onClick, disabled }: Props) {
             <Image
                 src="/back-arrow2.svg"
                 alt="Back arrow"
-                width={20}
-                height={20}
+                width={25}
+                height={25}
                 className={`filter-blue`}
             />
 
             <div
-                className={`text-sm font-medium text-blue-500 group-hover:text-blue-700 text-b`}
+                className={`text-lg font-medium text-blue group-hover:text-blue text-blue`}
             >
                 Back
             </div>
