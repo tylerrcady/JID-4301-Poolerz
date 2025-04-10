@@ -29,11 +29,11 @@ const Main: React.FC<MainProps> = () => {
                 />
             </div>
             <div className="flex py-2 px-10 gap-6 flex-col">
-                <div className="w-full bg-blue-100 p-6 rounded-lg shadow-md text-center">
-                    <h2 className="text-2xl font-bold text-blue-800 mb-4">
-                        Problem Statement
+                <div className="w-full bg-w py-6 px-20 text-center">
+                    <h2 className="text-3xl font-bold italic text-blue mb-4">
+                        Solving the Daily Drive
                     </h2>
-                    <p className="text-md text-gray-700">
+                    <p className="text-lg text-gray">
                         Managing carpools can be a daunting task for busy
                         families. From coordinating schedules to ensuring
                         fairness and efficiency, the process often leads to
@@ -42,7 +42,7 @@ const Main: React.FC<MainProps> = () => {
                         solution.
                     </p>
                 </div>
-                <div className="flex flex-row justify-center items-center gap-6 flex-wrap md:flex-nowrap my-4">
+                <div className="flex flex-row justify-center items-center px-20 gap-10 flex-wrap md:flex-nowrap my-4">
                     {[
                         {
                             title: "How It Works",
@@ -55,7 +55,7 @@ const Main: React.FC<MainProps> = () => {
                     ].map((card, index) => (
                         <div
                             key={index}
-                            className="flex flex-col justify-start items-center gap-4 p-6 bg-white shadow-lg rounded-lg transform transition-transform hover:scale-105 w-full md:w-1/2"
+                            className="flex flex-col justify-start items-center gap-4 p-6 bg-white border border-lightgray shadow-lg rounded-lg transform transition-transform hover:scale-105 w-full md:w-1/2"
                         >
                             <div className="text-center text-blue text-xl font-bold font-['Open Sans']">
                                 {card.title}

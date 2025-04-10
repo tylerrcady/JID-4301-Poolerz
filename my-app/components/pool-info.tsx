@@ -9,6 +9,7 @@ import EditIcon from "./icons/EditIcon";
 import CaretIcon from "./icons/CaretIcon";
 import Loading from "./icons/Loading";
 import UserMap from "./user-map";
+import MyCarpoolMembers from "@components/my-members";
 
 interface UserWithCoords {
     userId: string;
@@ -135,6 +136,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         Record<string, string>
     >({});
     const [groupAddresses, setGroupAddresses] = useState<Record<string, any>>({});
+    const [groupPhoneNumbers, setGroupPhoneNumbers] = useState<Record<string, any>>({});
 
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
     const [leaveError, setLeaveError] = useState<string | null>(null);
@@ -159,6 +161,8 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [loading, setLoading] = useState(false);
     const [loadingMembers, setLoadingMembers] = useState(false);
     const [loadingResults, setLoadingResults] = useState(false);
+    const [loadingOrg, setLoadingOrg] = useState(false);
+    const [loadingInfo, setLoadingInfo] = useState(false);
     const [results, setResults] = useState<TransformedResults | null>(null);
     const [optimizerError, setOptimizerError] = useState<string | null>(null);
 
@@ -219,7 +223,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const fetchMemberAddresses = async (userIds: string[]) : 
             Promise<Record<string, string>> => {
         try {
-            setLoadingMembers(true);
             console.log("Fetching addresses for userIds:", userIds);
     
             const query = userIds
@@ -255,8 +258,50 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         } catch (error) {
             console.error("Error fetching addresses:", error);
             return {};
-        } finally {
-            setLoadingMembers(false); // Optional: Hide the loading state
+        }
+    };
+
+    const fetchMemberPhoneNumbers = async (
+        userIds: string[]
+    ): Promise<Record<string, string>> => {
+        try {
+            console.log("Fetching phone numbers for userIds:", userIds);
+    
+            const query = userIds
+                .map((id) => `userId=${encodeURIComponent(id)}`)
+                .join("&");
+            const url = `/api/user-form-data?${query}`;
+    
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                console.log("User Form Data Response:", data.userFormData);
+                const phoneMap = data.userFormData.reduce((acc: Record<string, string>, user: any) => {
+                        const userId = user.userId;
+                        const phoneNumber = user.userFormData?.phoneNumber || "N/A";
+                        if (userId) {
+                            acc[userId] = phoneNumber;
+                        }
+                        return acc;
+                    },
+                    {}
+                );
+    
+                console.log("Fetched phone numbers:", phoneMap);
+                return phoneMap;
+            } else {
+                console.error("Failed to fetch phone numbers:", response.statusText);
+                return {};
+            }
+        } catch (error) {
+            console.error("Error fetching phone numbers:", error);
+            return {};
         }
     };
 
@@ -386,7 +431,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         }
 
         setLoading(true);
-
         setOptimizerError(null);
 
         try {
@@ -1012,7 +1056,19 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         console.error("Error fetching addresses for my carpool:", error);
                     }
                 };
+
+                const fetchPhoneNumbers = async () => {
+                    try {
+                        const phoneMap = await fetchMemberPhoneNumbers(memberIds);
+                        console.log("Fetched phone numbers:", phoneMap);
+                        setGroupPhoneNumbers(phoneMap);
+                    } catch (error) {
+                        console.error("Error fetching phone numbers for my carpool:", error);
+                    }
+                };
+
                 fetchAddresses();
+                fetchPhoneNumbers();
             }
         }
     }, [results, userId]);
@@ -1049,6 +1105,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
 
     const handleCarpoolsGet = useCallback(async () => {
         try {
+            setLoadingOrg(true);
             const carpoolId = new URLSearchParams(window.location.search).get(
                 "carpoolId"
             );
@@ -1170,11 +1227,14 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             }
         } catch (error) {
             console.error("Error fetching data:", error);
+        } finally {
+            setLoadingOrg(false);
         }
     }, [userId]);
 
     const handleUserDataGet = useCallback(async () => {
         try {
+            setLoadingInfo(true);
             const targetId = new URLSearchParams(window.location.search).get(
                 "carpoolId"
             );
@@ -1213,6 +1273,8 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             }
         } catch (error) {
             console.error("Error fetching data:", error);
+        } finally {
+            setLoadingInfo(false)
         }
     }, [userId]);
 
@@ -1600,19 +1662,19 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             <div className="w-11/12 mx-auto px-1">
                 <BackButton onClick={handleConfirmBack} />
             </div>
-            <div className="justify-center flex flex-col w-10/12 mx-auto p-10 gap-6 rounded-md">
+            <div className="justify-center flex flex-col w-10/12 mx-auto py-10 md:p-10 gap-6 rounded-md">
                 <div className="flex justify-between items-start gap-5 flex">
                     <div className="flex flex-col items-start">
-                        <div className="text-black text-4xl font-bold">
+                        <div className="text-black text-2xl md:text-4xl font-bold">
                             {carpoolOrgInfo?.carpoolName}
                         </div>
-                        <div className="text-gray text-xl font-bold mt-5">
+                        <div className="text-gray text-lg md:text-xl font-bold mt-5">
                             {`Join Code: ${carpoolId}`}
                         </div>
                     </div>
                     <div className="self-stretch justify-start items-start inline-flex gap-10">
                         <button
-                            className={`px-4 py-2 rounded text-white ${
+                            className={`px-4 py-2 rounded text-white text-sm md:text-base ${
                                 isClosed ? "bg-gray" : "bg-blue"}`}
                             onClick={toggleClose}
                         >
@@ -1624,7 +1686,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                     {/* Organization Information */}
                     <div className="flex-1 p-5 border border-lightgray bg-w shadow-sm rounded-md">
                         <div className="flex flex-wrap justify-between items-center">
-                            <div className="text-black text-2xl md:text-xl sm:text-lg font-bold font-['Open Sans']">
+                            <div className="text-black text-lg md:text-xl font-bold font-['Open Sans']">
                                 Organization Information
                             </div>
                             {isOwner && (
@@ -1756,30 +1818,38 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             </div>
                         ) : (
                             <>
-                                <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
-                                        Location
+                                {loadingOrg ? (
+                                    <div className="flex justify-center items-center mt-5">
+                                        <Loading/>  
                                     </div>
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation.name}, ${carpoolOrgInfo?.carpoolLocation.address}, ${carpoolOrgInfo?.carpoolLocation.city}, ${carpoolOrgInfo?.carpoolLocation.state} ${carpoolOrgInfo?.carpoolLocation.zipCode}`}</div>
-                                </div>
-                                <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
-                                        Occurs Every
-                                    </div>
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
-                                        {carpoolDays}
-                                    </div>
-                                </div>
-                                <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
-                                        Time
-                                    </div>
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
-                                        {startTime && endTime
-                                            ? `${convertTimeFormat(startTime)} - ${convertTimeFormat(endTime)}`
-                                            : "Time not available"}
-                                    </div>
-                                </div>
+                                ) : (
+                                    <>
+                                        <div className="flex-col justify-start items-start mt-5 flex">
+                                            <div className="text-gray text-base md:text-lg font-bold font-['Open Sans']">
+                                                Location
+                                            </div>
+                                            <div className="text-gray text-sm md:text-base font-normal font-['Open Sans']">{`${carpoolOrgInfo?.carpoolLocation.name}, ${carpoolOrgInfo?.carpoolLocation.address}, ${carpoolOrgInfo?.carpoolLocation.city}, ${carpoolOrgInfo?.carpoolLocation.state} ${carpoolOrgInfo?.carpoolLocation.zipCode}`}</div>
+                                        </div>
+                                        <div className="flex-col justify-start items-start mt-5 flex">
+                                            <div className="text-gray text-base md:text-lg font-bold font-['Open Sans']">
+                                                Occurs Every
+                                            </div>
+                                            <div className="text-gray text-sm md:text-base font-normal font-['Open Sans']">
+                                                {carpoolDays}
+                                            </div>
+                                        </div>
+                                        <div className="flex-col justify-start items-start mt-5 flex">
+                                            <div className="text-gray text-base md:text-lg font-bold font-['Open Sans']">
+                                                Time
+                                            </div>
+                                            <div className="text-gray text-sm md:text-base font-normal font-['Open Sans']">
+                                                {startTime && endTime
+                                                    ? `${convertTimeFormat(startTime)} - ${convertTimeFormat(endTime)}`
+                                                    : "Time not available"}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </>
                         )}
                     </div>
@@ -1787,7 +1857,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                     {/* My Information */}
                     <div className="flex-1 p-5 border border-lightgray bg-w shadow-sm rounded-md">
                         <div className="flex flex-wrap justify-between items-center">
-                            <div className="text-black text-2xl md:text-xl sm:text-lg font-bold font-['Open Sans']">
+                            <div className="text-black text-lg md:text-xl font-bold font-['Open Sans']">
                                 My Information
                             </div>
                             <div className="flex items-center gap-2 cursor-pointer">
@@ -1945,36 +2015,44 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             </div>
                         ) : (
                             <>
-                                <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
-                                        Location
+                            {loadingOrg ? (
+                                    <div className="flex justify-center items-center mt-5">
+                                        <Loading/>  
                                     </div>
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">{`${userLocation?.address}, ${userLocation?.city}, ${userLocation?.state} ${userLocation?.zipCode}`}</div>
-                                </div>
-                                <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
-                                        Driving Availability
-                                    </div>
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
-                                        {drivingAvailability}
-                                    </div>
-                                </div>
-                                <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
-                                        Rider(s)
-                                    </div>
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
-                                        {riders}
-                                    </div>
-                                </div>
-                                <div className="flex-col justify-start items-start mt-5 flex">
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
-                                        Car Capacity
-                                    </div>
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
-                                        {foundCarpool?.carCapacity}
-                                    </div>
-                                </div>
+                                ) : (
+                                    <>
+                                        <div className="flex-col justify-start items-start mt-5 flex">
+                                            <div className="text-gray text-base md:text-lg font-bold font-['Open Sans']">
+                                                Location
+                                            </div>
+                                            <div className="text-gray text-sm md:text-base font-normal font-['Open Sans']">{`${userLocation?.address}, ${userLocation?.city}, ${userLocation?.state} ${userLocation?.zipCode}`}</div>
+                                        </div>
+                                        <div className="flex-col justify-start items-start mt-5 flex">
+                                            <div className="text-gray text-base md:text-lg font-bold font-['Open Sans']">
+                                                Driving Availability
+                                            </div>
+                                            <div className="text-gray text-sm md:text-base font-normal font-['Open Sans']">
+                                                {drivingAvailability}
+                                            </div>
+                                        </div>
+                                        <div className="flex-col justify-start items-start mt-5 flex">
+                                            <div className="text-gray text-base md:text-lg font-bold font-['Open Sans']">
+                                                Rider(s)
+                                            </div>
+                                            <div className="text-gray text-sm md:text-base font-normal font-['Open Sans']">
+                                                {riders}
+                                            </div>
+                                        </div>
+                                        <div className="flex-col justify-start items-start mt-5 flex">
+                                            <div className="text-gray text-base md:text-lg font-bold font-['Open Sans']">
+                                                Car Capacity
+                                            </div>
+                                            <div className="text-gray text-sm md:text-base font-normal font-['Open Sans']">
+                                                {foundCarpool?.carCapacity}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </>
                         )}
                     </div>
@@ -1982,13 +2060,13 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 {isOwner && (
                     <div className="w-full flex-col bg-w border border-lightgray shadow-md p-6 rounded-2xl justify-start items-start gap-5 flex mt-6">
                         <div className="self-stretch flex flex-col md:flex-row md:items-center md:justify-start gap-4">
-                            <div className="text-black text-2xl md:text-xl sm:text-lg font-bold font-['Open Sans']">
+                            <div className="text-black text-lg md:text-xl font-bold font-['Open Sans']">
                                 Carpools
                             </div>
-                            <div className="px-6 py-2 bg-blue rounded-md flex justify-center items-center">
+                            <div className="px-4 py-2 bg-blue rounded-md flex justify-center items-center">
                                 {!loading && (
                                     <button
-                                        className="text-center text-white text-base font-normal font-['Open Sans']"
+                                        className="text-center text-white text-sm font-normal font-['Open Sans']"
                                         onClick={runOptimizer}
                                     >
                                         Run Optimizer
@@ -2010,261 +2088,406 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             </div>
                         )}
 
-                        {!results && (
-                            <div className="flex-col justify-start items-start gap-2.5 flex">
-                                <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
-                                    No pools yet - run the optimizer to create
-                                    groupings!
-                                </div>
+                        {loadingResults ? (
+                            <div className="flex justify-center items-center mt-20">
+                                <Loading />
                             </div>
-                        )}
-                        <div className="flex-col justify-start items-start gap-2.5 flex w-full p-4 border border-lightgray shadow-sm bg-w rounded-md shadow-sm">
-                            <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
-                                All Members
-                            </div>
-                            <div className="flex-col justify-start items-start gap-2.5 flex">
-                                {loadingMembers ? (
-                                    <Loading />
-                                ) : (
-                                    <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
-                                        {carpoolOrgInfo?.carpoolMembers
-                                            ?.map(
-                                                (memberId: string) =>
-                                                    userIdToNameMap[memberId] ||
-                                                    `Member ${memberId.substring(0, 5)}...`
-                                            )
-                                            .join(", ")}
+                        ) : (
+                            <>
+                                {!results && (
+                                    <div className="flex-col justify-start items-start gap-2.5 flex">
+                                        <div className="text-gray text-xl md:text-lg sm:text-base font-normal font-['Open Sans']">
+                                            No pools yet - run the optimizer to create
+                                            groupings!
+                                        </div>
                                     </div>
                                 )}
-                            </div>
-                        </div>
-                            {results && (
-                                <div className="w-full flex-col justify-start items-start gap-6 flex mt-4">
-                                    <div className="text-black w-full p-4 border border-lightgray bg-w shadow-sm rounded-md">
-                                        <div className="text-gray font-semibold text-xl md:text-lg sm:text-md mb-2">
-                                            Unassigned Members
-                                        </div>
-                                        <div className="text-gray text-xl md:text-lg sm:text-md ">
-                                            {results.unassignedMembers
-                                                .map((member) => {
-                                                    if (
-                                                        Array.isArray(
-                                                            member
-                                                        )
-                                                    ) {
-                                                        return member[1];
-                                                    }
-                                                    return member;
-                                                })
+                                <div className="flex-col justify-start items-start gap-2.5 flex w-full p-4 border border-lightgray shadow-sm bg-w rounded-md shadow-sm">
+                                    <div className="text-gray text-base md:text-lg sm:text-base font-bold font-['Open Sans']">
+                                        All Members
+                                    </div>
+                                    {loadingMembers ? (
+                                        <Loading />
+                                    ) : (
+                                        <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
+                                            {carpoolOrgInfo?.carpoolMembers
+                                                ?.map(
+                                                    (memberId: string) =>
+                                                        userIdToNameMap[memberId] ||
+                                                        `Member ${memberId.substring(0, 5)}...`
+                                                )
                                                 .join(", ")}
                                         </div>
-                                    </div>
-                                    <div className="w-full">
-                                        {results.carpools.length > 2 && (
-                                            <Button
-                                                type="dropdown"
-                                                onClick={setShowCarpools}
-                                                text={showCarpools ? "Hide All Carpools" : "View All Carpools"}
-                                                icon={
+                                    )}
+                                </div>
+                                {results && (
+                                    <div className="w-full flex-col justify-start items-start gap-6 flex mt-4">
+                                        <div className="text-black w-full p-4 border border-lightgray bg-w shadow-sm rounded-md">
+                                            <div className="text-gray font-semibold text-base md:text-lg sm:text-base mb-2">
+                                                Unassigned Members
+                                            </div>
+                                            <div className="text-gray text-sm md:text-base ">
+                                                {results.unassignedMembers
+                                                    .map((member) => {
+                                                        if (
+                                                            Array.isArray(
+                                                                member
+                                                            )
+                                                        ) {
+                                                            return member[1];
+                                                        }
+                                                        return member;
+                                                    })
+                                                    .join(", ")}
+                                            </div>
+                                        </div>
+
+                                        <div className="w-full flex-col justify-start items-start gap-6 flex mt-4">
+                                            <div
+                                                className={`w-full ${
+                                                    results.carpools.length === 1
+                                                        ? "flex flex-col gap-6"
+                                                        : "grid grid-cols-1 md:grid-cols-2"
+                                                } gap-6`}
+                                            >
+                                                {results.carpools.slice(0, 2).map((carpool: any, index: number) => (
                                                     <div
-                                                        style={{
-                                                            transform: showCarpools ? "rotate(180deg)" : "rotate(0deg)",
-                                                        }}
+                                                        key={index}
+                                                        className="flex flex-col p-5 border border-lightgray shadow-sm bg-w rounded-md"
                                                     >
-                                                        <CaretIcon 
-                                                            className="stroke-blue hover:stroke-lightblue"/>
-                                                    </div>
-                                                }
-                                            />
-                                        )}
-                                    </div>
-                                    <div
-                                        className={`w-full overflow-hidden transition-all duration-300 ${
-                                            showCarpools || results.carpools.length <= 2 ? "opacity-100" : "h-0 opacity-0"
-                                        }`}
-                                    >
-                                        <div
-                                            className={`w-full ${
-                                                results.carpools.length === 1
-                                                    ? "flex flex-col gap-6"
-                                                    : "grid grid-cols-1 md:grid-cols-2"
-                                            } gap-6`}
-                                        >
-                                            {(showCarpools
-                                                    ? results.carpools
-                                                    : results.carpools.slice(0, 2)
-                                                ).map((carpool: any, index: number) => (
-                                                <div
-                                                    key={index}
-                                                    className="flex flex-col p-4 border border-lightgray shadow-sm bg-w rounded-md"
-                                                >
-                                                    <div className="text-blue font-semibold text-xl md:text-lg sm:text-md mb-2">
-                                                        Carpool Group {index + 1}
-                                                    </div>
+                                                        <div className="text-blue font-semibold text-base md:text-lg mb-2">
+                                                            Carpool Group {index + 1}
+                                                        </div>
 
-                                                    <div className="text-black grid grid-cols-1 md:grid-cols-2 gap-10">
-                                                        <div>
-                                                            <div className="text-gray font-bold text-lg">
-                                                                Driver Schedule
-                                                            </div>
-                                                            <div className="mt-1">
-                                                                {carpool.driverSchedule &&
-                                                                Object.keys(carpool.driverSchedule)
-                                                                    .length > 0 ? (
-                                                                    Object.entries(
-                                                                        carpool.driverSchedule
-                                                                    )
-                                                                        .map(([day, driver]: [string, any]) => {
-                                                                            let dayIndex;
+                                                        <div className="text-black grid grid-cols-1 md:grid-cols-2 gap-10">
+                                                            <div>
+                                                                <div className="text-gray font-bold text-base md:text-lg">
+                                                                    Driver Schedule
+                                                                </div>
+                                                                <div className="mt-1">
+                                                                    {carpool.driverSchedule &&
+                                                                    Object.keys(carpool.driverSchedule)
+                                                                        .length > 0 ? (
+                                                                        Object.entries(
+                                                                            carpool.driverSchedule
+                                                                        )
+                                                                            .map(([day, driver]: [string, any]) => {
+                                                                                let dayIndex;
 
-                                                                            if (/^\d+$/.test(day)) {
-                                                                                dayIndex = parseInt(day, 10);
-                                                                            } else {
-                                                                                const lowerDay = day.toLowerCase();
-                                                                                for (let i = 0; i < daysOfWeek.length; i++) {
-                                                                                    if (daysOfWeek[i].toLowerCase() === lowerDay) {
-                                                                                        dayIndex = i;
-                                                                                        break;
-                                                                                    }
-                                                                                }
-                                                                                if (dayIndex === undefined) dayIndex = 999;
-                                                                            }
-
-                                                                            return {
-                                                                                day,
-                                                                                driver,
-                                                                                dayIndex,
-                                                                            };
-                                                                        })
-                                                                        .sort((a, b) => a.dayIndex - b.dayIndex)
-                                                                        .map(({ day, driver, dayIndex }, idx) => {
-                                                                            try {
-                                                                                let displayDriver;
-                                                                                if (typeof driver === "object" && driver !== null) {
-                                                                                    displayDriver = driver?.name || driver?.userId || JSON.stringify(driver);
-                                                                                } else {
-                                                                                    displayDriver = String(driver || "Unassigned");
-                                                                                }
-
-                                                                                let dayName = day;
                                                                                 if (/^\d+$/.test(day)) {
-                                                                                    if (optimizerDayMap[day]) {
-                                                                                        dayName = optimizerDayMap[day];
-                                                                                    } else {
-                                                                                        const dayIdx = parseInt(day, 10);
-                                                                                        if (dayIdx >= 0 && dayIdx < daysOfWeek.length) {
-                                                                                            dayName = daysOfWeek[dayIdx];
+                                                                                    dayIndex = parseInt(day, 10);
+                                                                                } else {
+                                                                                    const lowerDay = day.toLowerCase();
+                                                                                    for (let i = 0; i < daysOfWeek.length; i++) {
+                                                                                        if (daysOfWeek[i].toLowerCase() === lowerDay) {
+                                                                                            dayIndex = i;
+                                                                                            break;
                                                                                         }
                                                                                     }
+                                                                                    if (dayIndex === undefined) dayIndex = 999;
                                                                                 }
 
-                                                                                return (
-                                                                                    <div
-                                                                                        key={idx}
-                                                                                        className="flex flex-col items-start py-2"
-                                                                                    >
-                                                                                        <span className="text-blue text-lg font-semibold">
-                                                                                            {dayName}:
-                                                                                        </span>
-                                                                                        <span className="font-medium text-lg">
-                                                                                            {displayDriver}
-                                                                                        </span>
-                                                                                    </div>
-                                                                                );
-                                                                            } catch (error) {
-                                                                                console.error(`Error rendering driver for day ${day}:`, error);
-                                                                                return (
-                                                                                    <div
-                                                                                        key={idx}
-                                                                                        className="flex flex-col items-center py-2"
-                                                                                    >
-                                                                                        <span className="text-gray text-lg font-bold">
-                                                                                            {day}
-                                                                                        </span>
-                                                                                        <span className="font-medium text-red-500">
-                                                                                            Error displaying driver
-                                                                                        </span>
-                                                                                    </div>
-                                                                                );
-                                                                            }
-                                                                        })
-                                                                ) : (
-                                                                    <div className="text-gray italic">
-                                                                        No driver schedule available
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
+                                                                                return {
+                                                                                    day,
+                                                                                    driver,
+                                                                                    dayIndex,
+                                                                                };
+                                                                            })
+                                                                            .sort((a, b) => a.dayIndex - b.dayIndex)
+                                                                            .map(({ day, driver, dayIndex }, idx) => {
+                                                                                try {
+                                                                                    let displayDriver;
+                                                                                    if (typeof driver === "object" && driver !== null) {
+                                                                                        displayDriver = driver?.name || driver?.userId || JSON.stringify(driver);
+                                                                                    } else {
+                                                                                        displayDriver = String(driver || "Unassigned");
+                                                                                    }
 
-                                                        <div>
-                                                            <div className="text-gray font-bold text-lg">
-                                                                Members
-                                                            </div>
-                                                            <div className="mt-1">
-                                                                {carpool.members &&
-                                                                carpool.members.length > 0 ? (
-                                                                    carpool.members.map(
-                                                                        (member: string, idx: number) => (
-                                                                            <div
-                                                                                key={idx}
-                                                                                className="py-1 text-gray text-lg"
-                                                                            >
-                                                                                {member[1]}
-                                                                            </div>
-                                                                        )
-                                                                    )
-                                                                ) : (
-                                                                    <div className="text-gray italic">
-                                                                        No members available
-                                                                    </div>
-                                                                )}
-                                                                {carpool.riders &&
-                                                                    carpool.riders.length > 0 && (
-                                                                        <div className="mt-6">
-                                                                            <div className="text-gray font-bold text-lg">
-                                                                                Riders
-                                                                            </div>
-                                                                            <div className="mt-1 text-gray text-lg">
-                                                                                {carpool.riders.join(", ")}
-                                                                            </div>
+                                                                                    let dayName = day;
+                                                                                    if (/^\d+$/.test(day)) {
+                                                                                        if (optimizerDayMap[day]) {
+                                                                                            dayName = optimizerDayMap[day];
+                                                                                        } else {
+                                                                                            const dayIdx = parseInt(day, 10);
+                                                                                            if (dayIdx >= 0 && dayIdx < daysOfWeek.length) {
+                                                                                                dayName = daysOfWeek[dayIdx];
+                                                                                            }
+                                                                                        }
+                                                                                    }
+
+                                                                                    return (
+                                                                                        <div
+                                                                                            key={idx}
+                                                                                            className="flex flex-col items-start py-1"
+                                                                                        >
+                                                                                            <span className="text-blue text-base md:text-lg font-semibold">
+                                                                                                {dayName}:
+                                                                                            </span>
+                                                                                            <span className="text-gray font-medium text-base md:text-lg">
+                                                                                                {displayDriver}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    );
+                                                                                } catch (error) {
+                                                                                    console.error(`Error rendering driver for day ${day}:`, error);
+                                                                                    return (
+                                                                                        <div
+                                                                                            key={idx}
+                                                                                            className="flex flex-col items-center py-2"
+                                                                                        >
+                                                                                            <span className="text-gray text-lg font-bold">
+                                                                                                {day}
+                                                                                            </span>
+                                                                                            <span className="font-medium text-red">
+                                                                                                Error displaying driver
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    );
+                                                                                }
+                                                                            })
+                                                                    ) : (
+                                                                        <div className="text-gray italic">
+                                                                            No driver schedule available
                                                                         </div>
                                                                     )}
+                                                                </div>
+                                                            </div>
+
+                                                            <div>
+                                                                <div className="text-gray font-bold text-base md:text-lg">
+                                                                    Members
+                                                                </div>
+                                                                <div className="mt-1">
+                                                                    {carpool.members && carpool.members.length > 0 ? (
+                                                                        carpool.members.map(
+                                                                            (member: string[], idx: number) => (
+                                                                                <div
+                                                                                    key={idx}
+                                                                                    className="text-gray text-base md:text-lg"
+                                                                                >
+                                                                                    {member[1]}
+                                                                                </div>
+                                                                            )
+                                                                        )
+                                                                    ) : (
+                                                                        <div className="text-gray italic">
+                                                                            No members available
+                                                                        </div>
+                                                                    )}
+                                                                    {carpool.riders &&
+                                                                        carpool.riders.length > 0 && (
+                                                                            <div className="mt-6">
+                                                                                <div className="text-gray font-bold text-base md:text-lg">
+                                                                                    Riders
+                                                                                </div>
+                                                                                <div className="mt-1 text-gray text-base md:text-lg">
+                                                                                    {carpool.riders.join(", ")}
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                ))}
+
+                                                {showCarpools &&
+                                                    results.carpools.slice(2).map((carpool: any, index: number) => (
+                                                        <div
+                                                            key={index + 2}
+                                                            className="flex flex-col p-4 border border-lightgray shadow-sm bg-w rounded-md"
+                                                        >
+                                                            <div className="text-blue font-semibold text-base md:text-lg mb-2">
+                                                                Carpool Group {index + 3}
+                                                            </div>
+
+                                                            <div className="text-black grid grid-cols-1 md:grid-cols-2 gap-10">
+                                                                <div>
+                                                                    <div className="text-gray font-bold text-base md:text-lg">
+                                                                        Driver Schedule
+                                                                    </div>
+                                                                    <div className="mt-1">
+                                                                        {carpool.driverSchedule &&
+                                                                        Object.keys(carpool.driverSchedule)
+                                                                            .length > 0 ? (
+                                                                            Object.entries(
+                                                                                carpool.driverSchedule
+                                                                            )
+                                                                                .map(([day, driver]: [string, any]) => {
+                                                                                    let dayIndex;
+
+                                                                                    if (/^\d+$/.test(day)) {
+                                                                                        dayIndex = parseInt(day, 10);
+                                                                                    } else {
+                                                                                        const lowerDay = day.toLowerCase();
+                                                                                        for (let i = 0; i < daysOfWeek.length; i++) {
+                                                                                            if (daysOfWeek[i].toLowerCase() === lowerDay) {
+                                                                                                dayIndex = i;
+                                                                                                break;
+                                                                                            }
+                                                                                        }
+                                                                                        if (dayIndex === undefined) dayIndex = 999;
+                                                                                    }
+
+                                                                                    return {
+                                                                                        day,
+                                                                                        driver,
+                                                                                        dayIndex,
+                                                                                    };
+                                                                                })
+                                                                                .sort((a, b) => a.dayIndex - b.dayIndex)
+                                                                                .map(({ day, driver, dayIndex }, idx) => {
+                                                                                    try {
+                                                                                        let displayDriver;
+                                                                                        if (typeof driver === "object" && driver !== null) {
+                                                                                            displayDriver = driver?.name || driver?.userId || JSON.stringify(driver);
+                                                                                        } else {
+                                                                                            displayDriver = String(driver || "Unassigned");
+                                                                                        }
+
+                                                                                        let dayName = day;
+                                                                                        if (/^\d+$/.test(day)) {
+                                                                                            if (optimizerDayMap[day]) {
+                                                                                                dayName = optimizerDayMap[day];
+                                                                                            } else {
+                                                                                                const dayIdx = parseInt(day, 10);
+                                                                                                if (dayIdx >= 0 && dayIdx < daysOfWeek.length) {
+                                                                                                    dayName = daysOfWeek[dayIdx];
+                                                                                                }
+                                                                                            }
+                                                                                        }
+
+                                                                                        return (
+                                                                                            <div
+                                                                                                key={idx}
+                                                                                                className="flex flex-col items-start py-1"
+                                                                                            >
+                                                                                                <span className="text-blue text-base md:text-lg font-semibold">
+                                                                                                    {dayName}:
+                                                                                                </span>
+                                                                                                <span className="text-gray font-medium text-base md:text-lg">
+                                                                                                    {displayDriver}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        );
+                                                                                    } catch (error) {
+                                                                                        console.error(`Error rendering driver for day ${day}:`, error);
+                                                                                        return (
+                                                                                            <div
+                                                                                                key={idx}
+                                                                                                className="flex flex-col items-center py-2"
+                                                                                            >
+                                                                                                <span className="text-gray text-base md:text-lg font-bold">
+                                                                                                    {day}
+                                                                                                </span>
+                                                                                                <span className="font-medium text-red">
+                                                                                                    Error displaying driver
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        );
+                                                                                    }
+                                                                                })
+                                                                        ) : (
+                                                                            <div className="text-gray italic">
+                                                                                No driver schedule available
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                <div className="text-gray font-bold text-base md:text-lg">
+                                                                    Members
+                                                                </div>
+                                                                <div className="mt-1">
+                                                                    {carpool.members && carpool.members.length > 0 ? (
+                                                                        carpool.members.map(
+                                                                            (member: string[], idx: number) => (
+                                                                                <div
+                                                                                    key={idx}
+                                                                                    className="text-gray text-base md:text-lg"
+                                                                                >
+                                                                                    {member[1]}
+                                                                                </div>
+                                                                            )
+                                                                        )
+                                                                    ) : (
+                                                                        <div className="text-gray italic">
+                                                                            No members available
+                                                                        </div>
+                                                                    )}
+                                                                    {carpool.riders &&
+                                                                        carpool.riders.length > 0 && (
+                                                                            <div className="mt-6">
+                                                                                <div className="text-gray font-bold text-base md:text-lg">
+                                                                                    Riders
+                                                                                </div>
+                                                                                <div className="mt-1 text-gray text-base md:text-lg">
+                                                                                    {carpool.riders.join(", ")}
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+                                                                </div>
+                                                            </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                            </div>
+
+                                            {results.carpools.length > 2 && (
+                                                <div className="w-full mt-4">
+                                                    <Button
+                                                        type="dropdown"
+                                                        onClick={setShowCarpools}
+                                                        text={showCarpools ? "Hide All Carpools" : "View All Carpools"}
+                                                        icon={
+                                                            <div
+                                                                style={{
+                                                                    transform: showCarpools
+                                                                        ? "rotate(180deg)"
+                                                                        : "rotate(0deg)",
+                                                                }}
+                                                            >
+                                                                <CaretIcon className="stroke-blue hover:stroke-lightblue" />
+                                                            </div>
+                                                        }
+                                                    />
                                                 </div>
-                                            ))}
+                                            )}
                                         </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </>
+                        )}
                     </div>
                 )}
                 <div className="flex flex-col bg-white border border-lightgray p-6 rounded-2xl shadow-md mt-6">
                     <div className="flex justify-between items-center">
-                        <div className="text-black text-2xl md:text-xl sm:text-lg font-bold font-['Open Sans']">
+                        <div className="text-black text-lg md:text-xl font-bold font-['Open Sans']">
                             My Carpool
                         </div>
                     </div>
                     {myCarpool ? (
                         <>
                             <div className="flex flex-col md:flex-row bg-white p-4 rounded-lg mt-4 gap-4">
-                                <div className="flex-1 flex flex-col gap-4">
-                                    <div className="flex-col justify-start items-start gap-2.5 flex">
-                                        <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
+                                <div className="flex-1 flex flex-col gap-6">
+                                    <div className="w-full md:w-4/5 flex-col justify-start items-start gap-2.5 flex">
+                                        <div className="text-gray text-base md:text-lg font-bold font-['Open Sans']">
                                             Members
                                         </div>
-                                        <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
-                                            {myCarpool.members
-                                                .map((member) => member[1])
-                                                .join(", ")}
+                                        <div className="w-full md:w-2/3">
+                                            <MyCarpoolMembers
+                                                members={myCarpool.members.map((member) => member[0])}
+                                                addressMap={groupAddresses}
+                                                phoneMap={groupPhoneNumbers}
+                                                userIdToNameMap={userIdToNameMap}
+                                            />
                                         </div>
                                     </div>
                                     <div className="flex-col justify-start items-start gap-2.5 flex">
-                                        <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
+                                        <div className="text-gray text-base md:text-lg font-bold font-['Open Sans']">
                                             Driving Schedule
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {Object.entries(myCarpool.driverSchedule)
                                                 .map(([day, driver]) => {
                                                     const dayIndex = parseInt(day, 10); // Convert day to a number
@@ -2274,10 +2497,10 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                                             key={day}
                                                             className="flex flex-col items-start rounded-md bg-white"
                                                         >
-                                                            <span className="text-blue text-lg font-medium">
+                                                            <span className="text-blue text-base md:text-lg font-medium">
                                                                 {dayName}:
                                                             </span>
-                                                            <span className="text-gray text-md font-medium mt-1">
+                                                            <span className="text-gray text-sm md:text-base font-medium mt-1">
                                                                 {typeof driver === "string" || typeof driver === "number" ? driver : "Unassigned"}
                                                             </span>
                                                         </div>
@@ -2286,10 +2509,10 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                         </div>
                                     </div>
                                     <div className="flex-col justify-start items-start gap-2.5 flex">
-                                        <div className="text-gray text-xl md:text-lg sm:text-md font-bold font-['Open Sans']">
+                                        <div className="text-gray text-base md:text-lg font-bold font-['Open Sans']">
                                             Riders
                                         </div>
-                                        <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
+                                        <div className="text-gray text-sm md:text-base font-normal font-['Open Sans']">
                                             {myCarpool.riders.join(", ")}
                                         </div>
                                     </div>
@@ -2302,7 +2525,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             </div>
                         </>
                     ) : (
-                        <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans'] mt-4">
+                        <div className="text-gray text-base md:text-lg font-normal font-['Open Sans'] mt-4">
                             You are not currently assigned to a carpool.
                         </div>
                     )}
