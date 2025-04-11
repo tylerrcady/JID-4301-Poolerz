@@ -336,7 +336,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
                     <Loading />
                 </div>
             ) : (
-                <div className="flex flex-col md:flex-row gap-6 h-full">
+                <div className="flex flex-col md:flex-row gap-6 h-full mb-5">
                     <div className="mt-5 w-full md:w-3/5 lg:w-2/3 h-[50vh] md:h-[85vh] scrollbar-custom">
                         <Calendar
                             localizer={localizer}
