@@ -8,7 +8,6 @@ export default async function Page() {
     const session = await auth();
 
     return (
-        // 1) Force the entire page to fill the screen height
         <div className="flex items-center justify-between h-full min-h-screen flex-col text-gray bg-w">
             <Header
                 userId={session?.user?.id}
