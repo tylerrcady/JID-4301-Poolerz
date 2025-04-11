@@ -2312,17 +2312,18 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                                                     No members available
                                                                 </div>
                                                             )}
-                                                            {carpool.riders &&
-                                                                carpool.riders.length > 0 && (
+                                                            {riders &&
+                                                                riders.length > 0 && (
                                                                     <div className="mt-6">
                                                                         <div className="text-gray font-bold text-base md:text-lg">
                                                                             Riders
                                                                         </div>
                                                                         <div className="mt-1 text-gray text-base md:text-lg">
-                                                                            {carpool.riders.join(", ")}
+                                                                            {riders}
                                                                         </div>
                                                                     </div>
-                                                                )}
+                                                                )
+                                                            }
                                                         </div>
                                                     </div>
                                                 </div>
@@ -2549,7 +2550,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                             Riders
                                         </div>
                                         <div className="text-gray text-sm md:text-base font-normal font-['Open Sans']">
-                                            {myCarpool.riders.join(", ")}
+                                            {riders}
                                         </div>
                                     </div>
                                 </div>
