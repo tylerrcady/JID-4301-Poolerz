@@ -709,7 +709,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                                 {child.name}
                                                             </span>
                                                             {/* Display associated carpools */}
-                                                            <div className="ml-4 mt-2 mb-6">
+                                                            <div className="ml-4 mt-2 mb-2">
                                                                 {userCarpoolData
                                                                     .filter(
                                                                         (
