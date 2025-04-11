@@ -331,7 +331,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
 
     return (
         <div className="flex flex-col w-full h-full px-4 md:px-8">
-            {!loading ? (
+            {loading ? (
                 <div className="flex justify-center items-center w-full flex-grow">
                     <Loading />
                 </div>
