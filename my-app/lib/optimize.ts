@@ -64,7 +64,7 @@ export async function Optimizer(carpoolId: string) {
             // access user-carpool-data
             const userCarpoolPromises = members.map(async (userId: string) => {
                 const userCarpoolResponse = await fetch(
-                    `/api/join-carpool-data?userId=${userId}`
+                        `/api/join-carpool-data?${members.map((id: string) => `userId=${id}`).join("&")}`
                 );
                 if (!userCarpoolResponse.ok) {
                     throw new Error(`Failed to fetch user data for ${userId}`);
@@ -98,7 +98,8 @@ export async function Optimizer(carpoolId: string) {
 
                 availabilities: members.map((member: string, i: number) => {
                     const userCarpoolData =
-                        userCarpoolResults[i]?.createCarpoolData?.userData;
+                        userCarpoolResults[i]?.createCarpoolData?.[i]?.userData;
+                        console.log("User Carpool Data:", userCarpoolData);
                     if (!userCarpoolData) {
                         return {
                             userId: members[i],
@@ -122,9 +123,8 @@ export async function Optimizer(carpoolId: string) {
                 }),
                 users: await Promise.all(
                     members.map(async (member: string, i: number) => {
-                        const userCarpoolData =
-                            userCarpoolResults[i]?.createCarpoolData?.userData || {};
-                        const formData = formResults[i]?.userFormData || {};
+                        const userCarpoolData = userCarpoolResults[i]?.createCarpoolData?.[i]?.userData;
+                        const formData = formResults[i]?.userFormData?.[0] || {};
 
                         const nameResponse = await fetch(
                             `/api/name?userId=${member}`

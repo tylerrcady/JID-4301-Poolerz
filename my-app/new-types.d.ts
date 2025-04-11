@@ -45,6 +45,7 @@ interface CreateCarpoolData {
     endTime: string;
     notes: string;
     carpoolMembers: string[];
+    isClosed?: boolean;
 }
 
 //separate interface for the database document structure 
@@ -74,5 +75,13 @@ interface TransformedResults {
         totalMembers: number;
         unassignedCount: number;
     };
+}
+
+interface CarpoolCalendarEvent {
+    title: string;
+    start: Date;
+    end: Date;
+    color?: string;
+    isDriving?: boolean;
 }
 

@@ -8,10 +8,11 @@ export default async function Page() {
     const session = await auth();
 
     return (
-        <div className="h-full min-h-screen flex items-center justify-between flex-col bg-w">
-            <Header userId={session?.user?.id} 
-            isFormComplete={true} 
-            currentPath="/join-carpool" 
+        <div className="h-full min-h-screen flex items-center justify-between flex-col bg-w text-d">
+            <Header
+                userId={session?.user?.id}
+                isFormComplete={true}
+                currentPath="/join-carpool"
             />
             {session?.user?.id ? (
                 <JoinCarpool userId={session?.user?.id} />

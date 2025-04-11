@@ -1,380 +1,671 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
-import NumberInput from "./atoms/number-input";
-import BackButton from "@components/atoms/back-button";
-import Slider from "@mui/material/Slider";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import AddModal from "@/components/modals/add-modal";
 
-interface UserFormProps {
-    userId: string | undefined;
+// fade-in effect
+const fadeInAnimation = `
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+`;
+
+interface UserLocation {
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ userId }) => {
-    const [currentPage, setCurrentPage] = useState(1); // Start with page 1
-    const [isLoading, setIsLoading] = useState(false);
-    const [userFormData, setUserFormData] = useState<UserFormData>({
-        // perfect keep like this and edit this only; do not edit any other API files; make sure changes are reflected in user-profile.tsx
-        numChildren: 0,
-        children: [] as { name: string }[],
-        carCapacity: 0,
-        availabilities: [] as { day: string; timeRange: string }[],
-        location: {
-            address: "",
-            city: "",
-            state: "",
-            zipCode: "",
-        } as UserLocation,
-        phoneNumber: "",
-    });
+interface UserFormData {
+  location: UserLocation;
+  phoneNumber: string;
+  children: { name: string; age: string }[];
+  numChildren: number;
+}
 
-    // POST user-form-data handler
-    const handleUserFormPost = async () => {
-        try {
-            const response = await fetch("/api/user-form-data", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    userId,
-                    userFormData: {
-                        //! explicitly needed this as was somehow putting isComplete in here
-                        // ! might be something to debug later
-                        numChildren: userFormData.numChildren,
-                        children: userFormData.children,
-                        carCapacity: userFormData.carCapacity,
-                        availabilities: userFormData.availabilities,
-                        location: userFormData.location,
-                        phoneNumber: userFormData.phoneNumber,
-                    },
-                }),
-            });
+interface FormErrors {
+  location?: {
+    address?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+  };
+  phoneNumber?: string;
+  children?: { name?: string; age?: string }[];
+}
 
-            if (response.ok) {
-                console.log("Form submitted successfully!");
-            } else {
-                console.error("Failed to submit form:", response.statusText);
-            }
-        } catch (error) {
-            console.error("Error submitting form:", error);
+interface UserFormProps {
+  userId: string | undefined;
+}
+
+export default function UserForm({ userId }: UserFormProps) {
+  const router = useRouter();
+  const [formStep, setFormStep] = useState(1);
+  const [isChildModalOpen, setIsChildModalOpen] = useState(false);
+  const [newChildName, setNewChildName] = useState("");
+  const [newChildAge, setNewChildAge] = useState("");
+  const [selectedChildCount, setSelectedChildCount] = useState(0);
+  const [childrenAnimatingOut, setChildrenAnimatingOut] = useState<number[]>([]);
+
+  const [userFormData, setUserFormData] = useState<UserFormData>({
+    location: {
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
+    },
+    phoneNumber: "",
+    children: [],
+    numChildren: 0
+  });
+
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [progressValue, setProgressValue] = useState(0);
+
+  useEffect(() => {
+    let newProgress = 0;
+    
+    if (formStep === 1) {
+      const totalFields = 5;
+      let filledFields = 0;
+      
+      if (userFormData.location.address.trim()) filledFields++;
+      if (userFormData.location.city.trim()) filledFields++;
+      if (userFormData.location.state.trim()) filledFields++;
+      if (userFormData.location.zipCode.trim()) filledFields++;
+      if (userFormData.phoneNumber.trim()) filledFields++;
+      
+      newProgress = Math.round((filledFields / totalFields) * 50);
+    } else if (formStep === 2) {
+      newProgress = 50;
+      
+      if (selectedChildCount > 0) {
+        const filledChildFields = userFormData.children.filter(child => 
+          child && child.name && child.name.trim() !== ""
+        ).length;
+        
+        if (selectedChildCount > 0) {
+          const childProgress = (filledChildFields / selectedChildCount) * 50;
+          newProgress += childProgress;
         }
-    };
+      }
+    }
+    
+    setProgressValue(newProgress);
+  }, [userFormData, formStep, selectedChildCount]);
 
-    // Handle changes for the number of children
-    const handleNumChildrenChange = (value: number) => {
-        //const num = parseInt(value, 10);
-        if (!isNaN(value) && value >= 0 && value <= 5) {
-            setUserFormData((prev) => ({
-                ...prev,
-                numChildren: value,
-                //children: Array(value).fill({ name: "" }), // Initialize empty child objects
-                children: [
-                    ...prev.children.slice(0, value),
-                    ...Array(Math.max(0, value - prev.children.length)).fill({
-                        name: "",
-                    }),
-                ],
-            }));
-        }
-    };
+  const handleUserFormPost = async () => {
+    try {
+      const response = await fetch("/api/user-form-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          userFormData: {
+            location: userFormData.location,
+            phoneNumber: userFormData.phoneNumber,
+            children: userFormData.children,
+            numChildren: userFormData.numChildren
+          },
+        }),
+      });
+      if (!response.ok) {
+        console.error("Failed to submit form:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
 
-    // Handle changes for individual children's names
-    const handleChildNameChange = (index: number, value: string) => {
-        const updatedChildren = [...userFormData.children];
-        updatedChildren[index] = { name: value };
-        setUserFormData((prev) => ({
-            ...prev,
-            children: updatedChildren,
+  function updateLocationField(field: keyof UserLocation, value: string) {
+    setUserFormData((prev) => ({
+      ...prev,
+      location: {
+        ...prev.location,
+        [field]: value,
+      },
+    }));
+  }
+
+  function updatePhoneNumber(value: string) {
+    const formattedValue = value.replace(/[^\d\(\)\s-]/g, '');
+    setUserFormData((prev) => ({ ...prev, phoneNumber: formattedValue }));
+  }
+
+  function handleStateChange(value: string) {
+    const lettersOnly = value.replace(/[^A-Za-z]/g, '');
+    
+    const formattedValue = lettersOnly.slice(0, 2).toUpperCase();
+    
+    updateLocationField("state", formattedValue);
+  }
+  
+  function handleZipChange(value: string) {
+    const formattedValue = value.replace(/\D/g, '').slice(0, 5);
+    updateLocationField("zipCode", formattedValue);
+  }
+
+  function addChild(name: string, age: string) {
+    setUserFormData((prev) => ({
+      ...prev,
+      children: [...prev.children, { name, age }],
+      numChildren: prev.children.length + 1
+    }));
+  }
+
+  function handleAddChild() {
+    if (newChildName.trim() === "" || newChildAge.trim() === "") {
+      return;
+    }
+    
+    addChild(newChildName, newChildAge);
+    setNewChildName("");
+    setNewChildAge("");
+    setIsChildModalOpen(false);
+  }
+
+  const handleAddNewChild = () => {
+    // 5 children limit
+    if (selectedChildCount >= 5) return;
+    setSelectedChildCount(prev => prev + 1);
+    setUserFormData(prev => ({
+      ...prev,
+      numChildren: prev.numChildren + 1
+    }));
+  };
+  
+  const handleRemoveChild = (indexToRemove: number) => {
+    setChildrenAnimatingOut(prev => [...prev, indexToRemove]);
+    
+    setTimeout(() => {
+      const updatedChildren = userFormData.children.filter((_, index) => index !== indexToRemove);
+      
+      setSelectedChildCount(prev => prev - 1);
+      setUserFormData(prev => ({
+        ...prev,
+        children: updatedChildren,
+        numChildren: updatedChildren.length
+      }));
+      
+      setChildrenAnimatingOut(prev => prev.filter(index => index !== indexToRemove));
+    }, 300);
+  };
+
+  const handleChildCountChange = (count: number) => {
+    const prevCount = selectedChildCount;
+    
+    if (count < prevCount) {
+      const animatingOut = [];
+      for (let i = count; i < prevCount; i++) {
+        animatingOut.push(i);
+      }
+      setChildrenAnimatingOut(animatingOut);
+      
+      setTimeout(() => {
+        setSelectedChildCount(count);
+        setUserFormData(prev => ({
+          ...prev,
+          children: prev.children.slice(0, count),
+          numChildren: count
         }));
-    };
+        setTimeout(() => {
+          setChildrenAnimatingOut([]);
+        }, 50);
+      }, 300);
+    } else {
+      setSelectedChildCount(count);
+      setUserFormData(prev => ({
+        ...prev,
+        numChildren: count
+      }));
+    }
+  };
 
-    const handleLocationChange = (
-        key: "address" | "city" | "state" | "zipCode",
-        value: string
-    ) => {
-        setUserFormData((prev) => ({
-            ...prev,
-            location: {
-                ...prev.location,
-                [key]: value,
-            },
-        }));
-    };
+  const updateChildName = (index: number, name: string) => {
+    const updatedChildren = [...userFormData.children];
+    
+    if (!updatedChildren[index]) {
+      updatedChildren[index] = { name, age: "" };
+    } else {
+      updatedChildren[index] = { ...updatedChildren[index], name };
+    }
+    
+    setUserFormData(prev => ({
+      ...prev,
+      children: updatedChildren
+    }));
+  };
 
-    const handlePhoneNumberChange = (value: string) => {
-        setUserFormData((prev) => ({
-            ...prev,
-            phoneNumber: value,
-        }));
+  function validateStep1() {
+    const newErrors: FormErrors = {};
+    const { address, city, state, zipCode } = userFormData.location;
+
+    const addressPattern = /^\d+\s+.+$/;
+    if (!address.trim() || address.length < 5 || !addressPattern.test(address)) {
+      newErrors.location = { ...newErrors.location, address: "Enter valid address with house number" };
+    }
+    
+    const cityPattern = /^[A-Za-z\s\-']+$/;
+    if (!city.trim() || city.length < 2 || !cityPattern.test(city)) {
+      newErrors.location = { ...newErrors.location, city: "Enter valid city name" };
+    }
+    
+    // state must be 2-letter state code for optimizer to work
+    const stateRegex = /^[A-Z]{2}$/;
+    if (!state.trim() || !stateRegex.test(state.toUpperCase())) {
+      newErrors.location = { ...newErrors.location, state: "Enter valid 2-letter state code" };
+    }
+    
+    // zip code must be 5 digits
+    const zipRegex = /^\d{5}$/;
+    if (!zipCode.trim() || !zipRegex.test(zipCode)) {
+      newErrors.location = { ...newErrors.location, zipCode: "Enter valid 5-digit zip code" };
+    }
+    
+    // phone number must be 10 digits
+    const phoneRegex = /^\d{10}$/;
+    const digitsOnly = userFormData.phoneNumber.replace(/\D/g, '');
+    if (!userFormData.phoneNumber.trim() || digitsOnly.length !== 10 || !phoneRegex.test(digitsOnly)) {
+      newErrors.phoneNumber = "Enter valid 10-digit phone number";
     }
 
-    const validatePage = () => {
-        console.log("Validating current page:", currentPage);
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0 && !Object.keys(newErrors.location ?? {}).length;
+  }
 
-        if (currentPage === 1) {
-            if (userFormData.numChildren === 0) {
-                alert(
-                    "Please enter a valid number of children before continuing."
-                );
-                return false;
-            }
-
-            const emptyNames = userFormData.children.some(
-                (child) => child.name.trim() === ""
-            );
-            if (emptyNames) {
-                alert(
-                    "Please ensure all children have names before continuing."
-                );
-                return false;
-            }
-            
-            if (!userFormData.phoneNumber.trim()) {
-                alert("Please enter a phone number before continuing.");
-                return false;
-            }
-        } else if (currentPage === 2) {
-            const { address, city, state, zipCode } = userFormData.location;
-            if (
-                !address.trim() ||
-                !city.trim() ||
-                !state.trim() ||
-                !zipCode.trim()
-            ) {
-                alert("Please fill in all location fields before continuing.");
-                return false;
-            }
-        } 
-
-        return true;
-    };
-
-    // Move to the next page
-    const handleContinue = () => {
-        if (validatePage()) {
-            setCurrentPage(currentPage + 1);
+  function validateStep2() {
+    if (selectedChildCount > 0) {
+      for (let i = 0; i < selectedChildCount; i++) {
+        if (!userFormData.children[i]?.name || userFormData.children[i].name.trim() === "") {
+          return false;
         }
-    };
+      }
+    }
+    
+    return true;
+  }
 
-    const router = useRouter();
+  const isStep1Complete = () => {
+    const { address, city, state, zipCode } = userFormData.location;
+    return (
+      address.trim() !== "" &&
+      city.trim() !== "" &&
+      state.trim() !== "" &&
+      zipCode.trim() !== "" &&
+      userFormData.phoneNumber.trim() !== ""
+    );
+  };
+  
+  const isStep2Complete = () => {
+    if (selectedChildCount === 0) return false;
+    
+    for (let i = 0; i < selectedChildCount; i++) {
+      if (!userFormData.children[i]?.name || userFormData.children[i].name.trim() === "") {
+        return false;
+      }
+    }
+    
+    return true;
+  };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        console.log(
-            "Availabilities before submission:",
-            userFormData.availabilities
-        );
-
-        if (!validatePage()) {
-            console.log("Validation failed. Submission blocked.");
-            return;
-        }
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formStep === 1) {
+      if (validateStep1()) {
+        setFormStep(2);
+      }
+    } else {
+      if (validateStep2()) {
         setIsLoading(true);
         try {
-            await handleUserFormPost();
-            console.log("Redirecting to /user-profile...");
-            router.push("/user-profile");
+          await handleUserFormPost();
+          router.push("/user-profile");
         } catch (error) {
-            if (error instanceof Error) {
-                console.error("Error during submission:", error.message);
-                alert(
-                    `There was an error submitting the form: ${error.message}`
-                );
-            } else {
-                console.error("Unknown error during submission:", error);
-                alert(
-                    "There was an unknown error submitting the form. Please try again."
-                );
-            }
+          console.error("Error submitting form:", error);
         } finally {
-            setIsLoading(false);
+          setIsLoading(false);
         }
-    };
+      }
+    }
+  };
 
-    // Move to the previous page
-    const handleBack = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
+  function handleBack() {
+    setFormStep(1);
+  }
+
+  function handleCityChange(value: string) {
+    const filteredValue = value.replace(/[^A-Za-z\s\-']/g, '');
+    
+    const formattedValue = filteredValue
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+      
+    updateLocationField("city", formattedValue);
+  }
+  
+  function handleAddressChange(value: string) {
+    const prepositions = ['of', 'the', 'and', 'in', 'on', 'at'];
+    const formattedValue = value
+      .split(' ')
+      .map((word, index) => {
+        if (index === 0 || !prepositions.includes(word.toLowerCase())) {
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
         }
-    };
+        return word.toLowerCase();
+      })
+      .join(' ');
+      
+    updateLocationField("address", formattedValue);
+  }
 
-    return (
-        // do not change the first div at all
-        <div className="flex items-center flex-col h-auto w-full bg-w p-5 gap-4 text-center">
-            <div className="text-base underline text-black">
-                Complete our onboarding form below to get access to the full
-                application.
+  return (
+    <div className="flex flex-col md:flex-row w-full h-screen overflow-hidden">
+      {/* Style tag for animation */}
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes fadeOut {
+          from {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          to {
+            opacity: 0;
+            transform: translateY(10px);
+            visibility: hidden;
+          }
+        }
+        
+        .child-field-enter {
+          animation: fadeIn 0.3s ease-in-out forwards;
+        }
+        
+        .child-field-exit {
+          animation: fadeOut 0.3s ease-in-out forwards;
+        }
+      `}</style>
+      
+      {/* Left half: gradient background, dashed path, plus icons/text */}
+      <div className="relative w-full md:w-1/2 h-full min-h-screen bg-gradient-to-b from-yellow-400 to-blue-200">
+        <Image
+          src="/form-hero.svg"
+          alt="Form Hero"
+          className="absolute inset-0 w-full h-full"
+          width={1000}
+          height={1000}
+          style={{ objectFit: 'cover' }}
+          priority
+        />
+      </div>
+
+      {/* Right half: form container - conditionally render form steps */}
+      <div className="w-full md:w-1/2 flex items-start justify-center p-6 md:p-12 bg-white overflow-y-auto max-h-screen">
+        <form className="max-w-md w-full space-y-6 py-4" onSubmit={handleSubmit}>
+          {/* Logo and Welcome - shown on both steps */}
+          <div className="text-center mb-6">
+            <h1 className="w-[209px] mx-auto text-[#575757] text-center font-['Maven_Pro'] text-[24px] font-medium leading-normal">
+              Welcome to
+            </h1>
+            <div className="flex justify-center mb-4">
+              <Image 
+                src="/Poolerz.io.png" 
+                alt="POOLERZ.io Logo" 
+                width={240} 
+                height={60}
+                priority
+              />
             </div>
-            <Image
-                src="/poolerz.jpg"
-                alt="Poolerz Logo"
-                width={245}
-                height={42}
-            />
-            {currentPage === 1 && (
-                <>
-                    <h1 className="text-2xl text-black font-bold">
-                        Household Information
-                    </h1>
-                    <div className="flex flex-col items-center gap-5 mt-2">
-                        <label className="text-black text-lg font-semibold">
-                            How many children do you have?
-                        </label>
-                        <div className="w-3/4 mt-6">
-                            <Slider
-                                aria-label="Number of Children"
-                                min={0}
-                                max={5}
-                                value={userFormData.numChildren}
-                                valueLabelDisplay="on"
-                                onChange={(e, value) =>
-                                    handleNumChildrenChange(value as number)
-                                }
-                            />
-                        </div>
+            <div className="w-full flex justify-center mt-2 mb-4">
+              <svg width="260" height="11" viewBox="0 0 260 11" fill="none" xmlns="http://www.w3.org/2000/svg" className="max-w-full">
+                <path d="M4.99976 5.60144H255" stroke="#DEDEE1" strokeWidth="10" strokeLinecap="round"/>
+                <path 
+                  d={`M4.99976 5.60144H${4.99976 + (progressValue / 100 * 250)}`} 
+                  stroke="#4B859F" 
+                  strokeWidth="10" 
+                  strokeLinecap="round"
+                  style={{ transition: 'all 0.3s ease-in-out' }}
+                />
+              </svg>
+            </div>
+            <h2 className="flex h-[36px] flex-col justify-center self-stretch text-black text-center font-['Open_Sans'] text-[24px] font-bold leading-normal">
+              {formStep === 1 ? "Personal Information" : "Household Information"}
+            </h2>
+          </div>
+
+          {/* Personal Information Fields */}
+          {formStep === 1 && (
+            <>
+              <div>
+                <input
+                  type="text"
+                  placeholder="Street Address"
+                  className={`border p-2 w-full rounded-md focus:outline-none text-black ${
+                    errors.location?.address ? "border-red-500" : "border-black"
+                  }`}
+                  value={userFormData.location.address}
+                  onChange={(e) => handleAddressChange(e.target.value)}
+                />
+                {errors.location?.address && (
+                  <p className="text-[#E60606] text-[12px] font-['Open_Sans'] mt-0.5">
+                    {errors.location.address}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="City"
+                    className={`border p-2 w-full rounded-md focus:outline-none text-black ${
+                      errors.location?.city ? "border-red-500" : "border-black"
+                    }`}
+                    value={userFormData.location.city}
+                    onChange={(e) => handleCityChange(e.target.value)}
+                  />
+                  {errors.location?.city && (
+                    <p className="text-[#E60606] text-[12px] font-['Open_Sans'] mt-0.5">
+                      {errors.location.city}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    placeholder="State"
+                    maxLength={2}
+                    className={`border p-2 w-full rounded-md focus:outline-none text-black ${
+                      errors.location?.state ? "border-red-500" : "border-black"
+                    }`}
+                    value={userFormData.location.state}
+                    onChange={(e) => handleStateChange(e.target.value)}
+                  />
+                  {errors.location?.state && (
+                    <p className="text-[#E60606] text-[12px] font-['Open_Sans'] mt-0.5">
+                      {errors.location.state}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Zip Code"
+                    maxLength={5}
+                    className={`border p-2 w-full rounded-md focus:outline-none text-black ${
+                      errors.location?.zipCode ? "border-red-500" : "border-black"
+                    }`}
+                    value={userFormData.location.zipCode}
+                    onChange={(e) => handleZipChange(e.target.value)}
+                  />
+                  {errors.location?.zipCode && (
+                    <p className="text-[#E60606] text-[12px] font-['Open_Sans'] mt-0.5">
+                      {errors.location.zipCode}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <input
+                  type="tel"
+                  placeholder="Phone Number"
+                  pattern="[0-9]{10}"
+                  className={`border p-2 w-full rounded-md focus:outline-none text-black ${
+                    errors.phoneNumber ? "border-red-500" : "border-black"
+                  }`}
+                  value={userFormData.phoneNumber}
+                  onChange={(e) => updatePhoneNumber(e.target.value)}
+                />
+                {errors.phoneNumber && (
+                  <p className="text-[#E60606] text-[12px] font-['Open_Sans'] mt-0.5">
+                    {errors.phoneNumber}
+                  </p>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Family Information Fields */}
+          {formStep === 2 && (
+            <div className="space-y-6">
+              <div>
+                {selectedChildCount === 0 ? (
+                  <div className="flex flex-col w-full mb-4">
+                    <label className="text-black font-['Open_Sans'] text-[16px] font-normal mb-2 leading-normal">
+                      How many children do you have?
+                    </label>
+                    <div className="relative">
+                      <select
+                        className="w-full p-2 border border-black rounded-md focus:outline-none appearance-none text-black font-['Open_Sans'] text-[16px] font-normal leading-normal"
+                        value={selectedChildCount}
+                        onChange={(e) => handleChildCountChange(Number(e.target.value))}
+                      >
+                        <option value="0">Select</option>
+                        {[1, 2, 3, 4, 5].map((num) => (
+                          <option key={num} value={num}>
+                            {num}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1 1L7 7L13 1" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
                     </div>
-                    {userFormData.numChildren > 0 && (
-                        <>
-                            {userFormData.children.map((child, index) => (
-                                <div key={index} className="mb-4">
-                                    <label className="block text-sm text-black font-medium mb-2">
-                                        Child {index + 1} Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder={`Child ${index + 1} Name`}
-                                        className="border p-2 w-full text-black rounded-lg active:border-blue"
-                                        value={child.name}
-                                        onChange={(e) =>
-                                            handleChildNameChange(
-                                                index,
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                </div>
-                            ))}
-                        </>
-                    )}
-                    <div className="mb-4">
-                        <label className="block text-sm text-black font-medium mb-2">
-                            Phone Number
+                  </div>
+                ) : null}
+
+                <div className="space-y-4 child-fields-container">
+                  {Array.from({ length: Math.max(selectedChildCount, ...childrenAnimatingOut.map(i => i + 1)) }).map((_, index) => {
+                    const isAnimatingOut = childrenAnimatingOut.includes(index);
+                    if (index >= selectedChildCount && !isAnimatingOut) return null;
+                    
+                    return (
+                      <div 
+                        key={`child-${index}`} 
+                        className={`child-field w-full ${isAnimatingOut ? 'child-field-exit' : 'child-field-enter'}`}
+                        style={{ marginBottom: isAnimatingOut ? '0' : '1rem' }}
+                      >
+                        <label className="text-black font-['Open_Sans'] text-[16px] font-normal mb-2 block leading-normal">
+                          Child {index + 1} Name:
                         </label>
-                        <input
+                        <div className="relative">
+                          <input
                             type="text"
-                            placeholder="Phone Number"
-                            className="border p-2 w-full text-black rounded-lg active:border-blue"
-                            value={userFormData.phoneNumber}
-                            onChange={(e) =>
-                                handlePhoneNumberChange(e.target.value)
-                            }
-                        />
-                    </div>
+                            className="w-full p-2 border border-black rounded-md focus:outline-none text-black font-['Open_Sans'] text-[16px] font-normal leading-normal"
+                            value={userFormData.children[index]?.name || ""}
+                            onChange={(e) => updateChildName(index, e.target.value)}
+                            placeholder="Enter child name"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveChild(index)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-[#E60606] font-['Open_Sans'] text-[20px] font-normal w-[21px] h-[21px] flex items-center justify-center"
+                            aria-label="Remove child"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  <div className="flex justify-end mt-2">
                     <button
-                        className="px-4 py-2 bg-blue text-w rounded min-w-1/6"
-                        onClick={handleContinue}
+                      type="button"
+                      onClick={handleAddNewChild}
+                      className={`text-[#000] font-['Open_Sans'] text-[16px] font-normal flex items-center ${
+                        selectedChildCount >= 5 ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                      disabled={selectedChildCount >= 5}
                     >
-                        Continue
+                      Add Child +
                     </button>
-                </>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Continue/Submit Button */}
+          <div className="pt-2">
+            {formStep === 2 && (
+              <button
+                type="button"
+                onClick={handleBack}
+                className="w-full p-3 mb-2 rounded-md font-semibold bg-black text-white hover:bg-gray-900 transition-colors"
+              >
+                Back
+              </button>
             )}
-
-            {currentPage === 2 && (
-                <>
-                    <h2 className="text-xl font-bold text-black">Location</h2>
-                    <div className="flex flex-col gap-4 mb-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray">
-                                Address
-                            </label>
-                            <input
-                                type="text"
-                                className="border p-2 w-full rounded text-black rounded-lg active:border-blue"
-                                placeholder="Street Name"
-                                value={userFormData.location.address}
-                                onChange={(e) =>
-                                    handleLocationChange(
-                                        "address",
-                                        e.target.value
-                                    )
-                                }
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray">
-                                City
-                            </label>
-                            <input
-                                type="text"
-                                className="border p-2 w-full rounded text-black rounded-lg active:border-blue"
-                                placeholder="City"
-                                value={userFormData.location.city}
-                                onChange={(e) =>
-                                    handleLocationChange("city", e.target.value)
-                                }
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray">
-                                State
-                            </label>
-                            <input
-                                type="text"
-                                className="border p-2 w-full rounded text-black rounded-lg active:border-blue"
-                                placeholder="State"
-                                value={userFormData.location.state}
-                                onChange={(e) =>
-                                    handleLocationChange(
-                                        "state",
-                                        e.target.value
-                                    )
-                                }
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray">
-                                Zip Code
-                            </label>
-                            <input
-                                type="text"
-                                className="border p-2 w-full rounded text-black rounded-lg active:border-blue"
-                                placeholder="Zip Code"
-                                value={userFormData.location.zipCode}
-                                onChange={(e) =>
-                                    handleLocationChange(
-                                        "zipCode",
-                                        e.target.value
-                                    )
-                                }
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex justify-center w-full gap-4">
-                        <BackButton onClick={handleBack} />
-                        {!isLoading && (
-                            <button
-                                className="px-4 py-2 bg-blue text-w rounded min-w-1/6"
-                                onClick={handleSubmit}
-                                disabled={isLoading}
-                            >
-                                Submit
-                            </button>
-                        )}
-                        {isLoading && (
-                            <p className="text-center text-gray">
-                                Submitting...
-                            </p>
-                        )}
-                    </div>
-                </>
+            
+            {!isLoading ? (
+              <button
+                type="submit"
+                disabled={(formStep === 1 && !isStep1Complete()) || (formStep === 2 && !isStep2Complete())}
+                className={`w-full px-6 py-3 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center ${
+                  (formStep === 1 && isStep1Complete()) || (formStep === 2 && isStep2Complete())
+                    ? "bg-[#4F95B0] border border-[#4F95B0] hover:bg-[#3a7b94] transition-colors"
+                    : "bg-[#A5C2CF] cursor-not-allowed"
+                }`}
+              >
+                {formStep === 1 ? "Continue" : "Submit"}
+              </button>
+            ) : (
+              <button
+                disabled
+                className="w-full px-6 py-3 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center bg-[#A5C2CF] cursor-not-allowed"
+              >
+                <span>Loading...</span>
+              </button>
             )}
-        </div>
-    );
-};
-
-export default UserForm;
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
