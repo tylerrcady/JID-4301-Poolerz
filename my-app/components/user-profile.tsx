@@ -9,6 +9,7 @@ import NumberInput from "@components/atoms/number-input";
 import AddIcon from "./icons/AddIcon";
 import EditIcon from "./icons/EditIcon";
 import Loading from "@components/icons/Loading";
+import confetti from 'canvas-confetti';
 
 interface UserProfileProps {
     userId: string | undefined;
@@ -107,6 +108,63 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
 
         fetchCarpoolData();
     }, [userId]);
+
+    useEffect(() => {
+        const duration = 2.5 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { 
+            startVelocity: 30, 
+            spread: 360, 
+            ticks: 60, 
+            zIndex: 0,
+            colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF']
+        };
+
+        function randomInRange(min: number, max: number) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval: any = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+
+            // left side confetti
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                angle: randomInRange(55, 125),
+                scalar: randomInRange(0.8, 1.2)
+            });
+
+            // Right side confetti
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                angle: randomInRange(55, 125),
+                scalar: randomInRange(0.8, 1.2)
+            });
+
+            // Center burst
+            if (timeLeft > duration * 0.7) {
+                confetti({
+                    ...defaults,
+                    particleCount: 20,
+                    origin: { x: 0.5, y: 0.5 },
+                    spread: 180,
+                    startVelocity: 45
+                });
+            }
+        }, 250);
+
+        return () => clearInterval(interval);
+    }, []);
 
     const handleEditProfile = () => {
         if (!isEditingProfile) {
