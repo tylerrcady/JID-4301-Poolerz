@@ -178,7 +178,6 @@ export default function UserForm({ userId }: UserFormProps) {
   const handleAddNewChild = () => {
     // 5 children limit
     if (selectedChildCount >= 5) return;
-    
     setSelectedChildCount(prev => prev + 1);
     setUserFormData(prev => ({
       ...prev,
@@ -320,20 +319,26 @@ export default function UserForm({ userId }: UserFormProps) {
     return true;
   };
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (formStep === 1) {
-      if (!validateStep1()) return;
-      setFormStep(2);
+      if (validateStep1()) {
+        setFormStep(2);
+      }
     } else {
-      if (!validateStep2()) return;
-      setIsLoading(true);
-      await handleUserFormPost();
-      router.push("/user-profile");
-      setIsLoading(false);
+      if (validateStep2()) {
+        setIsLoading(true);
+        try {
+          await handleUserFormPost();
+          router.push("/user-profile");
+        } catch (error) {
+          console.error("Error submitting form:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
     }
-  }
+  };
 
   function handleBack() {
     setFormStep(1);
