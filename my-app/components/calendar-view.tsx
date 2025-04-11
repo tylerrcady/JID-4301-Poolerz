@@ -170,7 +170,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
                 const event = await helperCreateEvent(
                     schedule.schedule,
                     schedule.carpoolId,
-                    colorIndex,
+                    colorIndex
                 );
                 newEvents.push(...event);
                 colorIndex += 1;
@@ -231,7 +231,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     const helperCreateEvent = async (
         schedule: Record<string, string>,
         carpoolID: string,
-        colorIndex: number,
+        colorIndex: number
     ): Promise<CarpoolCalendarEvent[]> => {
         const resultEvents: CarpoolCalendarEvent[] = [];
 
@@ -256,7 +256,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
 
         Object.keys(schedule).forEach((dayKey) => {
             const dayOfWeek = optimizerDayMap[dayKey];
-            const assignedColor = availableColors[colorIndex % availableColors.length];
+            const assignedColor =
+                availableColors[colorIndex % availableColors.length];
             for (let i = 0; i < WEEKS_TO_GENERATE; i++) {
                 let base = moment().startOf("day");
                 let eventDate = base.clone().day(dayOfWeek).add(i, "weeks");
@@ -272,7 +273,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
                     .minute(minutesEnd)
                     .toDate();
 
-                const userDriving: boolean = (userId === schedule[dayKey]) ? true : false;
+                const userDriving: boolean =
+                    userId === schedule[dayKey] ? true : false;
                 // console.log(userDriving);
                 resultEvents.push({
                     title: carpoolName,
@@ -325,11 +327,11 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     };
 
     // Default start times to display
-    const scrollToTime = moment().startOf('day').hour(8).toDate();
+    const scrollToTime = moment().startOf("day").hour(8).toDate();
 
     return (
-        <div className="flex flex-col w-full h-screen px-4 md:px-8">
-            {loading ? (
+        <div className="flex flex-col w-full h-full px-4 md:px-8">
+            {!loading ? (
                 <div className="flex justify-center items-center w-full flex-grow">
                     <Loading />
                 </div>

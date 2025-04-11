@@ -9,7 +9,7 @@ export default async function Page() {
 
     return (
         // 1) Force the entire page to fill the screen height
-        <div className="flex flex-col h-full bg-w text-d">
+        <div className="flex items-center justify-between h-full min-h-screen flex-col text-gray bg-w">
             <Header
                 userId={session?.user?.id}
                 isFormComplete={true}
@@ -17,11 +17,7 @@ export default async function Page() {
             />
 
             {session?.user?.id ? (
-                // 2) Fill the remaining space with the calendar
-                <div className="w-full md:flex-1 py-4 px-10">
-                    {/* 3) If you want no padding at all, remove px-4 and py-6 */}
-                    <CalendarView userId={session?.user?.id} />
-                </div>
+                <CalendarView userId={session?.user?.id} />
             ) : (
                 <Login />
             )}
