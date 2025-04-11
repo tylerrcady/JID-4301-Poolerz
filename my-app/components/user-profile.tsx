@@ -9,6 +9,7 @@ import NumberInput from "@components/atoms/number-input";
 import AddIcon from "./icons/AddIcon";
 import EditIcon from "./icons/EditIcon";
 import Loading from "@components/icons/Loading";
+import confetti from "canvas-confetti";
 
 interface UserProfileProps {
     userId: string | undefined;
@@ -31,7 +32,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     const [userFormDataBackup, setUserFormDataBackup] =
         useState<UserFormData | null>(null);
     const [userCarpoolData, setUserCarpoolData] = useState<any[]>([]);
-    const [carpoolDetails, setCarpoolDetails] = useState<{[key: string]: any}>({});
+    const [carpoolDetails, setCarpoolDetails] = useState<{
+        [key: string]: any;
+    }>({});
     const [isLoading, setIsLoading] = useState(true);
     const [isCarpoolLoading, setIsCarpoolLoading] = useState(true);
 
@@ -72,20 +75,28 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     // Extract fetchCarpoolData into a separate function
     const fetchCarpoolData = async () => {
         if (!userId) return;
-        
+
         setIsCarpoolLoading(true);
         try {
             // Fetch user's carpool data
-            const response = await fetch(`/api/join-carpool-data?userId=${userId}`);
+            const response = await fetch(
+                `/api/join-carpool-data?userId=${userId}`
+            );
             const data = await response.json();
-            const joinedCarpools = data?.createCarpoolData?.[0]?.userData?.carpools || [];
+            const joinedCarpools =
+                data?.createCarpoolData?.[0]?.userData?.carpools || [];
             setUserCarpoolData(joinedCarpools);
 
             // Fetch details for each carpool
             const carpoolPromises = joinedCarpools.map(async (carpool: any) => {
-                const carpoolResponse = await fetch(`/api/create-carpool-data?carpoolId=${carpool.carpoolId}`);
+                const carpoolResponse = await fetch(
+                    `/api/create-carpool-data?carpoolId=${carpool.carpoolId}`
+                );
                 const carpoolData = await carpoolResponse.json();
-                console.log(`Carpool Details for ${carpool.carpoolId}:`, carpoolData);
+                console.log(
+                    `Carpool Details for ${carpool.carpoolId}:`,
+                    carpoolData
+                );
                 return {
                     id: carpool.carpoolId,
                     data: carpoolData.createCarpoolData?.[0] || {},
@@ -108,6 +119,68 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     useEffect(() => {
         fetchCarpoolData();
     }, [userId]);
+
+    useEffect(() => {
+        const hasShownConfetti = localStorage.getItem('hasShownConfetti');
+        
+        if (!hasShownConfetti) {
+            const duration = 2.5 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { 
+                startVelocity: 30, 
+                spread: 360, 
+                ticks: 60, 
+                zIndex: 0,
+                colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF']
+            };
+
+            function randomInRange(min: number, max: number) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval: any = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    localStorage.setItem('hasShownConfetti', 'true');
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+
+                // left side confetti
+                confetti({
+                    ...defaults,
+                    particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                    angle: randomInRange(55, 125),
+                    scalar: randomInRange(0.8, 1.2)
+                });
+
+                // Right side confetti
+                confetti({
+                    ...defaults,
+                    particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                    angle: randomInRange(55, 125),
+                    scalar: randomInRange(0.8, 1.2)
+                });
+
+                // Center burst
+                if (timeLeft > duration * 0.7) {
+                    confetti({
+                        ...defaults,
+                        particleCount: 20,
+                        origin: { x: 0.5, y: 0.5 },
+                        spread: 180,
+                        startVelocity: 45
+                    });
+                }
+            }, 250);
+
+            return () => clearInterval(interval);
+        }
+    }, []);
 
     const handleEditProfile = () => {
         if (!isEditingProfile) {
@@ -182,21 +255,28 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
     const handleSave = async () => {
         try {
             // First identify deleted children by comparing with backup
-            const deletedChildren = userFormDataBackup?.children.filter(backupChild => 
-                !userFormData?.children.some(currentChild => currentChild.name === backupChild.name)
-            ) || [];
+            const deletedChildren =
+                userFormDataBackup?.children.filter(
+                    (backupChild) =>
+                        !userFormData?.children.some(
+                            (currentChild) =>
+                                currentChild.name === backupChild.name
+                        )
+                ) || [];
 
             // Get the list of children whose names have changed
-            const changedChildren = userFormData?.children.map((child, index) => {
-                const originalChild = userFormDataBackup?.children[index];
-                if (originalChild && originalChild.name !== child.name) {
-                    return {
-                        oldName: originalChild.name,
-                        newName: child.name
-                    };
-                }
-                return null;
-            }).filter(change => change !== null);
+            const changedChildren = userFormData?.children
+                .map((child, index) => {
+                    const originalChild = userFormDataBackup?.children[index];
+                    if (originalChild && originalChild.name !== child.name) {
+                        return {
+                            oldName: originalChild.name,
+                            newName: child.name,
+                        };
+                    }
+                    return null;
+                })
+                .filter((change) => change !== null);
 
             // Save user form data
             const response = await fetch(`/api/user-form-data`, {
@@ -218,8 +298,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             // Process deleted children
             if (deletedChildren.length > 0) {
                 // Find all carpools where any of the deleted children are riders
-                const carpoolsToUpdate = userCarpoolData.filter(carpool => 
-                    deletedChildren.some(child => carpool.riders.includes(child.name))
+                const carpoolsToUpdate = userCarpoolData.filter((carpool) =>
+                    deletedChildren.some((child) =>
+                        carpool.riders.includes(child.name)
+                    )
                 );
 
                 // Update each carpool
@@ -227,8 +309,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     const carpoolDetail = carpoolDetails[carpool.carpoolId];
                     if (!carpoolDetail) continue;
 
-                    const updatedRiders = carpool.riders.filter((rider: string) => 
-                        !deletedChildren.some(child => child.name === rider)
+                    const updatedRiders = carpool.riders.filter(
+                        (rider: string) =>
+                            !deletedChildren.some(
+                                (child) => child.name === rider
+                            )
                     );
 
                     // Update the carpool with the removed riders
@@ -241,8 +326,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                             carpoolId: carpool.carpoolId,
                             carpoolData: {
                                 ...carpoolDetail.createCarpoolData,
-                                riders: updatedRiders
-                            }
+                                riders: updatedRiders,
+                            },
                         }),
                     });
 
@@ -257,8 +342,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                             carpoolId: carpool.carpoolId,
                             carpoolData: {
                                 ...carpool,
-                                riders: updatedRiders
-                            }
+                                riders: updatedRiders,
+                            },
                         }),
                     });
                 }
@@ -267,8 +352,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             // If any children's names changed, update their names in the carpools
             if (changedChildren && changedChildren.length > 0) {
                 // Get all carpools that need updating
-                const carpoolsToUpdate = userCarpoolData.filter(carpool => 
-                    changedChildren.some(change => 
+                const carpoolsToUpdate = userCarpoolData.filter((carpool) =>
+                    changedChildren.some((change) =>
                         carpool.riders.includes(change.oldName)
                     )
                 );
@@ -278,10 +363,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     const carpoolDetail = carpoolDetails[carpool.carpoolId];
                     if (!carpoolDetail) continue;
 
-                    const updatedRiders = carpool.riders.map((rider: string) => {
-                        const change = changedChildren.find(c => c.oldName === rider);
-                        return change ? change.newName : rider;
-                    });
+                    const updatedRiders = carpool.riders.map(
+                        (rider: string) => {
+                            const change = changedChildren.find(
+                                (c) => c.oldName === rider
+                            );
+                            return change ? change.newName : rider;
+                        }
+                    );
 
                     // Update the carpool with the new rider names
                     await fetch("/api/update-carpool", {
@@ -293,8 +382,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                             carpoolId: carpool.carpoolId,
                             carpoolData: {
                                 ...carpoolDetail.createCarpoolData,
-                                riders: updatedRiders
-                            }
+                                riders: updatedRiders,
+                            },
                         }),
                     });
 
@@ -309,8 +398,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                             carpoolId: carpool.carpoolId,
                             carpoolData: {
                                 ...carpool,
-                                riders: updatedRiders
-                            }
+                                riders: updatedRiders,
+                            },
                         }),
                     });
                 }
@@ -332,12 +421,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
             if (isAvailabilityModalOpen) {
                 setIsAvailabilityModalOpen(false);
             }
-            
+
             // Refetch both user form data and carpool data after saving
-            await Promise.all([
-                handleUserFormGet(),
-                fetchCarpoolData()
-            ]);
+            await Promise.all([handleUserFormGet(), fetchCarpoolData()]);
         } catch (error) {
             console.error("Error saving data:", error);
         }
@@ -351,7 +437,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                     <img
                         width={150}
                         height={150}
-                        src="/mask group.png"
+                        src="/default_profile.png"
                         alt="Profile"
                         className="w-150 h-150 rounded-full object-cover"
                     />
@@ -430,7 +516,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                         {isEditingProfile ? (
                                             <div className="flex flex-col gap-2">
                                                 <TextInput
-                                                    currentValue={userFormData.location.address}
+                                                    currentValue={
+                                                        userFormData.location
+                                                            .address
+                                                    }
                                                     onChange={(value) => {
                                                         setUserFormData({
                                                             ...userFormData,
@@ -443,7 +532,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                     placeholder="Enter street address"
                                                 />
                                                 <TextInput
-                                                    currentValue={userFormData.location.city}
+                                                    currentValue={
+                                                        userFormData.location
+                                                            .city
+                                                    }
                                                     onChange={(value) => {
                                                         setUserFormData({
                                                             ...userFormData,
@@ -456,7 +548,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                     placeholder="Enter city"
                                                 />
                                                 <TextInput
-                                                    currentValue={userFormData.location.state}
+                                                    currentValue={
+                                                        userFormData.location
+                                                            .state
+                                                    }
                                                     onChange={(value) => {
                                                         setUserFormData({
                                                             ...userFormData,
@@ -469,7 +564,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                     placeholder="Enter state"
                                                 />
                                                 <TextInput
-                                                    currentValue={userFormData.location.zipCode}
+                                                    currentValue={
+                                                        userFormData.location
+                                                            .zipCode
+                                                    }
                                                     onChange={(value) => {
                                                         setUserFormData({
                                                             ...userFormData,
@@ -497,7 +595,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                     <div className="text-gray text-base font-normal">
                                         {isEditingProfile ? (
                                             <TextInput
-                                                currentValue={userFormData.phoneNumber || ""}
+                                                currentValue={
+                                                    userFormData.phoneNumber ||
+                                                    ""
+                                                }
                                                 onChange={(value) => {
                                                     setUserFormData({
                                                         ...userFormData,
@@ -507,7 +608,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                                 placeholder="Enter phone number"
                                             />
                                         ) : (
-                                            userFormData.phoneNumber || "Not provided"
+                                            userFormData.phoneNumber ||
+                                            "Not provided"
                                         )}
                                     </div>
                                 </div>
@@ -554,69 +656,127 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, name, email }) => {
                                 <Loading />
                             </div>
                         ) : (
-                            userFormData && userCarpoolData && carpoolDetails && (
+                            userFormData &&
+                            userCarpoolData &&
+                            carpoolDetails && (
                                 <div>
-                                    {userFormData.children.map((child, index) => (
-                                        <div key={`child-${index}`} className="flex flex-col items-start w-full">
-                                            <div className="text-gray text-xl w-full">
-                                                {isEditingFamily ? (
-                                                    <div key={`child-input-container-${index}`}>
-                                                        <TextInput
-                                                            currentValue={child.name}
-                                                            onChange={(value) => {
-                                                                setUserFormData({
-                                                                    ...userFormData,
-                                                                    children: userFormData.children.map((c, i) =>
-                                                                        i === index ? { ...c, name: value } : c
+                                    {userFormData.children.map(
+                                        (child, index) => (
+                                            <div
+                                                key={`child-${index}`}
+                                                className="flex flex-col items-start w-full"
+                                            >
+                                                <div className="text-gray text-xl w-full">
+                                                    {isEditingFamily ? (
+                                                        <div
+                                                            key={`child-input-container-${index}`}
+                                                        >
+                                                            <TextInput
+                                                                currentValue={
+                                                                    child.name
+                                                                }
+                                                                onChange={(
+                                                                    value
+                                                                ) => {
+                                                                    setUserFormData(
+                                                                        {
+                                                                            ...userFormData,
+                                                                            children:
+                                                                                userFormData.children.map(
+                                                                                    (
+                                                                                        c,
+                                                                                        i
+                                                                                    ) =>
+                                                                                        i ===
+                                                                                        index
+                                                                                            ? {
+                                                                                                  ...c,
+                                                                                                  name: value,
+                                                                                              }
+                                                                                            : c
+                                                                                ),
+                                                                        }
+                                                                    );
+                                                                }}
+                                                                placeholder="Enter rider's name"
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <span className="text-xl font-bold text-black">
+                                                                {child.name}
+                                                            </span>
+                                                            {/* Display associated carpools */}
+                                                            <div className="ml-4 mt-2 mb-2">
+                                                                {userCarpoolData
+                                                                    .filter(
+                                                                        (
+                                                                            carpool
+                                                                        ) =>
+                                                                            carpool.riders.includes(
+                                                                                child.name
+                                                                            )
                                                                     )
-                                                                });
+                                                                    .map(
+                                                                        (
+                                                                            carpool
+                                                                        ) => {
+                                                                            const carpoolInfo =
+                                                                                carpoolDetails[
+                                                                                    carpool
+                                                                                        .carpoolId
+                                                                                ];
+                                                                            return carpoolInfo ? (
+                                                                                <div
+                                                                                    key={
+                                                                                        carpool.carpoolId
+                                                                                    }
+                                                                                    className="text-base text-gray mb-1"
+                                                                                >
+                                                                                    {
+                                                                                        carpoolInfo
+                                                                                            .createCarpoolData
+                                                                                            .carpoolName
+                                                                                    }
+                                                                                </div>
+                                                                            ) : null;
+                                                                        }
+                                                                    )}
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                                {isEditingFamily && (
+                                                    <div className="w text-gray text-xl">
+                                                        <Button
+                                                            text="Remove"
+                                                            type="remove"
+                                                            onClick={() => {
+                                                                const updatedChildren =
+                                                                    userFormData.children.filter(
+                                                                        (
+                                                                            _,
+                                                                            i
+                                                                        ) =>
+                                                                            i !==
+                                                                            index
+                                                                    );
+                                                                setUserFormData(
+                                                                    {
+                                                                        ...userFormData,
+                                                                        children:
+                                                                            updatedChildren,
+                                                                        numChildren:
+                                                                            updatedChildren.length,
+                                                                    }
+                                                                );
                                                             }}
-                                                            placeholder="Enter rider's name"
                                                         />
                                                     </div>
-                                                ) : (
-                                                    <>
-                                                        <span className="text-xl font-bold text-black">
-                                                            {child.name}
-                                                        </span>
-                                                        {/* Display associated carpools */}
-                                                        <div className="ml-4 mt-2 mb-6">
-                                                            {userCarpoolData
-                                                                .filter(carpool => carpool.riders.includes(child.name))
-                                                                .map(carpool => {
-                                                                    const carpoolInfo = carpoolDetails[carpool.carpoolId];
-                                                                    return carpoolInfo ? (
-                                                                        <div 
-                                                                            key={carpool.carpoolId}
-                                                                            className="text-base text-gray mb-1"
-                                                                        >
-                                                                            {carpoolInfo.createCarpoolData.carpoolName}
-                                                                        </div>
-                                                                    ) : null;
-                                                                })
-                                                            }
-                                                        </div>
-                                                    </>
                                                 )}
                                             </div>
-                                            {isEditingFamily && (
-                                                <div className="w text-gray text-xl">
-                                                    <Button
-                                                        text="Remove"
-                                                        type="remove"
-                                                        onClick={() => {
-                                                            const updatedChildren = userFormData.children.filter((_, i) => i !== index);
-                                                            setUserFormData({
-                                                                ...userFormData,
-                                                                children: updatedChildren,
-                                                                numChildren: updatedChildren.length,
-                                                            });
-                                                        }}
-                                                    />
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
+                                        )
+                                    )}
                                 </div>
                             )
                         )}
