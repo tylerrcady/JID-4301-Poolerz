@@ -34,7 +34,7 @@ const AgendaSection = ({ events }: { events: CarpoolCalendarEvent[] }) => {
                 {Object.entries(groupedEvents).map(([date, dailyEvents], index) => (
                     <div key={index} className="flex gap-4">
                         {/* Date heading */}
-                        <div className="text-left text-sm md:text-md font-semibold min-w-[80px]">
+                        <div className="text-left text-sm md:text-md font-semibold min-w-[60px]">
                             <div>{moment(date).format("MMMM D")}</div>
                             <div className="text-xs md:text-s font-normal">
                                 {moment(date).format("dddd")}

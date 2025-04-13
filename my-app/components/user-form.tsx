@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import AddModal from "@/components/modals/add-modal";
+import BackButton from "@/components/atoms/back-button";
 
 // fade-in effect
 const fadeInAnimation = `
@@ -632,38 +633,31 @@ export default function UserForm({ userId }: UserFormProps) {
           )}
 
           {/* Continue/Submit Button */}
-          <div className="pt-2">
-            {formStep === 2 && (
-              <button
-                type="button"
-                onClick={handleBack}
-                className="w-full p-3 mb-2 rounded-md font-semibold bg-black text-white hover:bg-gray-900 transition-colors"
-              >
-                Back
-              </button>
-            )}
-            
+            <div className="flex flex-col pt-2 items-center">
             {!isLoading ? (
               <button
-                type="submit"
-                disabled={(formStep === 1 && !isStep1Complete()) || (formStep === 2 && !isStep2Complete())}
-                className={`w-full px-6 py-3 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center ${
-                  (formStep === 1 && isStep1Complete()) || (formStep === 2 && isStep2Complete())
-                    ? "bg-[#4F95B0] border border-[#4F95B0] hover:bg-[#3a7b94] transition-colors"
-                    : "bg-[#A5C2CF] cursor-not-allowed"
-                }`}
+              type="submit"
+              disabled={(formStep === 1 && !isStep1Complete()) || (formStep === 2 && !isStep2Complete())}
+              className={`w-full mb-5 px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center ${
+                (formStep === 1 && isStep1Complete()) || (formStep === 2 && isStep2Complete())
+                ? "bg-blue border border-blue"
+                : "bg-lightblue cursor-not-allowed"
+              }`}
               >
-                {formStep === 1 ? "Continue" : "Submit"}
+              {formStep === 1 ? "Continue" : "Submit"}
               </button>
             ) : (
               <button
-                disabled
-                className="w-full px-6 py-3 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center bg-[#A5C2CF] cursor-not-allowed"
+              disabled
+              className="mb-2 w-full px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center bg-lightblue cursor-not-allowed"
               >
-                <span>Loading...</span>
+              <span>Loading...</span>
               </button>
             )}
-          </div>
+            {formStep === 2 && (
+              <BackButton onClick={handleBack} />
+            )}
+            </div>
         </form>
       </div>
     </div>
