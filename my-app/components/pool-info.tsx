@@ -1717,8 +1717,8 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                     {isOwner && (
                         <div className="self-stretch justify-start items-start inline-flex gap-10">
                              <Toggle
-                                enabled={carpoolOrgInfo?.isClosed || false} // Pass the current state
-                                onToggle={toggleClose} // Pass the toggle function
+                                enabled={!carpoolOrgInfo?.isClosed}
+                                onToggle={toggleClose}
                             />
                         </div>
                     )}

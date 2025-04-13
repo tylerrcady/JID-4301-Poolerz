@@ -43,7 +43,8 @@ const CCComp: React.FC = ({}) => {
             <p className="px-10 md:px-0 text-black text-base md:text-lg font-normal font-['Open Sans'] mb-0 md:mb-2 text-center">
                 Your carpool for{" "}
                 <span className="font-semibold">{poolName}</span> has been
-                created. Share the join code below to invite others to the pool!
+                created.
+                <br className="block md:hidden" /> Share the join code below to invite others to the pool!
             </p>
 
             {/* Join Code Section */}
