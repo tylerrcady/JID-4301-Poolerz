@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import BackButton from "@/components/atoms/back-button";
 import AddModal from "@/components/modals/add-modal";
 import Button from "@/components/atoms/Button";
+import Toggle from "@components/atoms/toggle-button";
 import { Optimizer } from "@/lib/optimize";
 import EditIcon from "./icons/EditIcon";
 import CaretIcon from "./icons/CaretIcon";
@@ -1704,7 +1705,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 <BackButton onClick={handleConfirmBack} />
             </div>
             <div className="justify-center flex flex-col w-10/12 mx-auto py-10 md:p-10 gap-6 rounded-md">
-                <div className="flex justify-between items-start gap-5 flex">
+                <div className="flex justify-between items-start md:gap-5 flex">
                     <div className="flex flex-col items-start">
                         <div className="text-black text-2xl md:text-4xl font-bold">
                             {carpoolOrgInfo?.carpoolName}
@@ -1715,14 +1716,10 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                     </div>
                     {isOwner && (
                         <div className="self-stretch justify-start items-start inline-flex gap-10">
-                            <button
-                                className={`px-4 py-2 rounded text-white ${
-                                    carpoolOrgInfo?.isClosed === true ? "bg-gray" : "bg-blue"
-                                }`}
-                                onClick={toggleClose}
-                            >
-                                {carpoolOrgInfo?.isClosed === true ? "Open Now" : "Close Now"}
-                            </button>
+                             <Toggle
+                                enabled={carpoolOrgInfo?.isClosed || false} // Pass the current state
+                                onToggle={toggleClose} // Pass the toggle function
+                            />
                         </div>
                     )}
                 </div>
@@ -2107,8 +2104,13 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             <div className="text-black text-lg md:text-xl font-bold font-['Open Sans']">
                                 Carpools
                             </div>
-                            <div className="px-4 py-2 bg-blue rounded-md flex justify-center items-center">
-                                {!loading && (
+                            <div className="rounded-md flex justify-center items-center">
+                                    <Button
+                                        type="primary"
+                                        text={!loading ? "Run Optimizer" : "Optimizing..."}
+                                    >
+                                    </Button>
+                                {/* {!loading && (
                                     <button
                                         className="text-center text-white text-sm font-normal font-['Open Sans']"
                                         onClick={runOptimizer}
@@ -2117,10 +2119,10 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                     </button>
                                 )}
                                 {loading && (
-                                    <div className="text-center text-white text-base font-normal font-['Open Sans']">
+                                    <div className="text-center text-white text-sm font-normal font-['Open Sans']">
                                         Optimizing...
                                     </div>
-                                )}
+                                )} */}
                             </div>
                         </div>
 
@@ -2147,7 +2149,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             {loadingMembers ? (
                                 <Loading />
                             ) : (
-                                <div className="text-gray text-xl md:text-lg sm:text-md font-normal font-['Open Sans']">
+                                <div className="text-gray text-sm md:text-base font-normal font-['Open Sans']">
                                     {carpoolOrgInfo?.carpoolMembers
                                         ?.map(
                                             (memberId: string) =>

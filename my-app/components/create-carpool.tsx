@@ -470,14 +470,14 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                     placeholder="Address"
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black placeholder:text-gray"
                                 />
                                 <input
                                     type="text"
                                     placeholder="City"
                                     value={city}
                                     onChange={(e) => setCity(e.target.value)}
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black placeholder:text-gray"
                                 />
                                 <input
                                     type="text"
@@ -486,14 +486,14 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                     onChange={(e) =>
                                         setStateField(e.target.value)
                                     }
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black placeholder:text-gray"
                                 />
                                 <input
                                     type="text"
                                     placeholder="Zip Code"
                                     value={zip}
                                     onChange={(e) => setZip(e.target.value)}
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black placeholder:text-gray"
                                 />
                             </div>
                             <div className="flex flex-col gap-1">
@@ -512,7 +512,11 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                                 onChange={() =>
                                                     handleRiderToggle(rider.id)
                                                 }
-                                                className="form-checkbox h-5 w-5 text-blue"
+                                                className={`form-checkbox h-5 w-5 ${
+                                                    rider.selected
+                                                        ? "text-green-500"
+                                                        : "text-blue-500"
+                                                }`}
                                             />
                                             <span className="text-gray">
                                                 {rider.name}
@@ -533,7 +537,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                     onChange={(e) =>
                                         setCarCapacity(e.target.value)
                                     }
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black placeholder:text-gray"
                                     max={8}
                                 />
                             </div>
@@ -559,7 +563,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                             <button
                                 type="submit"
                                 disabled={isSubmitDisabled}
-                                className={`px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans' ] text-center ${
+                                className={`px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center ${
                                     isSubmitDisabled
                                         ? "bg-lightblue cursor-not-allowed"
                                         : "bg-blue border border-blue"

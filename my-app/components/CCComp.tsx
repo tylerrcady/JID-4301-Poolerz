@@ -40,18 +40,18 @@ const CCComp: React.FC = ({}) => {
             </h1>
 
             {/* Informational Message */}
-            <p className="text-black text-base font-normal font-['Open Sans'] mb-2 text-center">
+            <p className="px-10 md:px-0 text-black text-base md:text-lg font-normal font-['Open Sans'] mb-0 md:mb-2 text-center">
                 Your carpool for{" "}
                 <span className="font-semibold">{poolName}</span> has been
                 created. Share the join code below to invite others to the pool!
             </p>
 
             {/* Join Code Section */}
-            <div className="mb-2 text-center">
-                <h2 className="text-black text-lg font-bold font-['Open Sans'] mb-1">
+            <div className="mb-0 md:mb-2 text-center">
+                <h2 className="text-black text-lg md:text-xl font-bold font-['Open Sans'] mb-1">
                     Join Code
                 </h2>
-                <p className="text-black text-xl font-semibold font-['Open Sans']">
+                <p className="text-black text-xl md:text-2xl font-semibold font-['Open Sans']">
                     {joinCode}
                 </p>
             </div>
@@ -64,7 +64,7 @@ const CCComp: React.FC = ({}) => {
                         `/pool-info/0?carpoolId=${joinCode}&newPool=true`
                     );
                 }}
-                className="px-4 py-2 bg-[#4b859f] rounded-md border border-[#4b859f] text-white text-base md:text-lg font-semibold font-['Open Sans']"
+                className="px-4 py-2 bg-blue rounded-md border border-blue text-white text-base md:text-lg font-semibold font-['Open Sans']"
             >
                 {!loading ? (
                     <span>View My Carpool</span>

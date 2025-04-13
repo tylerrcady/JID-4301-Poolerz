@@ -20,16 +20,16 @@ const Main: React.FC<MainProps> = () => {
     return (
         <div className="flex items-center flex-col h-auto min-h-screen w-full gap-6 bg-w text-center">
             <div className="w-full flex justify-center">
-                <Image
-                    src="/Hero.svg"
-                    alt="Hero graphic"
-                    width={1200}
-                    height={100}
-                    className="w-full"
-                />
+            <Image
+                src="/Hero.svg"
+                alt="Hero graphic"
+                width={1200}
+                height={100}
+                className="w-full"
+            />
             </div>
             <div className="flex py-2 px-10 gap-6 flex-col">
-                <div className="w-full bg-w py-6 px-20 text-center">
+                <div className="w-full bg-w py-6 px-2 md:px-20 text-center">
                     <h2 className="text-3xl font-bold italic text-blue mb-4">
                         Solving the Daily Drive
                     </h2>
@@ -42,7 +42,7 @@ const Main: React.FC<MainProps> = () => {
                         solution.
                     </p>
                 </div>
-                <div className="flex flex-row justify-center items-center px-20 gap-10 flex-wrap md:flex-nowrap my-4">
+                <div className="flex flex-row justify-center items-center md:px-20 gap-10 flex-wrap md:flex-nowrap my-4">
                     {[
                         {
                             title: "How It Works",
