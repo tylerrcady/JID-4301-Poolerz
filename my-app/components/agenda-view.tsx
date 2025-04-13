@@ -70,18 +70,20 @@ const AgendaSection = ({ events }: { events: CarpoolCalendarEvent[] }) => {
                         </div>
                     ))
                 ) : (
-                    <div className="flex flex-col items-center justify-center mt-10">
-                        <p className="text-lg font-semibold mb-4">
-                            You currently have no carpools - create
-                            or join one to start!
+                    <div className="flex flex-col items-center justify-center mt-5 md:mt-10">
+                        <p className="text-lg text-center font-semibold mb-4">
+                            You currently have no carpools - 
+                            <br/> create or join one to start!
                         </p>
-                        <Button
-                            text="View My Carpools"
-                            type="primary"
-                            onClick={() => {
-                                window.location.href = "/carpools";
-                            }}
-                        />
+                        <div className="w-2/3">
+                            <Button
+                                text="View Carpools"
+                                type="primary"
+                                onClick={() => {
+                                    window.location.href = "/carpools";
+                                }}
+                            />
+                        </div>
                     </div>
                 )}
             </div>
