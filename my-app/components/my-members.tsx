@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CaretIcon from "./icons/CaretIcon";
 
 const MyCarpoolMembers = ({
@@ -13,6 +13,39 @@ const MyCarpoolMembers = ({
     phoneMap: Record<string, string>;
 }) => {
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+    const [maxWidth, setMaxWidth] = useState<number | null>(null);
+
+    useEffect(() => {
+        const calculateMaxWidth = () => {
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            if (!context) return;
+            context.font = "16px Open Sans"; 
+
+            const widths = members.map((memberId) => {
+                const memberName = userIdToNameMap[memberId] || "Unknown Member";
+                return context.measureText(memberName).width;
+            });
+
+            const maxTextWidth = Math.max(...widths);
+            setMaxWidth(maxTextWidth + 50);
+        };
+
+        const handleResize = () => {
+            if (window.innerWidth < 1000) {
+                calculateMaxWidth();
+            } else {
+                setMaxWidth(null);
+            }
+        };
+
+        handleResize();
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, [members, userIdToNameMap]);
 
     const toggleDropdown = (memberId: string) => {
         setOpenDropdown((prev) => (prev === memberId ? null : memberId));
@@ -28,7 +61,10 @@ const MyCarpoolMembers = ({
                 return (
                     <div
                         key={memberId}
-                        className="border border-lightgray rounded-md shadow-md w-full"
+                        className={`border border-lightgray rounded-md shadow-md ${
+                            maxWidth ? "sm:w-auto" : "w-full"
+                        }`}
+                        style={maxWidth ? { width: `${maxWidth}px` } : undefined}
                     >
                         {/* Dropdown Header */}
                         <div
@@ -36,7 +72,7 @@ const MyCarpoolMembers = ({
                             onClick={() => toggleDropdown(memberId)}
                         >
                             <span
-                                className={`font-regular text-base md:text-lg text-gray px-4 ${
+                                className={`font-regular text-sm md:text-lg text-gray px-4 ${
                                     openDropdown === memberId ? "" : "truncate"
                                 }`}
                             >
@@ -44,7 +80,7 @@ const MyCarpoolMembers = ({
                             </span>
                             <div
                                 style={{
-                                    transform: openDropdown == memberId ? "rotate(180deg)" : "rotate(0deg)",
+                                    transform: openDropdown === memberId ? "rotate(180deg)" : "rotate(0deg)",
                                 }}
                             >
                                 <CaretIcon 
