@@ -28,7 +28,7 @@ const Main: React.FC<MainProps> = () => {
                 className="w-full"
             />
             </div>
-            <div className="flex py-2 px-10 gap-6 flex-col">
+            <div className="flex px-10 gap-6 flex-col">
                 <div className="w-full bg-w py-6 px-2 md:px-20 text-center">
                     <h2 className="text-3xl font-bold italic text-blue mb-4">
                         Solving the Daily Drive
@@ -42,7 +42,7 @@ const Main: React.FC<MainProps> = () => {
                         solution.
                     </p>
                 </div>
-                <div className="flex flex-row justify-center items-center md:px-20 gap-10 flex-wrap md:flex-nowrap my-4">
+                <div className="flex flex-row justify-center items-center md:px-20 gap-10 flex-wrap md:flex-nowrap mb-10">
                     {[
                         {
                             title: "How It Works",

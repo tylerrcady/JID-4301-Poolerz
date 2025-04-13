@@ -330,7 +330,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     const scrollToTime = moment().startOf("day").hour(8).toDate();
 
     return (
-        <div className="flex flex-col w-full h-full px-4 md:px-8">
+        <div className="flex flex-col w-full h-full md:mt-6 px-6 md:px-8">
             {loading ? (
                 <div className="flex justify-center items-center w-full flex-grow">
                     <Loading />

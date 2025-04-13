@@ -21,7 +21,7 @@ const CarpoolJoinedPageContent: React.FC = async () => {
     }
 
     return (
-        <div className="flex items-center justify-between h-full min-h-screen flex-col text-gray bg-w">
+        <div className="flex items-center justify-between h-full min-h-screen flex-col text-d bg-w">
             <Header
                 userId={session?.user?.id}
                 isFormComplete={true}
