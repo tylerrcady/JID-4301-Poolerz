@@ -135,9 +135,13 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [userIdToNameMap, setUserIdToNameMap] = useState<
         Record<string, string>
     >({});
-    const [groupAddresses, setGroupAddresses] = useState<Record<string, any>>({});
+    const [groupAddresses, setGroupAddresses] = useState<Record<string, any>>(
+        {}
+    );
 
-    const [groupPhoneNumbers, setGroupPhoneNumbers] = useState<Record<string, any>>({});
+    const [groupPhoneNumbers, setGroupPhoneNumbers] = useState<
+        Record<string, any>
+    >({});
 
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
     const [leaveError, setLeaveError] = useState<string | null>(null);
@@ -149,7 +153,9 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     };
 
     // helper method that ensures that closes carpool
-    const closeCarpool: (arg0: boolean)  => Promise<void> = async (updateClosed: boolean) => {
+    const closeCarpool: (arg0: boolean) => Promise<void> = async (
+        updateClosed: boolean
+    ) => {
         try {
             // get carpoolOrgInfo
             console.log(carpoolOrgInfo);
@@ -178,16 +184,15 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 const error = await response.json();
                 throw new Error(error.message || "Failed to close carpool");
             }
-
         } catch (error: any) {
             console.error("Error closing carpool:", error);
             setLeaveError(error.message || "Failed to close carpool");
         }
-    }
+    };
 
-    const toggleClose = async() => {
+    const toggleClose = async () => {
         // toggle update closed
-        let update = (carpoolOrgInfo?.isClosed) ? false : true;
+        let update = carpoolOrgInfo?.isClosed ? false : true;
 
         await closeCarpool(update);
         //setIsClosed((prev) => !prev);
@@ -222,7 +227,9 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         const [hours, minutes] = time.split(":").map(Number);
         const period = hours >= 12 ? "PM" : "AM";
         const adjustedHours = hours % 12 || 12;
-        return `${adjustedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+        return `${adjustedHours}:${minutes
+            .toString()
+            .padStart(2, "0")} ${period}`;
     }
 
     const fetchNamesForUserIds = async (
@@ -261,39 +268,46 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         }
     };
 
-    const fetchMemberAddresses = async (userIds: string[]) : 
-            Promise<Record<string, string>> => {
+    const fetchMemberAddresses = async (
+        userIds: string[]
+    ): Promise<Record<string, string>> => {
         try {
             console.log("Fetching addresses for userIds:", userIds);
-    
+
             const query = userIds
                 .map((id) => `userId=${encodeURIComponent(id)}`)
                 .join("&");
             const url = `/api/join-carpool-data?${query}`;
-    
+
             const response = await fetch(url, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
                 },
             });
-    
+
             if (response.ok) {
                 const data = await response.json();
-    
-                const addressMap = data.createCarpoolData.reduce((acc: Record<string, string>, user: any) => {
-                    const userId = user.userId;
-                    const address = user.userData?.userLocation
-                        ? `${user.userData.userLocation.address}, ${user.userData.userLocation.city}, ${user.userData.userLocation.state} ${user.userData.userLocation.zipCode}`
-                        : "Address not available";
-                    if (userId) {
-                        acc[userId] = address;
-                    }
-                    return acc;
-                }, {});
+
+                const addressMap = data.createCarpoolData.reduce(
+                    (acc: Record<string, string>, user: any) => {
+                        const userId = user.userId;
+                        const address = user.userData?.userLocation
+                            ? `${user.userData.userLocation.address}, ${user.userData.userLocation.city}, ${user.userData.userLocation.state} ${user.userData.userLocation.zipCode}`
+                            : "Address not available";
+                        if (userId) {
+                            acc[userId] = address;
+                        }
+                        return acc;
+                    },
+                    {}
+                );
                 return addressMap;
             } else {
-                console.error("Failed to fetch addresses:", response.statusText);
+                console.error(
+                    "Failed to fetch addresses:",
+                    response.statusText
+                );
                 return {};
             }
         } catch (error) {
@@ -307,25 +321,27 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     ): Promise<Record<string, string>> => {
         try {
             console.log("Fetching phone numbers for userIds:", userIds);
-    
+
             const query = userIds
                 .map((id) => `userId=${encodeURIComponent(id)}`)
                 .join("&");
             const url = `/api/user-form-data?${query}`;
-    
+
             const response = await fetch(url, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
                 },
             });
-    
+
             if (response.ok) {
                 const data = await response.json();
                 console.log("User Form Data Response:", data.userFormData);
-                const phoneMap = data.userFormData.reduce((acc: Record<string, string>, user: any) => {
+                const phoneMap = data.userFormData.reduce(
+                    (acc: Record<string, string>, user: any) => {
                         const userId = user.userId;
-                        const phoneNumber = user.userFormData?.phoneNumber || "N/A";
+                        const phoneNumber =
+                            user.userFormData?.phoneNumber || "N/A";
                         if (userId) {
                             acc[userId] = phoneNumber;
                         }
@@ -333,11 +349,14 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                     },
                     {}
                 );
-    
+
                 console.log("Fetched phone numbers:", phoneMap);
                 return phoneMap;
             } else {
-                console.error("Failed to fetch phone numbers:", response.statusText);
+                console.error(
+                    "Failed to fetch phone numbers:",
+                    response.statusText
+                );
                 return {};
             }
         } catch (error) {
@@ -1087,24 +1106,36 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             console.log("Found Carpool: ", foundCarpool);
 
             if (foundCarpool && foundCarpool.members) {
-                const memberIds = foundCarpool?.members.map((member) => member[0]);
+                const memberIds = foundCarpool?.members.map(
+                    (member) => member[0]
+                );
                 const fetchAddresses = async () => {
                     try {
-                        const addressMap = await fetchMemberAddresses(memberIds);
+                        const addressMap = await fetchMemberAddresses(
+                            memberIds
+                        );
                         console.log("Fetched addresses:", addressMap);
                         setGroupAddresses(addressMap);
                     } catch (error) {
-                        console.error("Error fetching addresses for my carpool:", error);
+                        console.error(
+                            "Error fetching addresses for my carpool:",
+                            error
+                        );
                     }
                 };
 
                 const fetchPhoneNumbers = async () => {
                     try {
-                        const phoneMap = await fetchMemberPhoneNumbers(memberIds);
+                        const phoneMap = await fetchMemberPhoneNumbers(
+                            memberIds
+                        );
                         console.log("Fetched phone numbers:", phoneMap);
                         setGroupPhoneNumbers(phoneMap);
                     } catch (error) {
-                        console.error("Error fetching phone numbers for my carpool:", error);
+                        console.error(
+                            "Error fetching phone numbers for my carpool:",
+                            error
+                        );
                     }
                 };
 
@@ -1189,7 +1220,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 //console.log("User ID:", userId);
                 const addressMap = await fetchMemberAddresses(
                     carpoolInfo?.carpoolMembers
-                ); 
+                );
                 console.log("Loaded member addresses:", addressMap);
 
                 const ownerId = carpoolInfo?.ownerId;
@@ -1291,7 +1322,8 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             if (response.ok) {
                 const data = await response.json();
                 console.log("Fetched user data:", data);
-                const userLocation = data?.createCarpoolData?.[0]?.userData?.userLocation;
+                const userLocation =
+                    data?.createCarpoolData?.[0]?.userData?.userLocation;
                 setUserLocation(userLocation);
                 //console.log(data?.createCarpoolData.userData.carpools);
                 const foundCarpool =
@@ -1315,7 +1347,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
-            setLoadingInfo(false)
+            setLoadingInfo(false);
         }
     }, [userId]);
 
@@ -1483,7 +1515,11 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             }
             const data = await response.json();
             const doc = data.userFormData;
-            if (doc && doc?.[0]?.userFormData && doc?.[0]?.userFormData.children) {
+            if (
+                doc &&
+                doc?.[0]?.userFormData &&
+                doc?.[0]?.userFormData.children
+            ) {
                 const children = doc[0].userFormData.children || [];
                 const mappedChildren = children.map(
                     (child: any, idx: number) => ({
@@ -1717,11 +1753,15 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         <div className="self-stretch justify-start items-start inline-flex gap-10">
                             <button
                                 className={`px-4 py-2 rounded text-white ${
-                                    carpoolOrgInfo?.isClosed === true ? "bg-gray" : "bg-blue"
+                                    carpoolOrgInfo?.isClosed === true
+                                        ? "bg-gray"
+                                        : "bg-blue"
                                 }`}
                                 onClick={toggleClose}
                             >
-                                {carpoolOrgInfo?.isClosed === true ? "Open Now" : "Close Now"}
+                                {carpoolOrgInfo?.isClosed === true
+                                    ? "Open Now"
+                                    : "Close Now"}
                             </button>
                         </div>
                     )}
@@ -1864,7 +1904,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             <>
                                 {loadingOrg ? (
                                     <div className="flex justify-center items-center mt-5">
-                                        <Loading/>  
+                                        <Loading />
                                     </div>
                                 ) : (
                                     <>
@@ -1888,7 +1928,11 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                             </div>
                                             <div className="text-gray text-sm md:text-base font-normal font-['Open Sans']">
                                                 {startTime && endTime
-                                                    ? `${convertTimeFormat(startTime)} - ${convertTimeFormat(endTime)}`
+                                                    ? `${convertTimeFormat(
+                                                          startTime
+                                                      )} - ${convertTimeFormat(
+                                                          endTime
+                                                      )}`
                                                     : "Time not available"}
                                             </div>
                                         </div>
@@ -1905,13 +1949,13 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                 My Information
                             </div>
                             <div className="flex items-center gap-2 cursor-pointer">
-                                    <Button
-                                        text="Edit"
-                                        type="secondary"
-                                        icon={<EditIcon />}
-                                        onClick={handleEditMyInfo}
-                                    />
-                                </div>
+                                <Button
+                                    text="Edit"
+                                    type="secondary"
+                                    icon={<EditIcon />}
+                                    onClick={handleEditMyInfo}
+                                />
+                            </div>
                         </div>
 
                         {isEditingMyInfo ? (
@@ -2007,7 +2051,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                                                 rider.id
                                                             )
                                                         }
-                                                        className="mr-2"
+                                                        className="mr-2 accent-blue"
                                                     />
                                                     <label
                                                         htmlFor={`rider-${rider.id}`}
@@ -2059,9 +2103,9 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                             </div>
                         ) : (
                             <>
-                            {loadingOrg ? (
+                                {loadingOrg ? (
                                     <div className="flex justify-center items-center mt-5">
-                                        <Loading/>  
+                                        <Loading />
                                     </div>
                                 ) : (
                                     <>
@@ -2152,7 +2196,10 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                         ?.map(
                                             (memberId: string) =>
                                                 userIdToNameMap[memberId] ||
-                                                `Member ${memberId.substring(0, 5)}...`
+                                                `Member ${memberId.substring(
+                                                    0,
+                                                    5
+                                                )}...`
                                         )
                                         .join(", ")}
                                 </div>
@@ -2167,11 +2214,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                     <div className="text-gray text-sm md:text-base ">
                                         {results.unassignedMembers
                                             .map((member) => {
-                                                if (
-                                                    Array.isArray(
-                                                        member
-                                                    )
-                                                ) {
+                                                if (Array.isArray(member)) {
                                                     return member[1];
                                                 }
                                                 return member;
@@ -2188,288 +2231,554 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                                 : "grid grid-cols-1 md:grid-cols-2"
                                         } gap-6`}
                                     >
-                                        {results.carpools.slice(0, 2).map((carpool: any, index: number) => (
-                                            <div
-                                                key={index}
-                                                className="flex flex-col p-5 border border-lightgray shadow-sm bg-w rounded-md"
-                                            >
-                                                <div className="text-blue font-semibold text-base md:text-lg mb-2">
-                                                    Carpool Group {index + 1}
-                                                </div>
-
-                                                <div className="text-black grid grid-cols-1 md:grid-cols-2 gap-10">
-                                                    <div>
-                                                        <div className="text-gray font-bold text-base md:text-lg">
-                                                            Driver Schedule
+                                        {results.carpools
+                                            .slice(0, 2)
+                                            .map(
+                                                (
+                                                    carpool: any,
+                                                    index: number
+                                                ) => (
+                                                    <div
+                                                        key={index}
+                                                        className="flex flex-col p-5 border border-lightgray shadow-sm bg-w rounded-md"
+                                                    >
+                                                        <div className="text-blue font-semibold text-base md:text-lg mb-2">
+                                                            Carpool Group{" "}
+                                                            {index + 1}
                                                         </div>
-                                                        <div className="mt-1">
-                                                            {carpool.driverSchedule &&
-                                                            Object.keys(carpool.driverSchedule)
-                                                                .length > 0 ? (
-                                                                Object.entries(
-                                                                    carpool.driverSchedule
-                                                                )
-                                                                    .map(([day, driver]: [string, any]) => {
-                                                                        let dayIndex;
 
-                                                                        if (/^\d+$/.test(day)) {
-                                                                            dayIndex = parseInt(day, 10);
-                                                                        } else {
-                                                                            const lowerDay = day.toLowerCase();
-                                                                            for (let i = 0; i < daysOfWeek.length; i++) {
-                                                                                if (daysOfWeek[i].toLowerCase() === lowerDay) {
-                                                                                    dayIndex = i;
-                                                                                    break;
+                                                        <div className="text-black grid grid-cols-1 md:grid-cols-2 gap-10">
+                                                            <div>
+                                                                <div className="text-gray font-bold text-base md:text-lg">
+                                                                    Driver
+                                                                    Schedule
+                                                                </div>
+                                                                <div className="mt-1">
+                                                                    {carpool.driverSchedule &&
+                                                                    Object.keys(
+                                                                        carpool.driverSchedule
+                                                                    ).length >
+                                                                        0 ? (
+                                                                        Object.entries(
+                                                                            carpool.driverSchedule
+                                                                        )
+                                                                            .map(
+                                                                                ([
+                                                                                    day,
+                                                                                    driver,
+                                                                                ]: [
+                                                                                    string,
+                                                                                    any
+                                                                                ]) => {
+                                                                                    let dayIndex;
+
+                                                                                    if (
+                                                                                        /^\d+$/.test(
+                                                                                            day
+                                                                                        )
+                                                                                    ) {
+                                                                                        dayIndex =
+                                                                                            parseInt(
+                                                                                                day,
+                                                                                                10
+                                                                                            );
+                                                                                    } else {
+                                                                                        const lowerDay =
+                                                                                            day.toLowerCase();
+                                                                                        for (
+                                                                                            let i = 0;
+                                                                                            i <
+                                                                                            daysOfWeek.length;
+                                                                                            i++
+                                                                                        ) {
+                                                                                            if (
+                                                                                                daysOfWeek[
+                                                                                                    i
+                                                                                                ].toLowerCase() ===
+                                                                                                lowerDay
+                                                                                            ) {
+                                                                                                dayIndex =
+                                                                                                    i;
+                                                                                                break;
+                                                                                            }
+                                                                                        }
+                                                                                        if (
+                                                                                            dayIndex ===
+                                                                                            undefined
+                                                                                        )
+                                                                                            dayIndex = 999;
+                                                                                    }
+
+                                                                                    return {
+                                                                                        day,
+                                                                                        driver,
+                                                                                        dayIndex,
+                                                                                    };
                                                                                 }
-                                                                            }
-                                                                            if (dayIndex === undefined) dayIndex = 999;
-                                                                        }
+                                                                            )
+                                                                            .sort(
+                                                                                (
+                                                                                    a,
+                                                                                    b
+                                                                                ) =>
+                                                                                    a.dayIndex -
+                                                                                    b.dayIndex
+                                                                            )
+                                                                            .map(
+                                                                                (
+                                                                                    {
+                                                                                        day,
+                                                                                        driver,
+                                                                                        dayIndex,
+                                                                                    },
+                                                                                    idx
+                                                                                ) => {
+                                                                                    try {
+                                                                                        let displayDriver;
+                                                                                        if (
+                                                                                            typeof driver ===
+                                                                                                "object" &&
+                                                                                            driver !==
+                                                                                                null
+                                                                                        ) {
+                                                                                            displayDriver =
+                                                                                                driver?.name ||
+                                                                                                driver?.userId ||
+                                                                                                JSON.stringify(
+                                                                                                    driver
+                                                                                                );
+                                                                                        } else {
+                                                                                            displayDriver =
+                                                                                                String(
+                                                                                                    driver ||
+                                                                                                        "Unassigned"
+                                                                                                );
+                                                                                        }
 
-                                                                        return {
-                                                                            day,
-                                                                            driver,
-                                                                            dayIndex,
-                                                                        };
-                                                                    })
-                                                                    .sort((a, b) => a.dayIndex - b.dayIndex)
-                                                                    .map(({ day, driver, dayIndex }, idx) => {
-                                                                        try {
-                                                                            let displayDriver;
-                                                                            if (typeof driver === "object" && driver !== null) {
-                                                                                displayDriver = driver?.name || driver?.userId || JSON.stringify(driver);
-                                                                            } else {
-                                                                                displayDriver = String(driver || "Unassigned");
-                                                                            }
+                                                                                        let dayName =
+                                                                                            day;
+                                                                                        if (
+                                                                                            /^\d+$/.test(
+                                                                                                day
+                                                                                            )
+                                                                                        ) {
+                                                                                            if (
+                                                                                                optimizerDayMap[
+                                                                                                    day
+                                                                                                ]
+                                                                                            ) {
+                                                                                                dayName =
+                                                                                                    optimizerDayMap[
+                                                                                                        day
+                                                                                                    ];
+                                                                                            } else {
+                                                                                                const dayIdx =
+                                                                                                    parseInt(
+                                                                                                        day,
+                                                                                                        10
+                                                                                                    );
+                                                                                                if (
+                                                                                                    dayIdx >=
+                                                                                                        0 &&
+                                                                                                    dayIdx <
+                                                                                                        daysOfWeek.length
+                                                                                                ) {
+                                                                                                    dayName =
+                                                                                                        daysOfWeek[
+                                                                                                            dayIdx
+                                                                                                        ];
+                                                                                                }
+                                                                                            }
+                                                                                        }
 
-                                                                            let dayName = day;
-                                                                            if (/^\d+$/.test(day)) {
-                                                                                if (optimizerDayMap[day]) {
-                                                                                    dayName = optimizerDayMap[day];
-                                                                                } else {
-                                                                                    const dayIdx = parseInt(day, 10);
-                                                                                    if (dayIdx >= 0 && dayIdx < daysOfWeek.length) {
-                                                                                        dayName = daysOfWeek[dayIdx];
+                                                                                        return (
+                                                                                            <div
+                                                                                                key={
+                                                                                                    idx
+                                                                                                }
+                                                                                                className="flex flex-col items-start py-1"
+                                                                                            >
+                                                                                                <span className="text-blue text-base md:text-lg font-semibold">
+                                                                                                    {
+                                                                                                        dayName
+                                                                                                    }
+                                                                                                    :
+                                                                                                </span>
+                                                                                                <span className="text-gray font-medium text-base md:text-lg">
+                                                                                                    {
+                                                                                                        displayDriver
+                                                                                                    }
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        );
+                                                                                    } catch (error) {
+                                                                                        console.error(
+                                                                                            `Error rendering driver for day ${day}:`,
+                                                                                            error
+                                                                                        );
+                                                                                        return (
+                                                                                            <div
+                                                                                                key={
+                                                                                                    idx
+                                                                                                }
+                                                                                                className="flex flex-col items-center py-2"
+                                                                                            >
+                                                                                                <span className="text-gray text-lg font-bold">
+                                                                                                    {
+                                                                                                        day
+                                                                                                    }
+                                                                                                </span>
+                                                                                                <span className="font-medium text-red">
+                                                                                                    Error
+                                                                                                    displaying
+                                                                                                    driver
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        );
                                                                                     }
                                                                                 }
-                                                                            }
-
-                                                                            return (
-                                                                                <div
-                                                                                    key={idx}
-                                                                                    className="flex flex-col items-start py-1"
-                                                                                >
-                                                                                    <span className="text-blue text-base md:text-lg font-semibold">
-                                                                                        {dayName}:
-                                                                                    </span>
-                                                                                    <span className="text-gray font-medium text-base md:text-lg">
-                                                                                        {displayDriver}
-                                                                                    </span>
-                                                                                </div>
-                                                                            );
-                                                                        } catch (error) {
-                                                                            console.error(`Error rendering driver for day ${day}:`, error);
-                                                                            return (
-                                                                                <div
-                                                                                    key={idx}
-                                                                                    className="flex flex-col items-center py-2"
-                                                                                >
-                                                                                    <span className="text-gray text-lg font-bold">
-                                                                                        {day}
-                                                                                    </span>
-                                                                                    <span className="font-medium text-red">
-                                                                                        Error displaying driver
-                                                                                    </span>
-                                                                                </div>
-                                                                            );
-                                                                        }
-                                                                    })
-                                                            ) : (
-                                                                <div className="text-gray italic">
-                                                                    No driver schedule available
+                                                                            )
+                                                                    ) : (
+                                                                        <div className="text-gray italic">
+                                                                            No
+                                                                            driver
+                                                                            schedule
+                                                                            available
+                                                                        </div>
+                                                                    )}
                                                                 </div>
-                                                            )}
+                                                            </div>
+
+                                                            <div>
+                                                                <div className="text-gray font-bold text-base md:text-lg">
+                                                                    Members
+                                                                </div>
+                                                                <div className="mt-1">
+                                                                    {carpool.members &&
+                                                                    carpool
+                                                                        .members
+                                                                        .length >
+                                                                        0 ? (
+                                                                        carpool.members.map(
+                                                                            (
+                                                                                member: string[],
+                                                                                idx: number
+                                                                            ) => (
+                                                                                <div
+                                                                                    key={
+                                                                                        idx
+                                                                                    }
+                                                                                    className="text-gray text-base md:text-lg"
+                                                                                >
+                                                                                    {
+                                                                                        member[1]
+                                                                                    }
+                                                                                </div>
+                                                                            )
+                                                                        )
+                                                                    ) : (
+                                                                        <div className="text-gray italic">
+                                                                            No
+                                                                            members
+                                                                            available
+                                                                        </div>
+                                                                    )}
+                                                                    {riders &&
+                                                                        riders.length >
+                                                                            0 && (
+                                                                            <div className="mt-6">
+                                                                                <div className="text-gray font-bold text-base md:text-lg">
+                                                                                    Riders
+                                                                                </div>
+                                                                                <div className="mt-1 text-gray text-base md:text-lg">
+                                                                                    {
+                                                                                        riders
+                                                                                    }
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-
-                                                    <div>
-                                                        <div className="text-gray font-bold text-base md:text-lg">
-                                                            Members
-                                                        </div>
-                                                        <div className="mt-1">
-                                                            {carpool.members && carpool.members.length > 0 ? (
-                                                                carpool.members.map(
-                                                                    (member: string[], idx: number) => (
-                                                                        <div
-                                                                            key={idx}
-                                                                            className="text-gray text-base md:text-lg"
-                                                                        >
-                                                                            {member[1]}
-                                                                        </div>
-                                                                    )
-                                                                )
-                                                            ) : (
-                                                                <div className="text-gray italic">
-                                                                    No members available
-                                                                </div>
-                                                            )}
-                                                            {riders &&
-                                                                riders.length > 0 && (
-                                                                    <div className="mt-6">
-                                                                        <div className="text-gray font-bold text-base md:text-lg">
-                                                                            Riders
-                                                                        </div>
-                                                                        <div className="mt-1 text-gray text-base md:text-lg">
-                                                                            {riders}
-                                                                        </div>
-                                                                    </div>
-                                                                )
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
+                                                )
+                                            )}
 
                                         {showCarpools &&
-                                            results.carpools.slice(2).map((carpool: any, index: number) => (
-                                                <div
-                                                    key={index + 2}
-                                                    className="flex flex-col p-4 border border-lightgray shadow-sm bg-w rounded-md"
-                                                >
-                                                    <div className="text-blue font-semibold text-base md:text-lg mb-2">
-                                                        Carpool Group {index + 3}
-                                                    </div>
-
-                                                    <div className="text-black grid grid-cols-1 md:grid-cols-2 gap-10">
-                                                        <div>
-                                                            <div className="text-gray font-bold text-base md:text-lg">
-                                                                Driver Schedule
+                                            results.carpools
+                                                .slice(2)
+                                                .map(
+                                                    (
+                                                        carpool: any,
+                                                        index: number
+                                                    ) => (
+                                                        <div
+                                                            key={index + 2}
+                                                            className="flex flex-col p-4 border border-lightgray shadow-sm bg-w rounded-md"
+                                                        >
+                                                            <div className="text-blue font-semibold text-base md:text-lg mb-2">
+                                                                Carpool Group{" "}
+                                                                {index + 3}
                                                             </div>
-                                                            <div className="mt-1">
-                                                                {carpool.driverSchedule &&
-                                                                Object.keys(carpool.driverSchedule)
-                                                                    .length > 0 ? (
-                                                                    Object.entries(
-                                                                        carpool.driverSchedule
-                                                                    )
-                                                                        .map(([day, driver]: [string, any]) => {
-                                                                            let dayIndex;
 
-                                                                            if (/^\d+$/.test(day)) {
-                                                                                dayIndex = parseInt(day, 10);
-                                                                            } else {
-                                                                                const lowerDay = day.toLowerCase();
-                                                                                for (let i = 0; i < daysOfWeek.length; i++) {
-                                                                                    if (daysOfWeek[i].toLowerCase() === lowerDay) {
-                                                                                        dayIndex = i;
-                                                                                        break;
+                                                            <div className="text-black grid grid-cols-1 md:grid-cols-2 gap-10">
+                                                                <div>
+                                                                    <div className="text-gray font-bold text-base md:text-lg">
+                                                                        Driver
+                                                                        Schedule
+                                                                    </div>
+                                                                    <div className="mt-1">
+                                                                        {carpool.driverSchedule &&
+                                                                        Object.keys(
+                                                                            carpool.driverSchedule
+                                                                        )
+                                                                            .length >
+                                                                            0 ? (
+                                                                            Object.entries(
+                                                                                carpool.driverSchedule
+                                                                            )
+                                                                                .map(
+                                                                                    ([
+                                                                                        day,
+                                                                                        driver,
+                                                                                    ]: [
+                                                                                        string,
+                                                                                        any
+                                                                                    ]) => {
+                                                                                        let dayIndex;
+
+                                                                                        if (
+                                                                                            /^\d+$/.test(
+                                                                                                day
+                                                                                            )
+                                                                                        ) {
+                                                                                            dayIndex =
+                                                                                                parseInt(
+                                                                                                    day,
+                                                                                                    10
+                                                                                                );
+                                                                                        } else {
+                                                                                            const lowerDay =
+                                                                                                day.toLowerCase();
+                                                                                            for (
+                                                                                                let i = 0;
+                                                                                                i <
+                                                                                                daysOfWeek.length;
+                                                                                                i++
+                                                                                            ) {
+                                                                                                if (
+                                                                                                    daysOfWeek[
+                                                                                                        i
+                                                                                                    ].toLowerCase() ===
+                                                                                                    lowerDay
+                                                                                                ) {
+                                                                                                    dayIndex =
+                                                                                                        i;
+                                                                                                    break;
+                                                                                                }
+                                                                                            }
+                                                                                            if (
+                                                                                                dayIndex ===
+                                                                                                undefined
+                                                                                            )
+                                                                                                dayIndex = 999;
+                                                                                        }
+
+                                                                                        return {
+                                                                                            day,
+                                                                                            driver,
+                                                                                            dayIndex,
+                                                                                        };
                                                                                     }
-                                                                                }
-                                                                                if (dayIndex === undefined) dayIndex = 999;
-                                                                            }
+                                                                                )
+                                                                                .sort(
+                                                                                    (
+                                                                                        a,
+                                                                                        b
+                                                                                    ) =>
+                                                                                        a.dayIndex -
+                                                                                        b.dayIndex
+                                                                                )
+                                                                                .map(
+                                                                                    (
+                                                                                        {
+                                                                                            day,
+                                                                                            driver,
+                                                                                            dayIndex,
+                                                                                        },
+                                                                                        idx
+                                                                                    ) => {
+                                                                                        try {
+                                                                                            let displayDriver;
+                                                                                            if (
+                                                                                                typeof driver ===
+                                                                                                    "object" &&
+                                                                                                driver !==
+                                                                                                    null
+                                                                                            ) {
+                                                                                                displayDriver =
+                                                                                                    driver?.name ||
+                                                                                                    driver?.userId ||
+                                                                                                    JSON.stringify(
+                                                                                                        driver
+                                                                                                    );
+                                                                                            } else {
+                                                                                                displayDriver =
+                                                                                                    String(
+                                                                                                        driver ||
+                                                                                                            "Unassigned"
+                                                                                                    );
+                                                                                            }
 
-                                                                            return {
-                                                                                day,
-                                                                                driver,
-                                                                                dayIndex,
-                                                                            };
-                                                                        })
-                                                                        .sort((a, b) => a.dayIndex - b.dayIndex)
-                                                                        .map(({ day, driver, dayIndex }, idx) => {
-                                                                            try {
-                                                                                let displayDriver;
-                                                                                if (typeof driver === "object" && driver !== null) {
-                                                                                    displayDriver = driver?.name || driver?.userId || JSON.stringify(driver);
-                                                                                } else {
-                                                                                    displayDriver = String(driver || "Unassigned");
-                                                                                }
+                                                                                            let dayName =
+                                                                                                day;
+                                                                                            if (
+                                                                                                /^\d+$/.test(
+                                                                                                    day
+                                                                                                )
+                                                                                            ) {
+                                                                                                if (
+                                                                                                    optimizerDayMap[
+                                                                                                        day
+                                                                                                    ]
+                                                                                                ) {
+                                                                                                    dayName =
+                                                                                                        optimizerDayMap[
+                                                                                                            day
+                                                                                                        ];
+                                                                                                } else {
+                                                                                                    const dayIdx =
+                                                                                                        parseInt(
+                                                                                                            day,
+                                                                                                            10
+                                                                                                        );
+                                                                                                    if (
+                                                                                                        dayIdx >=
+                                                                                                            0 &&
+                                                                                                        dayIdx <
+                                                                                                            daysOfWeek.length
+                                                                                                    ) {
+                                                                                                        dayName =
+                                                                                                            daysOfWeek[
+                                                                                                                dayIdx
+                                                                                                            ];
+                                                                                                    }
+                                                                                                }
+                                                                                            }
 
-                                                                                let dayName = day;
-                                                                                if (/^\d+$/.test(day)) {
-                                                                                    if (optimizerDayMap[day]) {
-                                                                                        dayName = optimizerDayMap[day];
-                                                                                    } else {
-                                                                                        const dayIdx = parseInt(day, 10);
-                                                                                        if (dayIdx >= 0 && dayIdx < daysOfWeek.length) {
-                                                                                            dayName = daysOfWeek[dayIdx];
+                                                                                            return (
+                                                                                                <div
+                                                                                                    key={
+                                                                                                        idx
+                                                                                                    }
+                                                                                                    className="flex flex-col items-start py-1"
+                                                                                                >
+                                                                                                    <span className="text-blue text-base md:text-lg font-semibold">
+                                                                                                        {
+                                                                                                            dayName
+                                                                                                        }
+                                                                                                        :
+                                                                                                    </span>
+                                                                                                    <span className="text-gray font-medium text-base md:text-lg">
+                                                                                                        {
+                                                                                                            displayDriver
+                                                                                                        }
+                                                                                                    </span>
+                                                                                                </div>
+                                                                                            );
+                                                                                        } catch (error) {
+                                                                                            console.error(
+                                                                                                `Error rendering driver for day ${day}:`,
+                                                                                                error
+                                                                                            );
+                                                                                            return (
+                                                                                                <div
+                                                                                                    key={
+                                                                                                        idx
+                                                                                                    }
+                                                                                                    className="flex flex-col items-center py-2"
+                                                                                                >
+                                                                                                    <span className="text-gray text-base md:text-lg font-bold">
+                                                                                                        {
+                                                                                                            day
+                                                                                                        }
+                                                                                                    </span>
+                                                                                                    <span className="font-medium text-red">
+                                                                                                        Error
+                                                                                                        displaying
+                                                                                                        driver
+                                                                                                    </span>
+                                                                                                </div>
+                                                                                            );
                                                                                         }
                                                                                     }
-                                                                                }
-
-                                                                                return (
-                                                                                    <div
-                                                                                        key={idx}
-                                                                                        className="flex flex-col items-start py-1"
-                                                                                    >
-                                                                                        <span className="text-blue text-base md:text-lg font-semibold">
-                                                                                            {dayName}:
-                                                                                        </span>
-                                                                                        <span className="text-gray font-medium text-base md:text-lg">
-                                                                                            {displayDriver}
-                                                                                        </span>
-                                                                                    </div>
-                                                                                );
-                                                                            } catch (error) {
-                                                                                console.error(`Error rendering driver for day ${day}:`, error);
-                                                                                return (
-                                                                                    <div
-                                                                                        key={idx}
-                                                                                        className="flex flex-col items-center py-2"
-                                                                                    >
-                                                                                        <span className="text-gray text-base md:text-lg font-bold">
-                                                                                            {day}
-                                                                                        </span>
-                                                                                        <span className="font-medium text-red">
-                                                                                            Error displaying driver
-                                                                                        </span>
-                                                                                    </div>
-                                                                                );
-                                                                            }
-                                                                        })
-                                                                ) : (
-                                                                    <div className="text-gray italic">
-                                                                        No driver schedule available
+                                                                                )
+                                                                        ) : (
+                                                                            <div className="text-gray italic">
+                                                                                No
+                                                                                driver
+                                                                                schedule
+                                                                                available
+                                                                            </div>
+                                                                        )}
                                                                     </div>
-                                                                )}
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-gray font-bold text-base md:text-lg">
+                                                                        Members
+                                                                    </div>
+                                                                    <div className="mt-1">
+                                                                        {carpool.members &&
+                                                                        carpool
+                                                                            .members
+                                                                            .length >
+                                                                            0 ? (
+                                                                            carpool.members.map(
+                                                                                (
+                                                                                    member: string[],
+                                                                                    idx: number
+                                                                                ) => (
+                                                                                    <div
+                                                                                        key={
+                                                                                            idx
+                                                                                        }
+                                                                                        className="text-gray text-base md:text-lg"
+                                                                                    >
+                                                                                        {
+                                                                                            member[1]
+                                                                                        }
+                                                                                    </div>
+                                                                                )
+                                                                            )
+                                                                        ) : (
+                                                                            <div className="text-gray italic">
+                                                                                No
+                                                                                members
+                                                                                available
+                                                                            </div>
+                                                                        )}
+                                                                        {carpool.riders &&
+                                                                            carpool
+                                                                                .riders
+                                                                                .length >
+                                                                                0 && (
+                                                                                <div className="mt-6">
+                                                                                    <div className="text-gray font-bold text-base md:text-lg">
+                                                                                        Riders
+                                                                                    </div>
+                                                                                    <div className="mt-1 text-gray text-base md:text-lg">
+                                                                                        {carpool.riders.join(
+                                                                                            ", "
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            )}
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div>
-                                                        <div className="text-gray font-bold text-base md:text-lg">
-                                                            Members
-                                                        </div>
-                                                        <div className="mt-1">
-                                                            {carpool.members && carpool.members.length > 0 ? (
-                                                                carpool.members.map(
-                                                                    (member: string[], idx: number) => (
-                                                                        <div
-                                                                            key={idx}
-                                                                            className="text-gray text-base md:text-lg"
-                                                                        >
-                                                                            {member[1]}
-                                                                        </div>
-                                                                    )
-                                                                )
-                                                            ) : (
-                                                                <div className="text-gray italic">
-                                                                    No members available
-                                                                </div>
-                                                            )}
-                                                            {carpool.riders &&
-                                                                carpool.riders.length > 0 && (
-                                                                    <div className="mt-6">
-                                                                        <div className="text-gray font-bold text-base md:text-lg">
-                                                                            Riders
-                                                                        </div>
-                                                                        <div className="mt-1 text-gray text-base md:text-lg">
-                                                                            {carpool.riders.join(", ")}
-                                                                        </div>
-                                                                    </div>
-                                                                )}
-                                                        </div>
-                                                    </div>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                    )
+                                                )}
                                     </div>
 
                                     {results.carpools.length > 2 && (
@@ -2477,13 +2786,18 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                             <Button
                                                 type="dropdown"
                                                 onClick={setShowCarpools}
-                                                text={showCarpools ? "Hide All Carpools" : "View All Carpools"}
+                                                text={
+                                                    showCarpools
+                                                        ? "Hide All Carpools"
+                                                        : "View All Carpools"
+                                                }
                                                 icon={
                                                     <div
                                                         style={{
-                                                            transform: showCarpools
-                                                                ? "rotate(180deg)"
-                                                                : "rotate(0deg)",
+                                                            transform:
+                                                                showCarpools
+                                                                    ? "rotate(180deg)"
+                                                                    : "rotate(0deg)",
                                                         }}
                                                     >
                                                         <CaretIcon className="stroke-blue hover:stroke-lightblue" />
@@ -2513,10 +2827,14 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                         </div>
                                         <div className="w-full md:w-2/3">
                                             <MyCarpoolMembers
-                                                members={myCarpool.members.map((member) => member[0])}
+                                                members={myCarpool.members.map(
+                                                    (member) => member[0]
+                                                )}
                                                 addressMap={groupAddresses}
                                                 phoneMap={groupPhoneNumbers}
-                                                userIdToNameMap={userIdToNameMap}
+                                                userIdToNameMap={
+                                                    userIdToNameMap
+                                                }
                                             />
                                         </div>
                                     </div>
@@ -2525,24 +2843,35 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                             Driving Schedule
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {Object.entries(myCarpool.driverSchedule)
-                                                .map(([day, driver]) => {
-                                                    const dayIndex = parseInt(day, 10); // Convert day to a number
-                                                    const dayName = daysOfWeek[dayIndex] || "Unknown Day"; // Map to weekday name
-                                                    return (
-                                                        <div
-                                                            key={day}
-                                                            className="flex flex-col items-start rounded-md bg-white"
-                                                        >
-                                                            <span className="text-blue text-base md:text-lg font-medium">
-                                                                {dayName}:
-                                                            </span>
-                                                            <span className="text-gray text-sm md:text-base font-medium mt-1">
-                                                                {typeof driver === "string" || typeof driver === "number" ? driver : "Unassigned"}
-                                                            </span>
-                                                        </div>
-                                                    );
-                                                })}
+                                            {Object.entries(
+                                                myCarpool.driverSchedule
+                                            ).map(([day, driver]) => {
+                                                const dayIndex = parseInt(
+                                                    day,
+                                                    10
+                                                ); // Convert day to a number
+                                                const dayName =
+                                                    daysOfWeek[dayIndex] ||
+                                                    "Unknown Day"; // Map to weekday name
+                                                return (
+                                                    <div
+                                                        key={day}
+                                                        className="flex flex-col items-start rounded-md bg-white"
+                                                    >
+                                                        <span className="text-blue text-base md:text-lg font-medium">
+                                                            {dayName}:
+                                                        </span>
+                                                        <span className="text-gray text-sm md:text-base font-medium mt-1">
+                                                            {typeof driver ===
+                                                                "string" ||
+                                                            typeof driver ===
+                                                                "number"
+                                                                ? driver
+                                                                : "Unassigned"}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                     <div className="flex-col justify-start items-start gap-2.5 flex">
@@ -2590,17 +2919,22 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                 onClose={handleCancelLeave}
             >
                 <p className="text-black text-lg mb-6">
-                    Are you sure you want to leave this carpool? This action cannot be undone.
+                    Are you sure you want to leave this carpool? This action
+                    cannot be undone.
                 </p>
                 <div className="flex justify-end gap-4">
-                    <Button text="No, Cancel" 
-                            type="secondary" 
-                            onClick={handleCancelLeave}
-                            disabled={isLeaving}/>
-                    <Button text={isLeaving ? "Leaving..." : "Yes, Leave"} 
-                            type="primary" 
-                            onClick={handleConfirmLeave} 
-                            disabled={isLeaving}/>
+                    <Button
+                        text="No, Cancel"
+                        type="secondary"
+                        onClick={handleCancelLeave}
+                        disabled={isLeaving}
+                    />
+                    <Button
+                        text={isLeaving ? "Leaving..." : "Yes, Leave"}
+                        type="primary"
+                        onClick={handleConfirmLeave}
+                        disabled={isLeaving}
+                    />
                 </div>
             </AddModal>
         </>
