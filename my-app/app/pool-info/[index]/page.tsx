@@ -13,7 +13,7 @@ export default async function DynamicInfo({
     const { index } = await Promise.resolve(params);
 
     return (
-        <div className="h-full flex items-center justify-between flex-col bg-w text-d">
+        <div className="flex items-center justify-between h-full min-h-screen flex-col text-gray bg-w">
             <Header
                 userId={session?.user?.id}
                 isFormComplete={true}

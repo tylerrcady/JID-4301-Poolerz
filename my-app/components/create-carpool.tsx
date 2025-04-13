@@ -512,11 +512,8 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                                 onChange={() =>
                                                     handleRiderToggle(rider.id)
                                                 }
-                                                className={`form-checkbox h-5 w-5 ${
-                                                    rider.selected
-                                                        ? "text-green-500"
-                                                        : "text-blue-500"
-                                                }`}
+
+                                                className="form-checkbox h-5 w-5 accent-blue"
                                             />
                                             <span className="text-gray">
                                                 {rider.name}

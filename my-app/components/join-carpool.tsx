@@ -122,7 +122,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
             })
             .then((data) => {
                 const doc = data.userFormData;
-                const children = doc?.userFormData?.children || [];
+                const children = doc?.[0]?.userFormData?.children || []; // had to make this change
                 const mapped = children.map((child: any, idx: number) => ({
                     id: child.id || `child-${idx}`,
                     name: child.name,
@@ -541,7 +541,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                                                 onChange={() =>
                                                     handleRiderToggle(rider.id)
                                                 }
-                                                className="form-checkbox h-5 w-5 text-blue"
+                                                className="form-checkbox h-5 w-5 accent-blue"
                                             />
                                             <span className="text-black">
                                                 {rider.name}

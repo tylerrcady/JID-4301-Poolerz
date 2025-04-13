@@ -13,7 +13,7 @@ const CCComp: React.FC = ({}) => {
     const [loading, setLoading] = useState(false);
 
     return (
-        <>
+        <div className="flex flex-col w-full items-center p-1 gap-6">
             {/* Blue Circle with White Check Mark */}
             <div className="mb-2">
                 <div className="flex items-center justify-center w-20 h-20 rounded-full bg-[#4b859f]">
@@ -73,7 +73,7 @@ const CCComp: React.FC = ({}) => {
                     <span>Navigating...</span>
                 )}
             </button>
-        </>
+        </div>
     );
 };
 export default CCComp;
