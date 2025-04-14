@@ -1,10 +1,8 @@
 import moment from "moment";
-import Button from "@components/atoms/Button";
 
 const AgendaSection = ({ events, onEventClick }: 
     { events: CarpoolCalendarEvent[];
-        onEventClick: (event: CarpoolCalendarEvent) => void;
-     }) => {
+        onEventClick: (event: CarpoolCalendarEvent) => void; }) => {
     const today = moment();
     const oneWeekFromNow = moment().add(6, "days");
 
@@ -50,8 +48,8 @@ const AgendaSection = ({ events, onEventClick }:
                             <div className="flex flex-col gap-4 flex-grow mb-10">
                                 {dailyEvents.map((event, idx) => (
                                     <div key={idx} 
-                                        className="flex flex-col gap-1 cursor-pointer"
-                                        onClick={() => onEventClick(event)}
+                                         className="flex flex-col gap-1 cursor-pointer"
+                                         onClick={() => onEventClick(event)}
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
@@ -74,24 +72,7 @@ const AgendaSection = ({ events, onEventClick }:
                                 ))}
                             </div>
                         </div>
-                    ))
-                ) : (
-                    <div className="flex flex-col items-center justify-center mt-5 md:mt-10">
-                        <p className="text-lg text-center font-semibold mb-4">
-                            You currently have no carpools - 
-                            <br/> create or join one to start!
-                        </p>
-                        <div className="w-2/3">
-                            <Button
-                                text="View Carpools"
-                                type="primary"
-                                onClick={() => {
-                                    window.location.href = "/carpools";
-                                }}
-                            />
-                        </div>
-                    </div>
-                )}
+                ))}
             </div>
         </div>
     );
