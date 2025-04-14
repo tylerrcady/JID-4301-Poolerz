@@ -139,7 +139,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [groupAddresses, setGroupAddresses] = useState<Record<string, any>>(
         {}
     );
-
     const [groupPhoneNumbers, setGroupPhoneNumbers] = useState<
         Record<string, any>
     >({});
@@ -365,7 +364,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             return {};
         }
     };
-
+    
     const processOptimizationResults = async (
         data: any,
         userIdToNameMap: Record<string, string>
@@ -1124,7 +1123,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         );
                     }
                 };
-
                 const fetchPhoneNumbers = async () => {
                     try {
                         const phoneMap = await fetchMemberPhoneNumbers(

@@ -6,6 +6,7 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Loading from "./icons/Loading";
 import AgendaSection from "@/components/agenda-view";
+import EventModal from "./modals/event-modal";
 
 const localizer = momentLocalizer(moment);
 
@@ -26,6 +27,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
     const defaultStartTime = "00:00";
     const defaultEndTime = "01:00";
     const [loading, setLoading] = useState<boolean>(true);
+
+    const [selectedEvent, setSelectedEvent] = useState<CarpoolCalendarEvent | null>(null);
 
     // Get Handler for receiving all the carpoolIDs from user-carpool-data
     const handleUserDataGet = useCallback(async () => {
@@ -318,7 +321,11 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
 
     // Callback when an event is clicked -- will later handle this more elegantly
     const onSelectEvent = (event: CarpoolCalendarEvent) => {
-        alert(`Selected event: ${event.title}`);
+        setSelectedEvent(event); // Set the selected event
+    };
+
+    const closeModal = () => {
+        setSelectedEvent(null); // Close the modal
     };
 
     // Keep calendar navigation in sync with our state -- Responsible for Back and Next Events working
@@ -356,10 +363,34 @@ const CalendarView: React.FC<CalendarViewProps> = ({ userId }) => {
                         />
                     </div>
                     <div className="w-full md:w-2/5 overflow-hidden mt-5 md:mt-0 mb-5 h-full">
-                        <AgendaSection events={events} />
+                        <AgendaSection 
+                            events={events} 
+                            onEventClick={(event) => onSelectEvent(event)} 
+                        />
                     </div>
                 </div>
             )}
+            <EventModal 
+                isOpen={!!selectedEvent} 
+                onClose={closeModal}
+                text={selectedEvent?.title || ""}>
+                {selectedEvent && (
+                    <div>
+                        <p>
+                            <strong>Start:</strong>{" "}
+                            {moment(selectedEvent.start).format("MMMM D, YYYY h:mm A")}
+                        </p>
+                        <p>
+                            <strong>End:</strong>{" "}
+                            {moment(selectedEvent.end).format("MMMM D, YYYY h:mm A")}
+                        </p>
+                        <p>
+                            <strong>Driving:</strong>{" "}
+                            {selectedEvent.isDriving ? "You are driving" : "Not Driving"}
+                        </p>
+                    </div>
+                )}
+            </EventModal>
         </div>
     );
 };

@@ -18,12 +18,12 @@ export default function Toggle({ enabled, onToggle }: ToggleProps) {
                     />
                     <div
                         onClick={onToggle}
-                        className={`w-11 h-6 bg-gray rounded-full peer peer-focus:ring-blue peer-checked:after:translate-x-full peer-checked:after:border-white 
-                            after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${
+                        className={`w-11 h-7 bg-gray rounded-full peer peer-focus:ring-blue peer-checked:after:translate-x-full peer-checked:after:border-white 
+                            after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${
                                 enabled ? "peer-checked:bg-blue" : ""
                             }`}
                     ></div>
-                    <span className="ml-2 text-sm font-medium text-gray">
+                    <span className="ml-2 text-sm md:text-base font-medium text-gray whitespace-nowrap">
                         {enabled ? "Close Now" : "Open Now"}
                     </span>
                 </label>

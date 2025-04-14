@@ -1,7 +1,10 @@
 import moment from "moment";
 import Button from "@components/atoms/Button";
 
-const AgendaSection = ({ events }: { events: CarpoolCalendarEvent[] }) => {
+const AgendaSection = ({ events, onEventClick }: 
+    { events: CarpoolCalendarEvent[];
+        onEventClick: (event: CarpoolCalendarEvent) => void;
+     }) => {
     const today = moment();
     const oneWeekFromNow = moment().add(6, "days");
 
@@ -46,7 +49,10 @@ const AgendaSection = ({ events }: { events: CarpoolCalendarEvent[] }) => {
                             {/* Events for this day */}
                             <div className="flex flex-col gap-4 flex-grow mb-10">
                                 {dailyEvents.map((event, idx) => (
-                                    <div key={idx} className="flex flex-col gap-1">
+                                    <div key={idx} 
+                                        className="flex flex-col gap-1 cursor-pointer"
+                                        onClick={() => onEventClick(event)}
+                                    >
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <div
