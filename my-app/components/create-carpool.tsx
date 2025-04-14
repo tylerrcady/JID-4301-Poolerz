@@ -560,7 +560,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                             <button
                                 type="submit"
                                 disabled={isSubmitDisabled}
-                                className={`px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center ${
+                                className={`hover:opacity-75 px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center ${
                                     isSubmitDisabled
                                         ? "bg-lightblue cursor-not-allowed"
                                         : "bg-blue border border-blue"
