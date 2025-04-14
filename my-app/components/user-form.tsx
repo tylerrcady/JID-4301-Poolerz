@@ -407,7 +407,7 @@ export default function UserForm({ userId }: UserFormProps) {
         }
       `}</style>
       
-      {/* Mobile: SVG header - only shown on mobile */}
+      {/* Mobile SVG header */}
       <div className="relative w-full h-32 md:hidden bg-gradient-to-b from-yellow-400 to-blue-200">
         <Image
           src="/mobile_poolerz.svg"
@@ -420,7 +420,6 @@ export default function UserForm({ userId }: UserFormProps) {
         />
       </div>
       
-      {/* Desktop: Left half gradient background - only shown on desktop */}
       <div className="relative hidden md:block md:w-1/2 md:h-full md:min-h-screen bg-gradient-to-b from-yellow-400 to-blue-200">
         <Image
           src="/form-hero.svg"
@@ -433,10 +432,8 @@ export default function UserForm({ userId }: UserFormProps) {
         />
       </div>
 
-      {/* Form container */}
       <div className="w-full md:w-1/2 flex items-start justify-center p-4 md:p-12 bg-white overflow-y-auto">
         <form className="max-w-md w-full space-y-4 md:space-y-6 py-2 md:py-4" onSubmit={handleSubmit}>
-          {/* Logo and Welcome - shown on both steps */}
           <div className="text-center mb-4 md:mb-6">
             <h1 className="w-[209px] mx-auto text-[#575757] text-center font-['Maven_Pro'] text-[20px] md:text-[24px] font-medium leading-normal">
               Welcome to
