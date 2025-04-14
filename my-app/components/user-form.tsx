@@ -372,7 +372,7 @@ export default function UserForm({ userId }: UserFormProps) {
   }
 
   return (
-    <div className="flex flex-col md:flex-row w-full h-screen overflow-hidden">
+    <div className="flex flex-col md:flex-row w-full min-h-screen overflow-hidden">
       {/* Style tag for animation */}
       <style jsx global>{`
         @keyframes fadeIn {
@@ -407,8 +407,20 @@ export default function UserForm({ userId }: UserFormProps) {
         }
       `}</style>
       
-      {/* Left half: gradient background, dashed path, plus icons/text */}
-      <div className="relative w-full md:w-1/2 h-full min-h-screen bg-gradient-to-b from-yellow-400 to-blue-200">
+      {/* Mobile SVG header */}
+      <div className="relative w-full h-32 md:hidden bg-gradient-to-b from-yellow-400 to-blue-200">
+        <Image
+          src="/mobile_poolerz.svg"
+          alt="Mobile Hero"
+          className="absolute inset-0 w-full h-full"
+          width={324}
+          height={147}
+          style={{ objectFit: 'cover' }}
+          priority
+        />
+      </div>
+      
+      <div className="relative hidden md:block md:w-1/2 md:h-full md:min-h-screen bg-gradient-to-b from-yellow-400 to-blue-200">
         <Image
           src="/form-hero.svg"
           alt="Form Hero"
@@ -420,25 +432,24 @@ export default function UserForm({ userId }: UserFormProps) {
         />
       </div>
 
-      {/* Right half: form container - conditionally render form steps */}
-      <div className="w-full md:w-1/2 flex items-start justify-center p-6 md:p-12 bg-white overflow-y-auto max-h-screen">
-        <form className="max-w-md w-full space-y-6 py-4" onSubmit={handleSubmit}>
-          {/* Logo and Welcome - shown on both steps */}
-          <div className="text-center mb-6">
-            <h1 className="w-[209px] mx-auto text-[#575757] text-center font-['Maven_Pro'] text-[24px] font-medium leading-normal">
+      <div className="w-full md:w-1/2 flex items-start justify-center p-4 md:p-12 bg-white overflow-y-auto">
+        <form className="max-w-md w-full space-y-4 md:space-y-6 py-2 md:py-4" onSubmit={handleSubmit}>
+          <div className="text-center mb-4 md:mb-6">
+            <h1 className="w-[209px] mx-auto text-[#575757] text-center font-['Maven_Pro'] text-[20px] md:text-[24px] font-medium leading-normal">
               Welcome to
             </h1>
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-2 md:mb-4">
               <Image 
                 src="/Poolerz.io.png" 
                 alt="POOLERZ.io Logo" 
-                width={240} 
-                height={60}
+                width={200}
+                height={50}
+                className="w-[180px] md:w-[240px]"
                 priority
               />
             </div>
-            <div className="w-full flex justify-center mt-2 mb-4">
-              <svg width="260" height="11" viewBox="0 0 260 11" fill="none" xmlns="http://www.w3.org/2000/svg" className="max-w-full">
+            <div className="w-full flex justify-center mt-2 mb-3 md:mb-4">
+              <svg width="260" height="11" viewBox="0 0 260 11" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[220px] md:w-[260px] max-w-full">
                 <path d="M4.99976 5.60144H255" stroke="#DEDEE1" strokeWidth="10" strokeLinecap="round"/>
                 <path 
                   d={`M4.99976 5.60144H${4.99976 + (progressValue / 100 * 250)}`} 
@@ -449,7 +460,7 @@ export default function UserForm({ userId }: UserFormProps) {
                 />
               </svg>
             </div>
-            <h2 className="flex h-[36px] flex-col justify-center self-stretch text-black text-center font-['Open_Sans'] text-[24px] font-bold leading-normal">
+            <h2 className="flex h-[30px] md:h-[36px] flex-col justify-center self-stretch text-black text-center font-['Open_Sans'] text-[20px] md:text-[24px] font-bold leading-normal">
               {formStep === 1 ? "Personal Information" : "Household Information"}
             </h2>
           </div>
