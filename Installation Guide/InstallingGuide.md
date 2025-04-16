@@ -2,6 +2,7 @@
 # Requirements
 * Mongo Database -- note: in order to access Poolerz data, your email should be added to the database
 * React/Node.js (instructions to download is below)
+* API and authentication keys (refer to 'Adding Environment Variable File' section for more info)
 
 # Installation
 ## Downloading Node.js
@@ -31,7 +32,6 @@ MONGODB_URI=<insert MONGODB_URI key>
 JWT_SECRET=<insert JWT_SECRET key>
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<insert NEXT_PUBLIC_GOOGLE_MAPS_API_KEY>
 ```
-5.
 
 ## Running application locally
 Note: whenever, you are running the application, you must always be inside my-app
