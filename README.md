@@ -2,6 +2,47 @@
 Poolerz is a web-based carpooling application designed to support busy professionals with children between the ages of 7 and 15 who attend camps, schools, or clubs with no transportation option. Carpooling among parents is the preferred solution, but some parents may not have a strong network or may not know any other parents and have a limited opportunity to connect. For parents who are connected, carpooling is complex and complicated and requires the exchange of a lot of information, such as capacity, availability, constraints, proximity, and more. It's a logistical challenge. At Poolerz, we strive to solve all of these problems.
 
 # Release Notes
+## Version 0.5.0 · <https://jda-4301-poolerz.vercel.app/>
+
+### ✨Features
+- **Calendar dashboard**  
+  A brand‑new **Dashboard** tab presents each user’s personal carpool schedule in a two‑pane layout—calendar on the left, scrollable agenda on the right—so drivers can see at a glance when they’re on duty.
+- **Responsive header & navigation**  
+  The top‑bar automatically collapses into a hamburger menu at medium and smaller breakpoints, giving quick access to every page section plus **Log Out**.
+- **Home page refresh**  
+  Updated typography, spacing, and illustrations for a more engaging first impression.
+- **User profile improvements**  
+  - Address can now be edited inline; changes persist to the database.  
+  - Content is center‑aligned with a decorative profile‑picture component.  
+  - Each child’s active carpools are listed directly beneath their name.  
+  - A celebratory confetti animation plays after successful form submission
+- **Global loading indicators**  
+  Uniform, unobtrusive spinners have been added across all async operations.
+- **User‑onboarding form overhaul**  
+  - Cleaner layout and progress tracker
+  - Dynamic child‑management section with smooth add/remove animations (maximum 5 children, with friendly feedback when the limit is reached).
+- **Carpool lock‑down**  
+  Owners can now **close** a carpool, preventing new members from joining until it is reopened.
+
+---
+
+### Bug Fixes
+- **User‑onboarding form**
+  - Fixed layout shifts that occurred when adding or removing children.  
+  - Added real‑time validation:  
+    - State abbreviations (2 letters)  
+    - ZIP codes (5 digits)  
+    - Phone numbers (10 digits)  
+    - Automatic capitalization of street and city fields  
+    - Consolidated, accessible error messages
+
+---
+
+### Known Issues
+- Initial data fetch for the **pool‑info** page can be slow; query structure is being refactored.  
+- Optimizer currently trusts user‑provided addresses; stricter location validation is planned.
+
+
 ## Version 0.4.0: https://jda-4301-poolerz.vercel.app/
 ### Features
 - List of Carpools now includes both created and joined carpools, with an _Owner_ tag to distinguish created carpools.
