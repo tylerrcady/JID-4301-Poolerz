@@ -55,9 +55,9 @@ If you run into issues starting the app, check the following common causes:
 
 2. **Dependencies not installed or out-of-date**  
 If you see module-related errors (e.g. `module not found`, `cannot resolve`), try reinstalling dependencies using the following command in `my-app`:
-```
-npm install
-```
+   ```
+   npm install
+   ```
 
 3. **Missing or incorrect API keys**  
 Some features depend on environment variables (e.g., API keys). Ensure your `.env.local` file is present and correctly configured.  
