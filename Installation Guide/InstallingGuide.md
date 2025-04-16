@@ -18,11 +18,12 @@ For users that have never used React, they can install the latest version of Nod
 
 ## Adding Environment Variable File
 For the next steps, you will create a local environment file that will contain the API and authentication keys necessary to run the application
+
 4. Navigate to the my-app directory within the project using below command
 ```
 cd my-app
 ```
-Create a file called .env.local. You will populate the inside of the file with the necessary keys. The format should be the following:
+5. Create a file called .env.local. You will populate the inside of the file with the necessary keys. The format should be the following:
 ```
 AUTH_SECRET=<insert AUTH_SECRET key>
 AUTH_GOOGLE_ID=<insert AUTH_GOOGLE_ID key>
@@ -35,6 +36,7 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<insert NEXT_PUBLIC_GOOGLE_MAPS_API_KEY>
 
 ## Running application locally
 Note: whenever, you are running the application, you must always be inside my-app
+
 6. If you are running this application for the first time, you will install the necessary dependencies using the below command
 ```
     npm install
