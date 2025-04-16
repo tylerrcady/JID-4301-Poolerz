@@ -19,7 +19,7 @@ At **Poolerz**, we streamline the entire process—matching families, simplifyin
 - [**Optimizer Information**](https://poolerz.mintlify.app/optimization)
 
 
-# 📘 Poolerz v1.0 – Official Release Notes (2025‑04‑16)
+# 📘 Poolerz v1.0.0 – Official Release Notes (2025‑04‑16)
 
  📄 **What’s inside:**  
  This consolidated changelog captures everything shipped during our pre‑release cycle (`v0.0.0` → `v0.5.0`).  
