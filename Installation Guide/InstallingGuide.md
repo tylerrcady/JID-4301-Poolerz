@@ -1,11 +1,11 @@
 
-# Poolerz Installation Guide
+# 🔧 Poolerz Installation Guide
 Follow the steps below to set up and run the project locally.
-## Requirements
+## 📋 Requirements
 - **MongoDB** – To access Poolerz data, your email must be whitelisted in the database.
 - **Node.js & React** – If you’ve never used React or Node.js, download and install the latest LTS version from:  [https://nodejs.org](https://nodejs.org)
 
-## Installation
+## ⚡ Installation
 ### Downloading Node.js
 For users that have never used React, they can install the latest version of Node.js here: https://nodejs.org/
 
