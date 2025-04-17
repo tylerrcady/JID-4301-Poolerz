@@ -12,6 +12,7 @@ For users that have never used React, they can install the latest version of Nod
 ### Cloning Github Repository
 1. Navigate to your desired directory in the terminal (where you want the project to live).
 2. Run the following command to clone this repo:
+
    ```
       git clone https://github.com/tylerrcady/JID-4301-Poolerz.git
    ```
@@ -21,10 +22,12 @@ For users that have never used React, they can install the latest version of Nod
 For the next steps, you will create a local environment file that will contain the API and authentication keys necessary to run the application.
 
 4. Navigate into the `my-app` directory:
+
    ```
    cd my-app
    ```
 5. Create a file called `.env.local` in this directory and populate it with the following content:
+
    ```
    AUTH_SECRET=<insert AUTH_SECRET key>
    AUTH_GOOGLE_ID=<insert AUTH_GOOGLE_ID key>
@@ -39,10 +42,12 @@ For the next steps, you will create a local environment file that will contain t
 ⚠️ **Note:** Always make sure you're inside the `my-app` directory before running the below commands.
 
 6. Install dependencies (only required the first time or when dependencies are updated):
+
    ```
        npm install
    ```
 7. Start the development server:
+
    ```
        npm run dev
    ```
