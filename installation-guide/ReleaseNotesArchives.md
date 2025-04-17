@@ -45,7 +45,7 @@ This consolidated changelog captures everything shipped during our pre‑release
    
 # Poolerz Previous Release Notes Versions 0.0.0 - 0.5.0
 
-## Version 0.5.0 <https://jda-4301-poolerz.vercel.app/>
+## Version 0.5.0: https://jda-4301-poolerz.vercel.app/
 ### Features
 - **Calendar dashboard**  
   A brand‑new **Dashboard** tab presents each user’s personal carpool schedule in a two‑pane layout—calendar on the left, scrollable agenda on the right—so drivers can see at a glance when they’re on duty.
@@ -81,7 +81,7 @@ This consolidated changelog captures everything shipped during our pre‑release
 - Optimizer currently trusts user‑provided addresses; stricter location validation is planned.
 
 
-## Version 0.4.0
+## Version 0.4.0: https://jda-4301-poolerz.vercel.app/
 ### Features
 - List of Carpools now includes both created and joined carpools, with an _Owner_ tag to distinguish created carpools.
 - Users can now leave carpools if they are not the owner.
@@ -103,7 +103,7 @@ This consolidated changelog captures everything shipped during our pre‑release
 - Validation should be added for checking inputted locations/addresses.
 - Registration Form UI's input fields still needs to be fully checked for regex edge cases
   
-## Version 0.3.0
+## Version 0.3.0: https://jda-4301-poolerz.vercel.app/
 ### Features
 - Join Carpool Flow & Implementation
     - Users can now join carpools by inputting the 6-character join code
@@ -129,7 +129,7 @@ This consolidated changelog captures everything shipped during our pre‑release
 - The "Remove" button doesn't visually remove elements before saving
 - Registration Form UI's input fields still needs to be fully checked for regex edge cases
 
-## Version 0.2.0
+## Version 0.2.0: https://jda-4301-poolerz.vercel.app/
 ### Features
 - Create Carpool Form UI:
   - Users can now create carpools using the create-carpool form
@@ -151,7 +151,7 @@ This consolidated changelog captures everything shipped during our pre‑release
 - Registration Form UI still needs to be fixed and fully checked for regex edge cases
 - Background and footer is improperly rendered on certain screens
 
-## Version 0.1.0
+## Version 0.1.0: https://jda-4301-poolerz.vercel.app/
 ### Features
 - Registration Flow:
   - New users are prompted to complete a registration form immediately upon signing in.
@@ -173,8 +173,7 @@ This consolidated changelog captures everything shipped during our pre‑release
 - Form UI still needs to be fixed, especially regarding availability
 - Form needs to be fully checked for edge cases, including fixing regex checks
 
-## Version 0.0.0
-
+## Version 0.0.0: https://jda-4301-poolerz.vercel.app/
 ### Features
 - User Authentication: implemented secure authentication backed by Google with Auth.js
 - User Profile Management:
