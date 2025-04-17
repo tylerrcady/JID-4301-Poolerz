@@ -15,10 +15,10 @@ For users that have never used React, they can install the latest version of Nod
 ```
    git clone https://github.com/tylerrcady/JID-4301-Poolerz.git
 ```
-3. Open the cloned folder (`JID-4301-Poolerz`) in your preferred code editor
+3. Open the cloned folder (`JID-4301-Poolerz`) in your preferred code editor.
 
 ### Adding Environment Variable File
-For the next steps, you will create a local environment file that will contain the API and authentication keys necessary to run the application
+For the next steps, you will create a local environment file that will contain the API and authentication keys necessary to run the application.
 
 4. Navigate into the `my-app` directory:
 ```
