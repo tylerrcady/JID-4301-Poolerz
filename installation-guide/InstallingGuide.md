@@ -62,9 +62,9 @@ If you see module-related errors (e.g. `module not found`, `cannot resolve`), tr
    3. **Missing or incorrect API keys**  
 Some features depend on environment variables (e.g., API keys). Ensure your `.env.local` file is present and correctly configured.  
 Double-check for:
-- Missing variables
-- Typos in variable names
-- Misplaced quotation marks or trailing spaces
+   - Missing variables
+   - Typos in variable names
+   - Misplaced quotation marks or trailing spaces
 
 4. **Port already in use**  
 If you get an error like `EADDRINUSE`, another app may already be running on the default port (3000). You can kill the process or run the app on a different port:
