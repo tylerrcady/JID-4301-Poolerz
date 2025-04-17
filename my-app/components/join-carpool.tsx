@@ -122,7 +122,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
             })
             .then((data) => {
                 const doc = data.userFormData;
-                const children = doc?.userFormData?.children || [];
+                const children = doc?.[0]?.userFormData?.children || []; // had to make this change
                 const mapped = children.map((child: any, idx: number) => ({
                     id: child.id || `child-${idx}`,
                     name: child.name,
@@ -511,10 +511,10 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
             <div className="flex flex-col w-full p-4 gap-4 items-center">
                 {/* Title */}
                 <div className="w-10/12 flex justify-start flex-col gap-2">
-                    <div className="justify-center text-zinc-600 text-2xl font-bold font-['Open_Sans']">
+                    <div className="justify-center text-2xl font-bold font-['Open Sans']">
                         Join {carpoolDoc?.createCarpoolData.carpoolName}
                     </div>
-                    <div className="justify-center text-zinc-600 text-xl font-normal font-['Open_Sans']">
+                    <div className="justify-center text-xl font-normal font-['Open Sans']">
                         Add Ride Information
                     </div>
                 </div>
@@ -541,7 +541,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                                                 onChange={() =>
                                                     handleRiderToggle(rider.id)
                                                 }
-                                                className="form-checkbox h-5 w-5 text-blue"
+                                                className="form-checkbox h-5 w-5 accent-blue"
                                             />
                                             <span className="text-black">
                                                 {rider.name}
@@ -561,14 +561,14 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                                     placeholder="Address"
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black focus:outline-none focus:border-blue"
                                 />
                                 <input
                                     type="text"
                                     placeholder="City"
                                     value={city}
                                     onChange={(e) => setCity(e.target.value)}
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black focus:outline-none focus:border-blue"
                                 />
                                 <input
                                     type="text"
@@ -577,14 +577,14 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                                     onChange={(e) =>
                                         setStateField(e.target.value)
                                     }
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black focus:outline-none focus:border-blue"
                                 />
                                 <input
                                     type="text"
                                     placeholder="Zip Code"
                                     value={zip}
                                     onChange={(e) => setZip(e.target.value)}
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black focus:outline-none focus:border-blue"
                                 />
                             </div>
                             {/* Carpool Info */}
@@ -632,7 +632,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                                                 className={`flex items-center justify-center rounded-full cursor-pointer text-lg ${
                                                     selected
                                                         ? "bg-blue text-white"
-                                                        : "bg-white border border-gray text-black"
+                                                        : "bg-white border border-gray text-gray"
                                                 }`}
                                                 style={{
                                                     width: "40px",
@@ -658,7 +658,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                                     onChange={(e) =>
                                         setCarCapacity(e.target.value)
                                     }
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black focus:outline-none focus:border-blue"
                                     max={8}
                                 />
                             </div>
@@ -673,28 +673,19 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                                     onChange={(e) =>
                                         setAdditionalNotes(e.target.value)
                                     }
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black focus:outline-none focus:border-blue"
                                     rows={3}
                                 />
                             </div>
                             {error && (
                                 <p className="text-red text-sm">{error}</p>
                             )}
-                            <button
-                                type="submit"
+                            <Button
+                                type="primary"
                                 disabled={isSubmitDisabled}
-                                className={`px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] ${
-                                    isSubmitDisabled
-                                        ? "bg-lightblue cursor-not-allowed"
-                                        : "bg-blue border border-blue"
-                                }`}
+                                text={!loading ? "Submit" : "Loading..."}
                             >
-                                {!loading ? (
-                                    <span>Continue</span>
-                                ) : (
-                                    <span>Loading...</span>
-                                )}
-                            </button>
+                            </Button>
                         </div>
                     </form>
                 </div>

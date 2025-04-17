@@ -289,7 +289,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                     onChange={(e) =>
                                         setPoolName(e.target.value)
                                     }
-                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-[#4b859f] text-gray placeholder:text-gray"
+                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-[#4b859f] text-black placeholder:text-gray"
                                 />
                             </div>
                             {/* Shared Location Field */}
@@ -308,7 +308,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                             name: e.target.value,
                                         })
                                     }
-                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-black placeholder:text-gray"
                                 />
                                 <input
                                     type="text"
@@ -320,7 +320,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                             address: e.target.value,
                                         })
                                     }
-                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-black placeholder:text-gray"
                                 />
                                 <input
                                     type="text"
@@ -332,7 +332,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                             city: e.target.value,
                                         })
                                     }
-                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-black placeholder:text-gray"
                                 />
                                 <input
                                     type="text"
@@ -344,7 +344,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                             state: e.target.value,
                                         })
                                     }
-                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-black placeholder:text-gray"
                                 />
                                 <input
                                     type="text"
@@ -356,7 +356,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                             zipCode: e.target.value,
                                         })
                                     }
-                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-black placeholder:text-gray"
                                 />
                             </div>
                             {/* Days Available - New UI as clickable circles */}
@@ -405,7 +405,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                         onChange={(e) =>
                                             setStartTime(e.target.value)
                                         }
-                                        className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+                                        className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-black placeholder:text-gray"
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1 w-full">
@@ -419,7 +419,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                         onChange={(e) =>
                                             setEndTime(e.target.value)
                                         }
-                                        className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+                                        className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-black placeholder:text-gray"
                                     />
                                 </div>
                             </div>
@@ -430,7 +430,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                     Your Driving Availability{" "}
                                     <span className="text-red">*</span>
                                 </label>
-                                <div className="flex flex-wrap gap-3">
+                                <div className="flex flex-wrap gap-3 text-gray">
                                     {DAYS_OF_WEEK.map((day) => {
                                         const selected =
                                             drivingAvailability.includes(
@@ -447,7 +447,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                                 className={`flex items-center justify-center rounded-full cursor-pointer text-lg ${
                                                     selected
                                                         ? "bg-blue text-white"
-                                                        : "bg-white border border-gray text-black"
+                                                        : "bg-white border border-gray text-gray"
                                                 }`}
                                                 style={{
                                                     width: "40px",
@@ -470,14 +470,14 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                     placeholder="Address"
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black placeholder:text-gray"
                                 />
                                 <input
                                     type="text"
                                     placeholder="City"
                                     value={city}
                                     onChange={(e) => setCity(e.target.value)}
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black placeholder:text-gray"
                                 />
                                 <input
                                     type="text"
@@ -486,14 +486,14 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                     onChange={(e) =>
                                         setStateField(e.target.value)
                                     }
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black placeholder:text-gray"
                                 />
                                 <input
                                     type="text"
                                     placeholder="Zip Code"
                                     value={zip}
                                     onChange={(e) => setZip(e.target.value)}
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black placeholder:text-gray"
                                 />
                             </div>
                             <div className="flex flex-col gap-1">
@@ -512,9 +512,10 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                                 onChange={() =>
                                                     handleRiderToggle(rider.id)
                                                 }
-                                                className="form-checkbox h-5 w-5 text-blue"
+
+                                                className="form-checkbox h-5 w-5 accent-blue"
                                             />
-                                            <span className="text-black">
+                                            <span className="text-gray">
                                                 {rider.name}
                                             </span>
                                         </label>
@@ -533,7 +534,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                     onChange={(e) =>
                                         setCarCapacity(e.target.value)
                                     }
-                                    className="p-2 border border-gray rounded-md text-black"
+                                    className="p-2 border border-gray rounded-md text-black placeholder:text-gray"
                                     max={8}
                                 />
                             </div>
@@ -548,7 +549,7 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                                     onChange={(e) =>
                                         setAdditionalNotes(e.target.value)
                                     }
-                                    className="w-full p-2 border border-[#666666] rounded-md focus:outline-none focus:border-blue text-gray placeholder:text-gray"
+                                    className="w-full p-2 border border-gray rounded-md focus:outline-none focus:border-blue text-black placeholder:text-gray"
                                     rows={3}
                                 />
                             </div>
@@ -559,14 +560,14 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                             <button
                                 type="submit"
                                 disabled={isSubmitDisabled}
-                                className={`px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans' ] text-center ${
+                                className={`hover:opacity-75 px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center ${
                                     isSubmitDisabled
                                         ? "bg-lightblue cursor-not-allowed"
                                         : "bg-blue border border-blue"
                                 }`}
                             >
                                 {!loading ? (
-                                    <span>Continue</span>
+                                    <span>Submit</span>
                                 ) : (
                                     <span>Loading...</span>
                                 )}

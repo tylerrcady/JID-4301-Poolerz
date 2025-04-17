@@ -12,7 +12,7 @@ const JCComp: React.FC = ({}) => {
     const [loading, setLoading] = useState(false);
 
     return (
-        <>
+        <div className="flex flex-col w-full items-center p-1 gap-6">
             {/* Blue Circle with White Check Mark */}
             <div className="mb-2">
                 <div className="flex items-center justify-center w-24 h-24 rounded-full bg-[#4b859f]">
@@ -52,7 +52,12 @@ const JCComp: React.FC = ({}) => {
                     setLoading(true);
                     router.push("/carpools");
                 }}
-                className="px-6 py-3 bg-[#4b859f] rounded-md border border-[#4b859f] text-white text-lg md:text-xl font-semibold font-['Open Sans']"
+                disabled={loading}
+                className={`px-6 py-3 rounded-md border text-lg md:text-xl font-semibold font-['Open Sans'] ${
+                    loading
+                        ? "bg-gray-400 border-gray-400 text-gray-200"
+                        : "bg-[#4b859f] border-[#4b859f] text-white"
+                }`}
             >
                 {!loading ? (
                     <span>View My Carpool</span>
@@ -60,7 +65,7 @@ const JCComp: React.FC = ({}) => {
                     <span>Navigating...</span>
                 )}
             </button>
-        </>
+        </div>
     );
 };
 export default JCComp;

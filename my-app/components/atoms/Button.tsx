@@ -30,7 +30,7 @@ export default function Button({
     let styles = "";
 
     if (disabled) {
-        styles = "text-base font-opensans text-blue px-4 pt-2";
+        styles = "text-base font-opensans text-blue px-4 pt-2 hover:text-lightblue";
     } else {
         styles = `text-blue pt-2 text-base font-opensans rounded gap-2 hover:text-lightblue active:text-blue`;
         if (type === "primary") {
