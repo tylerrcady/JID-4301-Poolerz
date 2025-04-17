@@ -50,16 +50,16 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<insert NEXT_PUBLIC_GOOGLE_MAPS_API_KEY>
 
 If you run into issues starting the app, check the following common causes:
 
-1. **Not in the correct directory**  
+   1. **Not in the correct directory**  
    Make sure you're inside the `my-app` folder before running any commands regarding running the application.
 
-2. **Dependencies not installed or out-of-date**  
+   2. **Dependencies not installed or out-of-date**  
 If you see module-related errors (e.g. `module not found`, `cannot resolve`), try reinstalling dependencies using the following command in `my-app`:
    ```
    npm install
    ```
 
-3. **Missing or incorrect API keys**  
+   3. **Missing or incorrect API keys**  
 Some features depend on environment variables (e.g., API keys). Ensure your `.env.local` file is present and correctly configured.  
 Double-check for:
 - Missing variables
