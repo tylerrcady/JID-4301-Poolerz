@@ -25,8 +25,7 @@ At **Poolerz**, we streamline the entire process—matching families, simplifyin
  This consolidated changelog captures everything shipped during our pre‑release cycle (`v0.0.0` → `v0.5.0`).  
 Use it as the definitive reference for what’s in (and not yet in) our first production build.
 
-
-## ✨ Features
+## Features
 - **Secure Google authentication** with Auth.js
 - **MongoDB integration** for all user, carpool & optimizer data    
 - **End-to-end registration flow** – multi‑step registration with dynamic child management (≤ 5 children), inline address editing, real‑time field validation, and celebratory confetti on successful save
@@ -49,26 +48,22 @@ Use it as the definitive reference for what’s in (and not yet in) our first pr
 - **Calendar dashboard** – personal month/week/day view plus 7‑day scrollable agenda, so drivers know exactly when they’re on duty    
 - **Responsive, accessible UI** – Active‑state header navigation, hamburger navigation menu at small/middle breakpoints, global loading spinners for loading operations, hover/active button states, and reusable back-button component
 - **Informative, welcoming home page** – Designed to engage users at first glance with polished visuals, refreshed typography, and a thoughtful layout that highlights key information, contact options, and mailing list sign-up—all in one place
----
 
-## 🐞 Bug Fixes
-
+## Bug Fixes
 - **Forms & validation** – squashed layout shifts when adding/removing children; added live checks for state (2 letters), ZIP (5 digits), phone (10 digits), and automatic capitalization of street/city.  
 - **Remove‑button glitch** – now gives instant visual feedback before saving.  
 - **Carpool‑info data/rendering** – consistently pulls riders *and* members, aligns with global header, and respects mobile breakpoints.  
 - **UI alignment** – back‑button, background, and footer now render correctly across all screen sizes.  
 - **Optimizer stability** – gracefully handles clustering failures by listing unassigned members. 
----
 
-## ⚠️ Known Bugs / Missing Functionality
-
+## Known Bugs / Missing Functionality
 1. **Slow first load on *pool‑info*** – initial MongoDB query can take several seconds given current DB structure  
 2. **Lenient address handling** – optimizer still trusts free‑form user addresses, leading to occasional mis‑clusters; stricter geocoding & validation should be implemented  
 3. **Edge‑case regex gaps** – uncommon address/phone formats (e.g., international ZIPs) may still bypass onboarding checks.  
 
-# 🌐 Technology Tools & Platforms
+## Technology Tools & Platforms
 
-### 💻 Frontend & Backend
+### Frontend & Backend
 - **Next.js** – Chosen for its built-in API support, server-side rendering, and intuitive file-based routing.
   - **React** – Powers our component-based architecture for dynamic, interactive UI.
   - **TypeScript** – Adds static typing to JavaScript, improving code quality and catching errors early.
@@ -76,10 +71,10 @@ Use it as the definitive reference for what’s in (and not yet in) our first pr
 - **MongoDB** – A flexible, document-oriented database that integrates seamlessly with Next.js.
 - **Material UI** – Provides a polished set of pre-built components to enhance visual consistency.
 
-### 🔐 Authentication
+### Authentication
 - **Auth.js** – Manages authentication in our Next.js app with secure session handling.
   - **Google OAuth** – Our primary authentication provider for seamless, trusted sign-in.
 
-### 🛠️ Development & Deployment
+### Development & Deployment
 - **Git / GitHub** – Enables version control and collaborative development.
 - **Vercel** – Hosts our application with optimized performance for Next.js projects.
