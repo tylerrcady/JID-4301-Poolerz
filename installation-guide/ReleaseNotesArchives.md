@@ -50,9 +50,9 @@ Use it as the definitive reference for what’s in (and not yet in) our first pr
 3. **Edge‑case regex gaps** – uncommon address/phone formats (e.g., international ZIPs) may still bypass onboarding checks.
    
 # Poolerz Previous Release Notes Versions 0.0.0 - 0.5.0
-## Version 0.5.0 <https://jda-4301-poolerz.vercel.app/>
 
-### ✨Features
+## Version 0.5.0 <https://jda-4301-poolerz.vercel.app/>
+### Features
 - **Calendar dashboard**  
   A brand‑new **Dashboard** tab presents each user’s personal carpool schedule in a two‑pane layout—calendar on the left, scrollable agenda on the right—so drivers can see at a glance when they’re on duty.
 - **Responsive header & navigation**  
@@ -72,8 +72,6 @@ Use it as the definitive reference for what’s in (and not yet in) our first pr
 - **Carpool lock‑down**  
   Owners can now **close** a carpool, preventing new members from joining until it is reopened.
 
----
-
 ### Bug Fixes
 - **User‑onboarding form**
   - Fixed layout shifts that occurred when adding or removing children.  
@@ -83,8 +81,6 @@ Use it as the definitive reference for what’s in (and not yet in) our first pr
     - Phone numbers (10 digits)  
     - Automatic capitalization of street and city fields  
     - Consolidated, accessible error messages
-
----
 
 ### Known Issues
 - Initial data fetch for the **pool‑info** page can be slow; query structure is being refactored.  
