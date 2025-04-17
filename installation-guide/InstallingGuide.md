@@ -1,5 +1,5 @@
 
-# 🔧 Poolerz Installation Guide
+# Poolerz Installation Guide
 Follow the steps below to set up and run the project locally.
 ## 📋 Requirements
 - **MongoDB** – To access Poolerz data, your email must be whitelisted in the database.
