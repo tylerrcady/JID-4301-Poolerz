@@ -15,7 +15,7 @@ At **Poolerz**, we streamline the entire process—matching families, simplifyin
 # 📦 Customer Delivery Documentation
 
 - [**Installation Guide**](https://github.com/tylerrcady/JID-4301-Poolerz/blob/dev/installation-guide/InstallingGuide.md#-poolerz-installation-guide)  
-- [**Detailed Design Document PDF**](https://www.dropbox.com/scl/fi/7o2o03pip2tvjjkvcyy1u/Final_Detailed_Design_Document.pdf?rlkey=q8k231wviemwzzjhkjn41b18r&e=1&st=0rn83a8y&dl=0)  
+- [**Detailed Design Document PDF**](https://github.com/tylerrcady/JID-4301-Poolerz/blob/dev/Detailed%20Design%20Document.pdf)  
 - [**Optimizer Information**](https://poolerz.mintlify.app/optimization)
 - [**External Documentation**](https://poolerz.mintlify.app/design/terminology)
 
