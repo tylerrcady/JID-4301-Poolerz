@@ -57,9 +57,11 @@ This consolidated changelog captures everything shipped during our pre‑release
 - **Optimizer stability** – gracefully handles clustering failures by listing unassigned members. 
 
 ## Known Bugs / Missing Functionality
-1. **Slow first load on *pool‑info*** – initial MongoDB query can take several seconds given current DB structure  
-2. **Lenient address handling** – optimizer still trusts free‑form user addresses, leading to occasional mis‑clusters; stricter geocoding & validation should be implemented  
-3. **Edge‑case regex gaps** – uncommon address/phone formats (e.g., international ZIPs) may still bypass onboarding checks.  
+1. **Slow first load on *pool‑info*** – initial MongoDB query can take several seconds given current DB structure.  
+2. **Lenient address handling** – optimizer still trusts free‑form user addresses, leading to occasional mis‑clusters; stricter geocoding & validation should be implemented.
+3. **Edge‑case regex gaps** – uncommon address/phone formats (e.g., international ZIPs) may still bypass onboarding checks.
+4. **Start & End Dates** - carpool creation currently has no option for the beginning and end of a carpool schedule, leading the calendar to display upto 16 weeks by default.
+5. **Editing Select Days** - driving schedules are set to repeat for the entirety of the carpool duration; event editing for last-minute drop outs on a select day should be implemented.
 
 ## Technology Tools & Platforms
 
