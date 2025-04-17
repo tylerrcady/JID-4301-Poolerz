@@ -3,7 +3,7 @@
 Follow the steps below to set up and run the project locally.
 ## 📋 Requirements
 - **MongoDB** – To access Poolerz data, your email must be whitelisted in the database.
-- **Node.js & React** – If you’ve never used React or Node.js, download and install the latest LTS version from:  [https://nodejs.org](https://nodejs.org)
+- **Node.js & React** – If you’ve never used React or Node.js, download and install the latest LTS version from:  [https://nodejs.org](https://nodejs.org).
 
 ## ⚡ Installation
 ### Downloading Node.js
