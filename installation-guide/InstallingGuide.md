@@ -51,7 +51,7 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<insert NEXT_PUBLIC_GOOGLE_MAPS_API_KEY>
 If you run into issues starting the app, check the following common causes:
 
 1. **Not in the correct directory**  
-   Make sure you're inside the `my-app` folder before running any commands regarding running the application
+   Make sure you're inside the `my-app` folder before running any commands regarding running the application.
 
 2. **Dependencies not installed or out-of-date**  
 If you see module-related errors (e.g. `module not found`, `cannot resolve`), try reinstalling dependencies using the following command in `my-app`:
@@ -77,9 +77,3 @@ If you get an error like `EADDRINUSE`, another app may already be running on the
       rm -rf node_modules
       npm install
       ```
-
-
-  
-
-
-
