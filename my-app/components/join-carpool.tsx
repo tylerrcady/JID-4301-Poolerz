@@ -680,12 +680,27 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                             {error && (
                                 <p className="text-red text-sm">{error}</p>
                             )}
-                            <Button
+                            {/* <Button
                                 type="primary"
                                 disabled={isSubmitDisabled}
                                 text={!loading ? "Submit" : "Loading..."}
                             >
-                            </Button>
+                            </Button> */}
+                            <button
+                                type="submit"
+                                disabled={isSubmitDisabled}
+                                className={`hover:opacity-75 px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center ${
+                                    isSubmitDisabled
+                                        ? "bg-lightblue cursor-not-allowed"
+                                        : "bg-blue border border-blue"
+                                }`}
+                            >
+                                {!loading ? (
+                                    <span>Submit</span>
+                                ) : (
+                                    <span>Loading...</span>
+                                )}
+                            </button>
                         </div>
                     </form>
                 </div>
