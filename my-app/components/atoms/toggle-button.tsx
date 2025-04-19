@@ -19,7 +19,7 @@ export default function Toggle({ enabled, onToggle }: ToggleProps) {
                     <div
                         onClick={onToggle}
                         className={`w-11 h-7 bg-gray rounded-full peer peer-focus:ring-blue peer-checked:after:translate-x-full peer-checked:after:border-white 
-                            after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${
+                            after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:border-gray after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${
                                 enabled ? "peer-checked:bg-blue" : ""
                             }`}
                     ></div>
