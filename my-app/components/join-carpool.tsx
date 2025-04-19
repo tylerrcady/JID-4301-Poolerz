@@ -130,7 +130,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                 }));
                 setRiders(mapped);
 
-                const userAddress = doc?.userFormData?.location || {};
+                const userAddress = doc?.[0]?.userFormData?.location || {};
                 setAddress(userAddress.address || "");
                 setCity(userAddress.city || "");
                 setStateField(userAddress.state || "");
@@ -683,12 +683,6 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                             {error && (
                                 <p className="text-red text-sm">{error}</p>
                             )}
-                            {/* <Button
-                                type="primary"
-                                disabled={isSubmitDisabled}
-                                text={!loading ? "Submit" : "Loading..."}
-                            >
-                            </Button> */}
                             <button
                                 type="submit"
                                 disabled={isSubmitDisabled}
