@@ -263,6 +263,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
         e.preventDefault();
         if (!carpoolDoc) {
             setError("Carpool data not loaded. Please try again.");
+            setLoading(false);
             return;
         }
         const selectedDaysAsInt = drivingAvailability
@@ -318,9 +319,12 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
             const result = await response.json();
             if (!response) {
                 setError(result.error || "Failed to add member to carpool.");
+                setLoading(false);
                 return;
             }
-            router.push(
+            
+            // Wait for navigation to complete before resetting loading state
+            await router.push(
                 `/carpool-joined?joinCode=${joinCode}&poolName=${encodeURIComponent(
                     carpoolDoc.createCarpoolData.carpoolName
                 )}`
@@ -328,7 +332,6 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
         } catch (error: unknown) {
             console.error("Error submitting form:", error);
             setError("Internal Server Error. Please try again.");
-        } finally {
             setLoading(false);
         }
     };
