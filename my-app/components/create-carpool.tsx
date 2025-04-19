@@ -148,6 +148,8 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
             !endTime
         ) {
             setError("Please fill in all required fields!");
+            setLoading(false);
+            setIsSubmitDisabled(false);
             return;
         }
 

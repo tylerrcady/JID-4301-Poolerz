@@ -263,6 +263,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
         e.preventDefault();
         if (!carpoolDoc) {
             setError("Carpool data not loaded. Please try again.");
+            setLoading(false);
             return;
         }
         const selectedDaysAsInt = drivingAvailability
@@ -318,9 +319,12 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
             const result = await response.json();
             if (!response) {
                 setError(result.error || "Failed to add member to carpool.");
+                setLoading(false);
                 return;
             }
-            router.push(
+            
+            // Wait for navigation to complete before resetting loading state
+            await router.push(
                 `/carpool-joined?joinCode=${joinCode}&poolName=${encodeURIComponent(
                     carpoolDoc.createCarpoolData.carpoolName
                 )}`
@@ -328,7 +332,6 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
         } catch (error: unknown) {
             console.error("Error submitting form:", error);
             setError("Internal Server Error. Please try again.");
-        } finally {
             setLoading(false);
         }
     };
@@ -680,12 +683,27 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                             {error && (
                                 <p className="text-red text-sm">{error}</p>
                             )}
-                            <Button
+                            {/* <Button
                                 type="primary"
                                 disabled={isSubmitDisabled}
                                 text={!loading ? "Submit" : "Loading..."}
                             >
-                            </Button>
+                            </Button> */}
+                            <button
+                                type="submit"
+                                disabled={isSubmitDisabled}
+                                className={`hover:opacity-75 px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center ${
+                                    isSubmitDisabled
+                                        ? "bg-lightblue cursor-not-allowed"
+                                        : "bg-blue border border-blue"
+                                }`}
+                            >
+                                {!loading ? (
+                                    <span>Submit</span>
+                                ) : (
+                                    <span>Loading...</span>
+                                )}
+                            </button>
                         </div>
                     </form>
                 </div>
