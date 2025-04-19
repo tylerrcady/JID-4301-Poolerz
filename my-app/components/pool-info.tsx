@@ -142,7 +142,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [groupPhoneNumbers, setGroupPhoneNumbers] = useState<
         Record<string, any>
     >({});
-
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
     const [leaveError, setLeaveError] = useState<string | null>(null);
     const [isLeaving, setIsLeaving] = useState(false);
@@ -1137,7 +1136,6 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         );
                     }
                 };
-
                 fetchAddresses();
                 fetchPhoneNumbers();
             }
@@ -2146,6 +2144,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                     <Button
                                         type="primary"
                                         text={!loading ? "Run Optimizer" : "Optimizing..."}
+                                        onClick={runOptimizer}
                                     >
                                     </Button>
                                 {/* {!loading && (

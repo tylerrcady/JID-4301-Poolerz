@@ -130,7 +130,7 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                 }));
                 setRiders(mapped);
 
-                const userAddress = doc?.userFormData?.location || {};
+                const userAddress = doc?.[0]?.userFormData?.location || {};
                 setAddress(userAddress.address || "");
                 setCity(userAddress.city || "");
                 setStateField(userAddress.state || "");
@@ -680,12 +680,21 @@ export default function JoinCarpool({ userId }: JoinCarpoolProps) {
                             {error && (
                                 <p className="text-red text-sm">{error}</p>
                             )}
-                            <Button
-                                type="primary"
+                            <button
+                                type="submit"
                                 disabled={isSubmitDisabled}
-                                text={!loading ? "Submit" : "Loading..."}
+                                className={`hover:opacity-75 px-6 py-2 rounded-md text-white text-lg md:text-xl font-semibold font-['Open Sans'] text-center ${
+                                    isSubmitDisabled
+                                        ? "bg-lightblue cursor-not-allowed"
+                                        : "bg-blue border border-blue"
+                                }`}
                             >
-                            </Button>
+                                {!loading ? (
+                                    <span>Submit</span>
+                                ) : (
+                                    <span>Loading...</span>
+                                )}
+                            </button>
                         </div>
                     </form>
                 </div>

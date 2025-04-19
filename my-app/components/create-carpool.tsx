@@ -70,7 +70,8 @@ const CreateCarpool: React.FC<CreateCarpoolProps> = ({ userId }) => {
                 }));
                 setRiders(mapped);
 
-                const userAddress = doc?.userFormData?.location || {};
+                const userAddress = doc?.[0]?.userFormData?.location || {};
+                console.log("User Address:", userAddress);
                 setAddress(userAddress.address || "");
                 setCity(userAddress.city || "");
                 setStateField(userAddress.state || "");
