@@ -6,11 +6,13 @@ const MyCarpoolMembers = ({
     userIdToNameMap,
     addressMap,
     phoneMap,
+    memberNotes,
 }: {
     members: string[];
     userIdToNameMap: Record<string, string>;
     addressMap: Record<string, string>;
     phoneMap: Record<string, string>;
+    memberNotes: Record<string, string>;
 }) => {
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [maxWidth, setMaxWidth] = useState<number | null>(null);
@@ -101,6 +103,14 @@ const MyCarpoolMembers = ({
                                         </span>
                                         <span className="text-gray">
                                             {phoneNumber}
+                                        </span>
+                                    </div>
+                                    <div className="mb-4 px-2 grid grid-cols-1">
+                                        <span className="font-semibold text-gray mb-2">
+                                            Notes
+                                        </span>
+                                        <span className="text-gray">
+                                            {memberNotes[memberId] || "No notes available"}
                                         </span>
                                     </div>
                                     <div className="px-2 grid grid-cols-1">
