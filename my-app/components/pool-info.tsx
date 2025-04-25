@@ -142,6 +142,9 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
     const [groupPhoneNumbers, setGroupPhoneNumbers] = useState<
         Record<string, any>
     >({});
+    const [groupNotes, setGroupNotes] = useState<
+        Record<string, any>
+    >({});
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
     const [leaveError, setLeaveError] = useState<string | null>(null);
     const [isLeaving, setIsLeaving] = useState(false);
@@ -360,6 +363,38 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
             }
         } catch (error) {
             console.error("Error fetching phone numbers:", error);
+            return {};
+        }
+    };
+
+    const fetchMemberNotes = async (
+        userIds: string[]
+    ): Promise<Record<string, string>> => {
+        try {
+            const memberNotes: Record<string, string> = {};
+    
+            for (const userId of userIds) {
+                const response = await fetch(`/api/join-carpool-data?userId=${userId}`);
+                if (!response.ok) {
+                    console.error(`Failed to fetch data for userId ${userId}`);
+                    memberNotes[userId] = "Error fetching notes";
+                    continue;
+                }
+    
+                const data = await response.json();
+                const currentCarpool = data.createCarpoolData?.[0].userData.carpools.find(
+                    (carpool: { carpoolId: string }) => carpool.carpoolId === carpoolId
+                );
+    
+                if (currentCarpool && currentCarpool.notes) {
+                    memberNotes[userId] = currentCarpool.notes;
+                } else {
+                    memberNotes[userId] = "No notes available";
+                }
+            }
+            return memberNotes;
+        } catch (error) {
+            console.error("Error fetching member notes:", error);
             return {};
         }
     };
@@ -1136,8 +1171,23 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                         );
                     }
                 };
+                const fetchNotes = async () => {
+                    try {
+                        const notesMap = await fetchMemberNotes(
+                            memberIds
+                        );
+                        console.log("Fetched member notes:", notesMap);
+                        setGroupNotes(notesMap || {});
+                    } catch (error) {
+                        console.error(
+                            "Error fetching notes for my carpool:",
+                            error
+                        );
+                    }
+                };
                 fetchAddresses();
                 fetchPhoneNumbers();
+                fetchNotes();
             }
         }
     }, [results, userId]);
@@ -2830,6 +2880,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                                 userIdToNameMap={
                                                     userIdToNameMap
                                                 }
+                                                memberNotes={groupNotes}
                                             />
                                         </div>
                                     </div>
@@ -2874,7 +2925,7 @@ const CarpoolPage: React.FC<PoolInfoProps> = ({ userId, index }) => {
                                             Riders
                                         </div>
                                         <div className="text-gray text-sm md:text-base font-normal font-['Open Sans']">
-                                            {riders}
+                                            {myCarpool.riders.join(", ")}
                                         </div>
                                     </div>
                                 </div>

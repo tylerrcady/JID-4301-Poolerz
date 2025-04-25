@@ -78,8 +78,8 @@ const AgendaSection = ({ events, onEventClick }:
                 ) : (
                     <div className="flex flex-col items-center justify-center mt-5 md:mt-10">
                         <p className="text-lg text-center font-semibold mb-4">
-                            You currently have no carpools - 
-                            <br/> create or join one to start!
+                            You currently have no assigned schedules - 
+                            <br/> create or join a carpool to start!
                         </p>
                         <div className="w-2/3">
                             <Button

@@ -215,7 +215,7 @@ const Carpools: React.FC<CarpoolsProps> = ({ userId }) => {
                     <h2 className="text-black text-xl md:text-2xl font-bold font-['Open Sans']">
                         Current Carpools
                     </h2>
-                    {createCarpoolData && createCarpoolData.length > 0 ? (
+                    {allCarpools.length > 0 ? (
                         <div className="mt-2 space-y-3 overflow-y-scroll h-80 px-5 scrollbar-custom">
                             {allCarpools.map((carpool, index) => (
                                 <Link
