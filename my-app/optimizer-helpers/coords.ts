@@ -26,19 +26,4 @@ export async function getCoordinatesFromAddress(
     }
 }
 
-// function correctly grabs coordinates
-// example of how to use this function:
-// (async () => {
-//   try {
-//     const coords = await getCoordinatesFromAddress(
-//       '1600 Amphitheatre Parkway',
-//       'Mountain View',
-//       'CA',
-//       '94043',
-//       'AIzaSyCGFoau74-eJjeaKFqh0CXiqsGPe5Rx5Yc'
-//     );
-//     console.log('Coordinates:', coords);
-//   } catch (err) {
-//     console.error(err);
-//   }
-// })();
+
