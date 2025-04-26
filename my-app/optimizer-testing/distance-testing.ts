@@ -19,7 +19,10 @@ async function testDistances() {
   
     // geocode each user
     const coordsArray: { userId: string; name: string; lat: number; lng: number }[] = [];
-    const apiKey = 'AIzaSyCGFoau74-eJjeaKFqh0CXiqsGPe5Rx5Yc'; 
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+        throw new Error('Google Maps API key is not configured');
+    }
   
     for (const user of firstFiveUsers) {
       const { address, city, state, zipCode } = user.location;
