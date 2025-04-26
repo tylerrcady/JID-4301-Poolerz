@@ -9,7 +9,7 @@ const UserMap: React.FC<UserMapProps> = ({ addressMap }) => {
   const [locations, setLocations] = useState<{ lat: number; lng: number; address: string }[]>([]);
   const [activeMarker, setActiveMarker] = useState<number | null>(null);
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyAf7gXx4m3K1tNh_d6zyBAf1Xudy3AQAz4",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_USER_MAP_API_KEY || "",
   });
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const UserMap: React.FC<UserMapProps> = ({ addressMap }) => {
           const response = await fetch(
             `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
               address
-            )}&key=AIzaSyAf7gXx4m3K1tNh_d6zyBAf1Xudy3AQAz4`
+            )}&key=${process.env.NEXT_PUBLIC_USER_MAP_API_KEY}`
           );
           const data = await response.json();
           if (data.results && data.results[0]) {
