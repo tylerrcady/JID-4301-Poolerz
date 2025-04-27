@@ -36,6 +36,7 @@ For the next steps, you will create a local environment file that will contain t
    MONGODB_URI=<insert MONGODB_URI key>
    JWT_SECRET=<insert JWT_SECRET key>
    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<insert NEXT_PUBLIC_GOOGLE_MAPS_API_KEY>
+   NEXT_PUBLIC_USER_MAP_API_KEY=<insert NEXT_PUBLIC_USER_MAP_API_KEY>
    ```
 
 ### Running application locally
